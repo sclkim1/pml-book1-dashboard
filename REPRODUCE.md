@@ -91,7 +91,8 @@ $py = "$HOME\anaconda3\envs\pyprobml-fresh\python.exe"
 # 2.4 Register the env as a Jupyter kernel named "pyprobml-fresh"
 & $py -m ipykernel install --user --name pyprobml-fresh --display-name "Python (pyprobml-fresh)"
 
-# 2.5 Smoke test: every library imports and computes
+# 2.5 Smoke test: every library imports and computes (pymc3 needs THEANO_FLAGS, 4.20)
+$env:THEANO_FLAGS = "blas__ldflags=,gcc__cxxflags=-static"
 & $py -c "import numpy, scipy, matplotlib, pandas, sklearn, seaborn, jax, optax, chex, distrax, tensorflow as tf, tensorflow_probability, tensorflow_datasets, torch, torchvision, bokeh, probml_utils, pymc3, numpyro, statsmodels, minepy; print('OK', tf.__version__, float(tf.reduce_sum(tf.ones(3))), float(torch.ones(3).sum()), float(jax.numpy.ones(3).sum()))"
 & $py -m pip check
 ```
@@ -160,6 +161,11 @@ $env:TF_CPP_MIN_LOG_LEVEL = "2"    # optional: quieter TensorFlow logs
   folder; they are not committed.
 
 To re-run a single notebook: add `-k <name>`, e.g. `-k iris_kmeans`.
+
+### 3.1 Open the notebooks in JupyterLab
+
+See [JUPYTER.md](JUPYTER.md): the `pml-jupyter` env (this section's recipe under another name),
+the kernel's `THEANO_FLAGS`, and how a notebook run by hand differs from the test runner.
 
 ---
 

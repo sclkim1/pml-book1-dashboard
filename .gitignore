@@ -9,10 +9,16 @@
 !/scripts/
 !/tests/
 !/LICENSE
+!/JUPYTER.md
 !/README.md
 !/REPRODUCE.md
 !/requirements.txt
 !/requirements-local.txt
+
+# In JupyterLab, notebooks run in their own folder: keep only the notebooks themselves
+/notebooks/**
+!/notebooks/**/
+!/notebooks/**/*.ipynb
 
 __pycache__/
 .ipynb_checkpoints/
