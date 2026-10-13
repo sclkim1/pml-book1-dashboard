@@ -267,7 +267,7 @@ environment; 4.11–4.12 are datasets; 4.13 is CI; 4.14–4.15 appeared only in 
 | CI, run [38333885122](../../actions/runs/38333885122) | `ubuntu-latest`, `requirements.txt` | 15 | 13 |
 | CI, pinned setup, first try, run [38341210973](../../actions/runs/38341210973) | `ubuntu-latest`, `requirements-local.txt` before 4.14/4.15 | 0 | 28 |
 | CI, pinned setup with 4.14/4.15, run [38342131247](../../actions/runs/38342131247) | `ubuntu-latest`, `requirements-local.txt` + TeX Live + datasets | 27 | 1 (4.16) |
-| CI, pinned setup with 4.14–4.16 | same + writable `/teamspace` | _run pending_ | |
+| CI, pinned setup with 4.14–4.16, run [38342585490](../../actions/runs/38342585490) | same + writable `/teamspace` | **28** | **0** |
 | Local, first attempt | clone of base + `requirements.txt` | 6 | 22 |
 | Local, after fixes 4.3–4.12 | `pyprobml` + `requirements-local.txt` + pre-downloaded datasets | **28** | **0** |
 
