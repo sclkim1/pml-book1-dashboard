@@ -12,9 +12,15 @@ import json
 import os
 import urllib.request
 
-# Notebooks edited in this repository (REPRODUCE.md 4.16): not overwritten by a sync
+# Notebooks edited in this repository: not overwritten by a sync
 LOCAL_EDITS = {
     "notebooks/book1/01/linreg_poly_vs_degree.ipynb",
+    # REPRODUCE.md 4.26
+    "notebooks/book1/01/tfidf_demo.ipynb",
+    "notebooks/book1/02/prob.ipynb",
+    "notebooks/book1/08/autodiff_tf.ipynb",
+    "notebooks/book1/20/pca.ipynb",
+    "notebooks/book1/20/ae_mnist_tf.ipynb",
 }
 
 UPSTREAM = "probml/pyprobml"

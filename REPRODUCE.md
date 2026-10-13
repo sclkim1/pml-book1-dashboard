@@ -172,7 +172,8 @@ the kernel's `THEANO_FLAGS`, and how a notebook run by hand differs from the tes
 
 Each entry: **symptom → cause → fix**. Entries 4.1–4.2 are tooling; 4.3–4.10 are the Python
 environment; 4.11–4.12 are datasets; 4.13 is CI; 4.14–4.15 appeared only in a fresh env / CI;
-4.16–4.17 are hardcoded paths; 4.18–4.24 came with chapters 3–22; 4.25 is a flaky download.
+4.16–4.17 are hardcoded paths; 4.18–4.24 came with chapters 3–22; 4.25 is a flaky download;
+4.26 came from checking chapters 1–2 by hand in JupyterLab.
 
 ### 4.1 `git push` fails with exit code 128 and no message
 - **Cause:** the installed Git was 2.9.0 (2016). Its `git-remote-https` helper (and Git Bash's
@@ -398,7 +399,7 @@ on PATH, theano falls back to pure Python and those 3 notebooks time out.
   jax 0.4 arrays as arrays. Upstream passed both with Colab's pandas 1.3.5 **and** jax 0.3, which is
   not an option here (no Windows wheels; chex/optax need jax 0.4).
 - **Decision:** `pandas==1.5.3` (verified with chapters 1–2, no extra downgrades of xarray /
-  xarray-einstats). `ae_mnist_tf` remains a failure.
+  xarray-einstats). `ae_mnist_tf` remained a failure until 4.26 edited its `set_option` line.
 
 ### 4.25 CI: random notebooks fail with `ValueError: Unknown mat file type, version 104, 116`
 - **Symptom:** CI run [38358185226](../../actions/runs/38358185226) gave 162/172: `fisher_discrim_vowel`,
@@ -412,6 +413,28 @@ on PATH, theano falls back to pure Python and those 3 notebooks time out.
 - **Fix:** `REGEX_REWRITES` in `tests/test_notebooks.py` rewrites such URLs in memory (like 4.17) to
   `https://raw.githubusercontent.com/<owner>/<repo>/<ref>/<path>`, the file the redirect would
   reach. The notebook files stay identical to upstream. All 11 executed notebooks pass with it locally.
+
+### 4.26 JupyterLab check of chapters 1–2: notebooks the dashboard never runs are broken
+- **Symptom:** running every notebook of chapters 1–2 by hand (JUPYTER.md) failed in `tfidf_demo`
+  (`'CountVectorizer' object has no attribute 'get_feature_names'`, then `np.matrix is not supported`)
+  and `prob` (`OptionError: Pattern matched multiple keys`, then `HTTP Error 404`).
+- **Cause:** the test runner only executes notebooks in the figure mapping, minus the ignore list:
+  28 of the 35 notebooks in chapters 1–2. `tfidf_demo` is not mapped (upstream committed it with
+  the same error in its outputs); `prob` is ignored. They were written for older libraries:
+  scikit-learn < 1.2 (`get_feature_names()`, `np.matrix` input), pandas < 1.4 (`"precision"`
+  option, see 4.24), and a data file since moved from `pyprobml/master/data` to `probml-data`.
+- **Fix:** one-line edits in the notebooks (listed in `LOCAL_EDITS` of `sync_from_pyprobml.py`):
+
+  | Notebook | Edit |
+  |---|---|
+  | `tfidf_demo` | `get_feature_names()` → `get_feature_names_out()`; `.todense()` → `.toarray()`, and `keepdims=True` in the row-norm check (np.matrix sums kept 2-D) |
+  | `prob` | `pd.set_option("precision", 2)` → `"display.precision"`; `timemachine.txt` URL → `probml/probml-data/main/data/` |
+  | `autodiff_tf`, `pca`, `ae_mnist_tf` | same `"display.precision"` edit (found by searching all notebooks); fixes the known failure `ae_mnist_tf` |
+
+  `linalg` and `linreg_sklearn` have the same pandas line but fail further on
+  (`jax.experimental.optimizers` removed, Boston housing dataset removed); left for their chapters.
+- **Check:** all 35 notebooks of chapters 1–2 pass when executed like JupyterLab (each in its own
+  folder, kernel `pml-jupyter`, without the test runner's rewrites), 2.8 min.
 
 
 ## 5. Results
