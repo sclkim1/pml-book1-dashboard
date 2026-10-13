@@ -74,6 +74,21 @@ get_run = (
 )
 right_emoji = "&#9989;"
 wrong_emoji = "&#10060;"
+skipped = "skipped (upstream ignore list)"
+missing = "notebook missing upstream"
+
+
+def ignored_names(txt_name="internal/ignored_notebooks.txt"):
+    """
+    file names of notebooks upstream does not execute (matched by name only, like upstream)
+    """
+    if not os.path.exists(txt_name):
+        return set()
+    with open(txt_name) as fp:
+        return {line.strip().split("/")[-1] for line in fp if line.strip()}
+
+
+ignored = ignored_names()
 
 book_no = 1
 total_cnt = 0
@@ -99,7 +114,7 @@ for chap_no, urls_list in chap_urls_mapping.items():
                 {
                     "nb_name": f"[{nb_name}]({colab_root}/{path})",
                     "fig_no": fig_no,
-                    "workflow": get_run(path),
+                    "workflow": missing if not os.path.exists(path) else skipped if nb_name in ignored else get_run(path),
                     "latexify": right_emoji if is_latexify else wrong_emoji,
                     "jaxify": right_emoji if is_jaxify else wrong_emoji,
                 }

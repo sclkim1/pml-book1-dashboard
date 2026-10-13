@@ -6,14 +6,16 @@
 # scipy/matplotlib/pandas built against numpy 1.x.
 numpy==1.22.4           # probml-utils pins distrax==0.1.3, which requires numpy<1.23
 scipy==1.10.1
-pandas==1.5.3
+pandas==1.5.3            # seq_logo_demo needs >=1.4 (DataFrame from a jax array); ae_mnist_tf needs <1.4 (REPRODUCE.md)
+numba==0.56.4            # arviz 0.12 kde fails to compile with current numba (TypingError)
 matplotlib==3.5.3        # iris_pca uses fig.gca(projection="3d"), removed in 3.6
 matplotlib-inline==0.1.6 # >=0.1.7 calls rcParams._get, which needs matplotlib>=3.7
 seaborn==0.12.2
 scikit-learn==1.3.2
 threadpoolctl==3.5.0     # 2.x crashes inspecting OpenBLAS (iris_kmeans: 'NoneType' has no attribute 'split')
 h5py==3.10.0
-arviz==0.15.1
+arviz==0.12.1            # pymc3 3.11 calls arviz.from_pymc3, removed in later arviz
+setuptools<81            # arviz imports pkg_resources, removed in setuptools 81
 bokeh==2.4.3             # emnist_viz_jax uses figure(plot_width=...), removed in 3.0
 graphviz
 pyyaml
@@ -34,6 +36,24 @@ torchvision==0.16.2
 
 git+https://github.com/probml/probml-utils.git
 nltk
+
+# Chapters 3-22: libraries individual notebooks would otherwise pip-install mid-run
+pymc3==3.11.4            # 3.11.5 needs numpy<1.22.2 and scipy<1.8; set THEANO_FLAGS (REPRODUCE.md)
+theano-pymc==1.1.2
+numpyro==0.13.2          # last release supporting jax 0.4.23
+statsmodels==0.14.1
+patsy==0.5.6
+catboost==1.2.5
+GPy==1.13.2
+pytorch-lightning==1.9.5
+test-tube==0.7.5
+imageio==2.31.6
+einops==0.7.0
+rich==13.7.1
+logomaker==0.8
+bayes-logistic==0.2
+group-lasso==1.5.0
+# minepy (MIC_correlation_2d) is installed separately: see REPRODUCE.md
 
 # Running notebooks and building the dashboard.
 # tensorflow 2.12.1 requires typing-extensions<4.6; current Jupyter packages need >=4.6

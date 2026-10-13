@@ -1,12 +1,21 @@
 # Reproducing the dashboard
 
 This repository reproduces the [pyprobml Book 1 figure dashboard](https://github.com/probml/pyprobml/blob/workflow_testing_indicator/dashboard_figures_book1.md)
-for chapters 1–2 (29 dashboard rows, 28 notebooks). The dashboard can be built two ways:
+for **all 22 chapters of Book 1**: 245 dashboard rows, the same header as the original
+(245 notebooks; 43 latexified and 51 jaxified, see 4.18). Of these rows:
+
+- **172 notebooks are executed**;
+- 8 rows (6 notebooks) are on upstream's `internal/ignored_notebooks.txt`; like upstream, they are
+  not executed and the dashboard shows "skipped (upstream ignore list)";
+- 10 rows (9 notebooks) point to notebooks that do not exist upstream; the dashboard shows
+  "notebook missing upstream" (4.18).
+
+The dashboard can be built two ways:
 
 | | Where | Environment | Result |
 |---|---|---|---|
 | **A. GitHub Actions** | `ubuntu-latest` runner, on every push to `main` | `requirements-local.txt` (pinned) + TeX Live + pre-downloaded datasets | published to the [`workflow_testing_indicator`](../../tree/workflow_testing_indicator) branch |
-| **B. Local conda env** | Windows 11, conda env `pyprobml` | `requirements-local.txt` (pinned) + MiKTeX + pre-downloaded datasets | `test_results/` + `workflow_testing_indicator/dashboard_figures_book1.md` |
+| **B. Local conda env** | Windows 11, conda env `pyprobml-fresh` | `requirements-local.txt` (pinned) + MiKTeX + tools from `scripts/windows_admin_setup.ps1` + pre-downloaded datasets | `test_results/` + `workflow_testing_indicator/dashboard_figures_book1.md` |
 
 Both use the same pinned package list (`requirements-local.txt`, despite the name) and the same
 dataset fixes. `requirements.txt` is the original, unpinned pyprobml list, kept for reference.
@@ -24,12 +33,41 @@ section 4 lists every problem found along the way, its cause and its fix.
 | GitHub CLI | 2.102.0 | `winget install --id GitHub.cli -e --source winget` | creating the repo / checking runs; `--source winget` avoids the msstore certificate error (see 4.2) |
 | Anaconda | existing install, `base` = Python 3.10.9 | — | local environment |
 | MiKTeX | existing install (`latex`, `dvipng` on PATH) | <https://miktex.org> | `bimodal_dist_plot` and `gamma_dist_plot` force LaTeX rendering (see 4.9) |
+| wget | 1.21.4 | `scripts/windows_admin_setup.ps1` (winget `JernejSimoncic.Wget`) | notebooks run `!wget` (4.23) |
+| unzip | Git's `unzip.exe` | `scripts/windows_admin_setup.ps1` (`~\bin\unzip.cmd` wrapper) | `matrix_factorization_recommender` runs `!unzip` (4.23) |
+| Graphviz | 16.1.0 | `scripts/windows_admin_setup.ps1` (winget `Graphviz.Graphviz`) | `hbayes_maml` renders a graph with `dot` (4.23) |
+| a MinGW `g++` on PATH | Strawberry Perl's (`C:\Strawberry\c\bin`) | existing install | optional, but without it the three slow pymc3 notebooks time out (4.20) |
 
 After installing Git or the GitHub CLI, open a **new** terminal so the updated `PATH` is picked up, then log in:
 
 ```powershell
 gh auth login --hostname github.com --git-protocol https --web
 gh auth setup-git
+```
+
+### 1.1 Machine setup for chapters 3–22
+
+Several notebooks write to hardcoded absolute paths or call Linux command-line tools.
+`scripts/windows_admin_setup.ps1` prepares both; run it **once, as administrator**, from your own
+account (it gives that account write access):
+
+```powershell
+Start-Process powershell -Verb RunAs -Wait -ArgumentList '-NoProfile -ExecutionPolicy Bypass -File scripts\windows_admin_setup.ps1'
+```
+
+| It creates / installs | For |
+|---|---|
+| `C:\Users\kpmurphy\github\bookv2\figures` (= `/Users/kpmurphy/...`) | 5 notebooks (4.17) |
+| `C:\teamspace\studios\this_studio\pyprobml\notebooks\figures` (= `/teamspace/...`) | `linreg_poly_vs_degree` (4.16) |
+| `C:\PcaTrainFaceImages.pdf`, `.png`, with the integrity label lowered | `pcaImageDemo` (4.17) |
+| wget, Graphviz (winget); `~\bin\unzip.cmd`; Graphviz and `~\bin` added to your user PATH | 4.23 |
+
+Then, without admin rights, give wget a CA bundle (4.23) and open a new terminal:
+
+```powershell
+Copy-Item (& $py -c "import certifi; print(certifi.where())") "$HOME\bin\cacert.pem"   # after step 2.1
+Set-Content "$HOME\.wgetrc" "ca_certificate = $HOME\bin\cacert.pem" -Encoding ascii
+[Environment]::SetEnvironmentVariable("WGETRC", "$HOME\.wgetrc", "User")
 ```
 
 ## 2. Build the local environment
@@ -40,38 +78,31 @@ All commands run from the repository root in PowerShell.
 git clone https://github.com/sclkim1/pml-book1-dashboard.git
 cd pml-book1-dashboard
 
-# 2.1 Create the env as a clone of Anaconda base (Python 3.10.9, close to Colab's 3.10)
-conda create -n pyprobml --clone base -y
-$py = "$HOME\anaconda3\envs\pyprobml\python.exe"
+# 2.1 Create a fresh env (tested with Python 3.10.22; Colab used 3.10)
+conda create -n pyprobml-fresh python=3.10 -y
+$py = "$HOME\anaconda3\envs\pyprobml-fresh\python.exe"
+& $py -m pip install -U pip
 
-# 2.2 Repair setuptools inherited from base (see 4.4)
-& $py -m pip install -U pip "setuptools<81" wheel backports.tarfile
-
-# 2.3 Install the pinned, mutually compatible package set (see 4.3, 4.5-4.8, 4.10)
+# 2.2 Install the pinned, mutually compatible package set (4.3, 4.5-4.8, 4.10, 4.14, 4.15, 4.19-4.21)
 & $py -m pip install -r requirements-local.txt
 
-# 2.4 Register the env as a Jupyter kernel named "pyprobml"
-& $py -m ipykernel install --user --name pyprobml --display-name "Python (pyprobml)"
+# 2.3 minepy (MIC_correlation_2d): source-only, built with the pinned setuptools (4.22)
+& $py -m pip install --no-build-isolation minepy==1.2.6
+
+# 2.4 Register the env as a Jupyter kernel named "pyprobml-fresh"
+& $py -m ipykernel install --user --name pyprobml-fresh --display-name "Python (pyprobml-fresh)"
 
 # 2.5 Smoke test: every library imports and computes
-& $py -c "import numpy, scipy, matplotlib, pandas, sklearn, seaborn, jax, optax, chex, distrax, tensorflow as tf, tensorflow_probability, tensorflow_datasets, torch, torchvision, bokeh, probml_utils; print('OK', tf.__version__, float(tf.reduce_sum(tf.ones(3))), float(torch.ones(3).sum()), float(jax.numpy.ones(3).sum()))"
+& $py -c "import numpy, scipy, matplotlib, pandas, sklearn, seaborn, jax, optax, chex, distrax, tensorflow as tf, tensorflow_probability, tensorflow_datasets, torch, torchvision, bokeh, probml_utils, pymc3, numpyro, statsmodels, minepy; print('OK', tf.__version__, float(tf.reduce_sum(tf.ones(3))), float(torch.ones(3).sum()), float(jax.numpy.ones(3).sum()))"
+& $py -m pip check
 ```
 
-Expected output of 2.5: `OK 2.12.1 3.0 3.0 3.0`.
+Expected output of 2.5: `OK 2.12.1 3.0 3.0 3.0`, then `No broken requirements found.`
 
-pip prints dependency-conflict warnings about `conda-repo-cli`, `gensim` and `optree`. Those
-packages come from Anaconda base and are not used by the notebooks; the warnings can be ignored.
-
-> **Clone of base vs. fresh env.** Both were tested and both pass 28/28. A fresh env is the
-> more reproducible choice because it does not depend on what is in your Anaconda base:
-> ```powershell
-> conda create -n pyprobml-fresh python=3.10 -y      # tested with Python 3.10.22
-> $py = "$HOME\anaconda3\envs\pyprobml-fresh\python.exe"
-> & $py -m pip install -U pip
-> & $py -m pip install -r requirements-local.txt     # step 2.2 (setuptools repair) is not needed
-> & $py -m ipykernel install --user --name pyprobml-fresh
-> ```
-> Then use `$env:NB_KERNEL = "pyprobml-fresh"` in section 3.
+> **Clone of Anaconda base instead.** The first local runs used `conda create -n pyprobml --clone base`.
+> That needs a setuptools repair first (4.4:
+> `pip install -U pip "setuptools<81" wheel backports.tarfile`) and inherits whatever else is
+> in base, which hid 4.14 and 4.15. It was verified for chapters 1–2 only. Use the fresh env.
 
 ### 2.6 Pre-download slow or broken datasets
 
@@ -106,7 +137,7 @@ alias for `Invoke-WebRequest`.
 ## 3. Run
 
 ```powershell
-$env:NB_KERNEL = "pyprobml"        # run notebooks with the conda env's kernel (default: python3)
+$env:NB_KERNEL = "pyprobml-fresh"  # run notebooks with the conda env's kernel (default: python3)
 $env:PYTHONIOENCODING = "utf-8"
 $env:TF_CPP_MIN_LOG_LEVEL = "2"    # optional: quieter TensorFlow logs
 
@@ -123,6 +154,11 @@ $env:TF_CPP_MIN_LOG_LEVEL = "2"    # optional: quieter TensorFlow logs
   Its icons link to the `workflow_testing_indicator` branch on GitHub, i.e. to the **CI** results.
   To view local results, look at `test_results/`.
 - A failing notebook fails its pytest case, but the run continues with the others.
+- `tests/test_notebooks.py` sets `THEANO_FLAGS` for the pymc3 notebooks (4.20) unless you set it yourself.
+- A full run of the 172 notebooks took 16 min here (44 min the first time, while theano compiled
+  and caches were filled).
+- Notebooks download checkpoints and datasets (`*.ckpt`, `ml-1m.zip`, …) into the repository
+  folder; they are not committed.
 
 To re-run a single notebook: add `-k <name>`, e.g. `-k iris_kmeans`.
 
@@ -131,7 +167,8 @@ To re-run a single notebook: add `-k <name>`, e.g. `-k iris_kmeans`.
 ## 4. Problems found and how they were fixed
 
 Each entry: **symptom → cause → fix**. Entries 4.1–4.2 are tooling; 4.3–4.10 are the Python
-environment; 4.11–4.12 are datasets; 4.13 is CI; 4.14–4.15 appeared only in a fresh env / CI.
+environment; 4.11–4.12 are datasets; 4.13 is CI; 4.14–4.15 appeared only in a fresh env / CI;
+4.16–4.17 are hardcoded paths; 4.18–4.24 came with chapters 3–22.
 
 ### 4.1 `git push` fails with exit code 128 and no message
 - **Cause:** the installed Git was 2.9.0 (2016). Its `git-remote-https` helper (and Git Bash's
@@ -186,7 +223,7 @@ environment; 4.11–4.12 are datasets; 4.13 is CI; 4.14–4.15 appeared only in 
 ### 4.9 `bimodal_dist_plot`, `gamma_dist_plot`: `latex could not be found` (CI only)
 - **Cause:** these two notebooks set `os.environ["LATEXIFY"] = ""` themselves, which makes
   `probml_utils.latexify()` turn on `text.usetex`. They need a LaTeX installation regardless of the test settings.
-- **Fix (local):** MiKTeX was already installed; both pass. In CI they still fail; see 4.13.
+- **Fix:** locally, MiKTeX was already installed. CI installs TeX Live (4.13).
 
 ### 4.10 `iris_kmeans`: `AttributeError: 'NoneType' object has no attribute 'split'`
 - **Cause:** `threadpoolctl` 2.2.0 from Anaconda base crashes while inspecting the OpenBLAS
@@ -227,8 +264,11 @@ environment; 4.11–4.12 are datasets; 4.13 is CI; 4.14–4.15 appeared only in 
   |---|---|
   | `pip install -r requirements-local.txt` | same, but `torch==2.1.2`/`torchvision==0.16.2` first from the CPU-only index `https://download.pytorch.org/whl/cpu` (the default Linux wheels bundle ~2.5 GB of CUDA libraries) |
   | MiKTeX | apt: `texlive-latex-base texlive-latex-extra texlive-fonts-recommended cm-super dvipng` |
-  | step 2.6 downloads + MD5 check | same URLs and MD5 checks; files cached between runs (`actions/cache`, key `datasets-v2`) |
-  | setuptools repair (2.2) | not needed: fresh Python, no Anaconda base |
+  | step 2.6 downloads + MD5 check | same URLs and MD5 checks; files cached between runs (`actions/cache`, key `datasets-v3`) |
+  | `minepy` with `--no-build-isolation` (2.3) | same |
+  | `scripts/windows_admin_setup.ps1`: hardcoded paths (4.16, 4.17) | `sudo mkdir`/`touch` + `chown` of `/teamspace`, `/Users/kpmurphy/github/bookv2/figures`, `/PcaTrainFaceImages.{pdf,png}` |
+  | `scripts/windows_admin_setup.ps1`: wget, unzip, Graphviz (4.23) | preinstalled on the runner (wget, unzip), apt `graphviz` |
+  | `THEANO_FLAGS` with `gcc__cxxflags=-static` (4.20) | `blas__ldflags=` only; the runner's g++ works normally |
 
   The workflow also has a `concurrency` group: a new push cancels a still-running older
   run, so a stale run cannot overwrite the published dashboard.
@@ -259,8 +299,110 @@ environment; 4.11–4.12 are datasets; 4.13 is CI; 4.14–4.15 appeared only in 
 - **Fix:** the notebook is left identical to upstream (`sync_from_pyprobml.py` would overwrite an
   edit). CI creates the folder instead: `sudo mkdir -p /teamspace && sudo chown "$USER" /teamspace`.
 
+### 4.17 `/Users/kpmurphy/...` and `/PcaTrainFaceImages.png`: `PermissionError` / `FileNotFoundError`
+- **Notebooks:** `gaussEvec`, `discrim_analysis_dboundaries_plot2`, `iris_logreg_loss_surface`,
+  `seq_logo_demo`, `regtreeSurfaceDemo` set `FIG_DIR = "/Users/kpmurphy/github/bookv2/figures"`
+  (the author's laptop); `pcaImageDemo` calls `savefig("/PcaTrainFaceImages.png")`, i.e. the filesystem root.
+- **Cause:** as in 4.16, only root (upstream's container) can create these. On Windows they become
+  `C:\Users\kpmurphy\...` and `C:\PcaTrainFaceImages.*`; creating either needs admin rights.
+  Moreover, files in `C:\` inherit a *High Mandatory Level (no write-up)* integrity label, so even
+  with write permission granted, a file created by an elevated process stays unwritable for normal processes.
+- **Fix:** `scripts/windows_admin_setup.ps1` creates the folder and files, grants your account
+  modify access, and lowers the files' integrity label (`icacls … /setintegritylevel M`).
+  CI does the same with `sudo mkdir`/`touch` + `chown`. `C:\Users\kpmurphy` is an ordinary folder, not a user profile.
+
+### 4.18 Upstream figure mapping points to moved or missing notebooks
+- **Symptom:** `File not found: notebooks/book1/21/gmm_2d.ipynb` while building the dashboard.
+- **Cause:** `internal/figures_url_mapping_book1_excluded_dummy_nb.csv` upstream lists some
+  notebooks in the wrong chapter folder (e.g. `21/gmm_2d` is really `03/gmm_2d`), and some that
+  do not exist anywhere (e.g. `bootstrapDemoBer`, five chapter 17 GP notebooks). On the original
+  dashboard these rows link to status icons that can never exist.
+- **Fix:** `scripts/sync_from_pyprobml.py` re-points a url when exactly one Book 1 notebook has that
+  file name, and prints each change (10 urls). The other 9 notebooks are not executed and the
+  dashboard shows "notebook missing upstream". Because the dashboard can now read the moved
+  notebooks, its header says 43 latexified / 51 jaxified instead of upstream's 36 / 47.
+
+### 4.19 Chapters 3–22 need 15 more libraries, which notebooks would pip-install mid-run
+- **Cause:** same mechanism as 4.3: pymc3, numpyro, statsmodels, catboost, GPy, pytorch-lightning,
+  imageio, … are imported by 1–7 notebooks each and were not in the env.
+- **Fix:** pinned in `requirements-local.txt` (section "Chapters 3-22"). Found by scanning all
+  notebooks for `pip install` lines and for imports that are not installed. A `pip freeze`
+  comparison before/after the full run showed no changes.
+
+### 4.20 pymc3 (7 notebooks): import errors, then timeouts on Windows
+| Symptom | Cause | Fix |
+|---|---|---|
+| pymc3 3.11.5 cannot be installed | it requires `numpy<1.22.2` and `scipy<1.8`; jax needs scipy ≥ 1.9 | `pymc3==3.11.4` (no such caps) + `theano-pymc==1.1.2` |
+| `module 'numpy.distutils.__config__' has no attribute 'blas_opt_info'` | theano-pymc reads a numpy setting removed in numpy 1.22.2 (the reason 3.11.5 capped numpy) | `THEANO_FLAGS=blas__ldflags=` (theano then skips that lookup) |
+| Windows: `DLL load failed while importing m31975b…` | theano compiled C modules with the `g++` on PATH (Strawberry Perl's); they need MinGW runtime DLLs, and Python ≥ 3.8 does not search PATH for extension DLLs | add `gcc__cxxflags=-static` (runtime linked into each module) |
+| without C compilation (`cxx=`): 3 notebooks hit the 20 min timeout | pure-Python theano is too slow for `gp_classify_*` and `gmm_identifiability_pymc3` | keep compiling, with `-static` (first run compiles; cached afterwards) |
+
+`tests/test_notebooks.py` sets `THEANO_FLAGS` to `blas__ldflags=` (Linux) or
+`blas__ldflags=,gcc__cxxflags=-static` (Windows) unless it is already set. Without any MinGW `g++`
+on PATH, theano falls back to pure Python and those 3 notebooks time out.
+
+### 4.21 arviz / numba / setuptools for pymc3-era code
+| Symptom | Cause | Fix |
+|---|---|---|
+| `module 'arviz' has no attribute 'from_pymc3'` | pymc3 3.11 calls it; arviz removed it after 0.12 | `arviz==0.12.1` |
+| `No module named 'pkg_resources'` (importing arviz) | setuptools ≥ 81 no longer includes `pkg_resources` | `setuptools<81` |
+| `TypingError: Failed in nopython mode pipeline` in `az.plot_kde` (`multi_collinear_legs_numpyro`, `gmm_identifiability_pymc3`) | current numba cannot compile arviz 0.12's KDE code | `numba==0.56.4` (Colab era) |
+
+### 4.22 `minepy`: `Failed to build 'minepy'`, `No module named 'pkg_resources'`
+- **Cause:** minepy is source-only and its `setup.py` imports `pkg_resources`; pip builds it in an
+  isolated env with the newest setuptools, which no longer has it. Putting minepy in
+  `requirements-local.txt` made the whole install fail.
+- **Fix:** install it separately with `pip install --no-build-isolation minepy==1.2.6` (step 2.3), so it
+  builds with the pinned setuptools. Needs a C compiler (one was available here; the runner has gcc).
+
+### 4.23 Windows: `!wget`, `!unzip`, Graphviz `dot` not found
+- **Notebooks:** `ae_mnist_conv`, `vae_mnist_conv_lightning` (download checkpoints with `!wget`),
+  `matrix_factorization_recommender` (`!wget` + `!unzip` MovieLens), `hbayes_maml` (graphviz needs the `dot` program).
+- **Cause:** Linux tools, not present on Windows. A failing `!` command does not stop the notebook,
+  so the error appears later (`No such file or directory: 'ae-mnist-conv-latent-dim-20.ckpt'`).
+  After installing wget, MovieLens still failed: wget's built-in CA store cannot verify
+  `files.grouplens.org`'s certificate chain (`InCommon Intermediate CA`), exit code 5.
+- **Fix:** `scripts/windows_admin_setup.ps1` installs wget and Graphviz and an `unzip.cmd` wrapper
+  around Git's `unzip.exe`; wget is pointed at `certifi`'s CA bundle via `~\.wgetrc` and the
+  `WGETRC` user variable (section 1.1). The Ubuntu runner has wget/unzip and system CA certificates.
+
+### 4.24 `ae_mnist_tf` vs. `seq_logo_demo`: no pandas version satisfies both (known failure)
+| pandas | `ae_mnist_tf`: `pd.set_option("precision", 2)` | `seq_logo_demo`: `pd.DataFrame(<jax array>)` |
+|---|---|---|
+| 1.3.5 | ✅ | ❌ object dtype → logomaker `ufunc 'isfinite' not supported` |
+| 1.4.4, 1.5.3 | ❌ `OptionError: Pattern matched multiple keys` | ✅ float32 |
+
+- **Cause:** pandas ≥ 1.4 added a second option matching "precision"; pandas < 1.4 does not treat
+  jax 0.4 arrays as arrays. Upstream passed both with Colab's pandas 1.3.5 **and** jax 0.3, which is
+  not an option here (no Windows wheels; chex/optax need jax 0.4).
+- **Decision:** `pandas==1.5.3` (verified with chapters 1–2, no extra downgrades of xarray /
+  xarray-einstats). `ae_mnist_tf` remains a failure.
+
 
 ## 5. Results
+
+### 5.1 All of Book 1 (172 executed notebooks)
+
+| Run | Environment | Passed | Failed |
+|---|---|---|---|
+| Upstream pyprobml dashboard (for comparison) | their CI | 165 | 7 |
+| Local, first full run | `pyprobml-exp` (fresh env + 15 libraries, before 4.20–4.24) | 151 | 21 |
+| Local, clean run, rebuilt env | `pyprobml-fresh` from `requirements-local.txt` + 2.3, Windows 11, 16 min | **164** | 8 |
+| CI | `ubuntu-latest`, pinned setup | _run pending_ | |
+
+The 8 local failures:
+
+| Notebook | Reason |
+|---|---|
+| `lrschedule_tf`, `groupLassoDemo` (needs `spams`), `mlp_1d_regression_hetero_tfp`, `sparse_mlp` (`jax.experimental.stax` removed), `pcaStandardization`, `gmm_chooseK_pymc3` | **also fail upstream** |
+| `ae_mnist_tf` | pandas trade-off (4.24) |
+| `pcaImageDemo` | `C:\PcaTrainFaceImages.pdf` still had the high integrity label in that run; fixed afterwards (4.17) |
+
+So 165 can pass locally, the same number as upstream; the sets differ by one notebook each way
+(`mix_bernoulli_em_mnist` fails upstream but passes here; `ae_mnist_tf` the opposite).
+`pip freeze` was identical before and after the run.
+
+### 5.2 Chapters 1–2 (28 notebooks)
 
 | Run | Environment | Passed | Failed |
 |---|---|---|---|
@@ -270,7 +412,6 @@ environment; 4.11–4.12 are datasets; 4.13 is CI; 4.14–4.15 appeared only in 
 | CI, pinned setup with 4.14–4.16, run [38342585490](../../actions/runs/38342585490) | same + writable `/teamspace` | **28** | **0** |
 | Local, first attempt | clone of base + `requirements.txt` | 6 | 22 |
 | Local, after fixes 4.3–4.12 | `pyprobml` + `requirements-local.txt` + pre-downloaded datasets | **28** | **0** |
-
 | Local, fresh env (no Anaconda base) | `pyprobml-fresh` (Python 3.10.22) + `requirements-local.txt` with 4.14/4.15 | **28** | **0** |
 
 The two local "after fixes" rows are single clean runs of all 28 notebooks (`pytest -n 4`,

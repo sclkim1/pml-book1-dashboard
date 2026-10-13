@@ -1,10 +1,18 @@
-test_results/
-workflow_testing_indicator/
-figures/
-data/
+# Notebooks run with the repository root as working directory and leave figures, checkpoints
+# and datasets there (*.ckpt, ml-1m/, MNIST/, catboost_info/, ...). Ignore everything at the top
+# level except the repository's own files.
+/*
+!/.github/
+!/.gitignore
+!/internal/
+!/notebooks/
+!/scripts/
+!/tests/
+!/LICENSE
+!/README.md
+!/REPRODUCE.md
+!/requirements.txt
+!/requirements-local.txt
+
 __pycache__/
 .ipynb_checkpoints/
-# outputs some notebooks write to the working directory
-/*.pdf
-/*.png
-/*.dot

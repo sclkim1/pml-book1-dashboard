@@ -38,6 +38,9 @@ jobs:
         # CPU-only PyTorch; the default Linux wheels bundle large CUDA libraries
         pip install --no-cache-dir torch==2.1.2 torchvision==0.16.2 --index-url https://download.pytorch.org/whl/cpu | cat
         pip install --no-cache-dir -r requirements-local.txt | cat
+        # minepy (MIC_correlation_2d) is source-only and its setup.py needs pkg_resources:
+        # build it with the pinned setuptools<81 instead of pip's isolated (newest) setuptools
+        pip install --no-cache-dir --no-build-isolation minepy==1.2.6 | cat
 
     - name: Cache datasets
       uses: actions/cache@v4
@@ -46,7 +49,7 @@ jobs:
           ~/.keras/datasets
           ~/data
           ~/tensorflow_datasets
-        key: datasets-v2
+        key: datasets-v3  # bump when notebooks download new datasets, so they get cached
 
     - name: Pre-download slow or broken datasets (see REPRODUCE.md 2.6)
       run: |
@@ -64,10 +67,16 @@ jobs:
           https://biometrics.nist.gov/cs_links/EMNIST/gzip.zip
         echo "58c8d27c78d21e728a6bc7b3cc06412e  $f" | md5sum -c
 
-    - name: Make the hardcoded figure folder writable (see REPRODUCE.md 4.16)
+    - name: Make hardcoded absolute paths writable (see REPRODUCE.md 4.16, 4.17)
       run: |
-        # linreg_poly_vs_degree sets FIG_DIR=/teamspace/studios/this_studio/...; upstream CI runs as root
+        # Upstream CI runs as root, so these notebooks can write anywhere; the runner user cannot.
+        # linreg_poly_vs_degree: FIG_DIR=/teamspace/studios/this_studio/...
         sudo mkdir -p /teamspace && sudo chown "$USER" /teamspace
+        # gaussEvec, seq_logo_demo, ...: FIG_DIR=/Users/kpmurphy/github/bookv2/figures
+        sudo mkdir -p /Users/kpmurphy/github/bookv2/figures && sudo chown -R "$USER" /Users
+        # pcaImageDemo: savefig("/PcaTrainFaceImages.png") writes to the filesystem root
+        sudo touch /PcaTrainFaceImages.pdf /PcaTrainFaceImages.png
+        sudo chown "$USER" /PcaTrainFaceImages.pdf /PcaTrainFaceImages.png
 
     - name: Execute notebooks
       continue-on-error: true  # failures are shown as red marks on the dashboard

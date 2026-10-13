@@ -5,6 +5,7 @@ Usage:
     python scripts/sync_from_pyprobml.py --chapters 1 2
 """
 import argparse
+import ast
 import csv
 import io
 import json
@@ -35,9 +36,35 @@ chapters = {str(c) for c in args.chapters}
 # Chapter names (kept in full; the dashboard only shows chapters with notebooks)
 save("internal/chapter_no_to_name_mapping_book1.csv", fetch(f"{RAW}/internal/chapter_no_to_name_mapping_book1.csv"))
 
+# Notebooks upstream does not execute in CI (matched by file name, as upstream does)
+save("internal/ignored_notebooks.txt", fetch(f"{RAW}/internal/ignored_notebooks.txt"))
+
+tree = json.loads(fetch(f"https://api.github.com/repos/{UPSTREAM}/git/trees/{BRANCH}?recursive=1"))["tree"]
+book1_notebooks = [t["path"] for t in tree if t["path"].startswith("notebooks/book1/") and t["path"].endswith(".ipynb")]
+
+
+def fix_url(url):
+    """
+    The upstream mapping has a few urls whose notebook lives in another chapter folder
+    (e.g. book1/21/gmm_2d.ipynb is really book1/03/gmm_2d.ipynb). If exactly one Book 1
+    notebook has that file name, point the url there.
+    """
+    path = "notebooks/" + "/".join(url.split("/")[-3:])
+    if path in book1_notebooks:
+        return url
+    candidates = [p for p in book1_notebooks if p.split("/")[-1] == path.split("/")[-1]]
+    if len(candidates) != 1:
+        print(f"WARNING: {path} not found upstream; left as is")
+        return url
+    print(f"fixed mapping: {path} -> {candidates[0]}")
+    return url.replace(path, candidates[0])
+
+
 # Figure -> notebook mapping, filtered to the selected chapters
 text = fetch(f"{RAW}/internal/figures_url_mapping_book1_excluded_dummy_nb.csv").decode()
 rows = [row for row in csv.DictReader(io.StringIO(text)) if row["key"].split(".")[0] in chapters]
+for row in rows:
+    row["url"] = str([fix_url(url) for url in ast.literal_eval(row["url"])])
 out = io.StringIO()
 writer = csv.DictWriter(out, fieldnames=["key", "url"], lineterminator="\n")
 writer.writeheader()
@@ -45,10 +72,10 @@ writer.writerows(rows)
 save("internal/figures_url_mapping_book1.csv", out.getvalue().encode())
 print(f"{len(rows)} figures mapped")
 
-# Notebooks
-tree = json.loads(fetch(f"https://api.github.com/repos/{UPSTREAM}/git/trees/{BRANCH}?recursive=1"))["tree"]
+# Notebooks: everything in the selected chapters, plus mapped notebooks that live elsewhere
 prefixes = tuple(f"notebooks/book1/{int(c):02d}/" for c in chapters)
-notebooks = [t["path"] for t in tree if t["path"].startswith(prefixes) and t["path"].endswith(".ipynb")]
+mapped = {"notebooks/" + "/".join(url.split("/")[-3:]) for row in rows for url in ast.literal_eval(row["url"])}
+notebooks = sorted({p for p in book1_notebooks if p.startswith(prefixes)} | (mapped & set(book1_notebooks)))
 for path in notebooks:
     save(path, fetch(f"{RAW}/{path}"))
 print(f"{len(notebooks)} notebooks copied")
