@@ -1,0 +1,136 @@
+An error occurred while executing the following cell:
+------------------
+# This code is referenced from
+# https://github.com/probml/pmtk3/blob/master/demos/fisherDiscrimVowelDemo.m
+# Author:Srikar-Reddy-Jilugu(@always-newbie161)
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.io import loadmat
+
+try:
+    from sklearn.decomposition import PCA
+except ModuleNotFoundError:
+    %pip install -qq scikit-learn
+    from sklearn.decomposition import PCA
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+
+try:
+    from probml_utils.fisher_lda_fit import fisher_lda_fit
+except ModuleNotFoundError:
+    %pip install -qq git+https://github.com/probml/probml-utils.git
+    from probml_utils.fisher_lda_fit import fisher_lda_fit
+import probml_utils as pml
+import requests
+from io import BytesIO
+
+url = "https://github.com/probml/probml-data/blob/main/data/vowelTrain.mat?raw=true"
+r = requests.get(url, allow_redirects=True)
+rawdata = BytesIO(r.content)
+
+data = loadmat(rawdata)
+X = data["Xtrain"]
+y = data["ytrain"]
+nsamples, ndims = X.shape
+nclasses = np.max(y)
+
+
+def plot_projection_data(X, y, mu, nclasses, figure_num):
+    """
+    2d data is visualized with their respective symbol and color
+    and the centroids of the data are plotted with black filled-in color.
+    """
+
+    # To match the Hastie color scheme
+    lightblue = [55, 155, 255]
+    orange = [255, 128, 0]
+    magenta = [255, 0, 128]
+    green2 = [132, 199, 71]
+    cyan = [61, 220, 176]
+    yellow = [255, 255, 0]
+    brown = [128, 64, 0]
+    blue = [0, 0, 255]
+    red = [255, 0, 0]
+    black = [0, 0, 0]
+    gray = [128, 128, 128]
+
+    colors = [lightblue, blue, brown, magenta, orange, cyan, gray, yellow, black, red, green2]
+
+    plt.figure(figure_num)
+    for c in range(0, nclasses):
+        colors[c] = [col / 255 for col in colors[c]]
+        ndx = np.where(y == (c + 1))
+        plt.scatter(X[ndx, 0], X[ndx, 1], marker=symbols[c], s=30, facecolor="none", edgecolor=colors[c])
+        plt.scatter(mu[c, 0], mu[c, 1], marker=symbols[c], s=40, facecolor="black")
+
+
+# ------------------------
+
+K = 2
+
+# PCA projection
+
+pca = PCA(K)
+X_pca = pca.fit_transform(X)
+X_pca = -X_pca  # make it look like the Hastie figure
+muC = np.zeros((nclasses, ndims))
+for c in range(0, nclasses):
+    muC[c, :] = np.mean((X[np.where(y == (c + 1))[0], :]), axis=0)
+
+muC2d_pca = pca.fit_transform(muC)
+
+symbols = "+ovd*.xs^d><ph"
+plot_projection_data(X_pca, y, muC2d_pca, nclasses, figure_num=0)
+plt.title("PCA projection of vowel data to 2d")
+pml.savefig("fisherDiscrimVowelPCA.pdf")
+
+# ------------------------
+# FLDA projection
+
+W = fisher_lda_fit(X, y, K)
+W[:, 0] = -W[:, 0]  # make it look like the Hastie figure
+X_lda = X @ W
+muC2d_lda = muC @ W
+plot_projection_data(X_lda, y, muC2d_lda, nclasses, figure_num=1)
+plt.title("FLDA projection of vowel data to 2d")
+pml.savefig("fisherDiscrimVowelLDA.pdf")
+
+plt.show()
+------------------
+
+---------------------------------------------------------------------------
+ValueError                                Traceback (most recent call last)
+Cell In[1], line 30
+     27 r = requests.get(url, allow_redirects=True)
+     28 rawdata = BytesIO(r.content)
+---> 30 data = loadmat(rawdata)
+     31 X = data["Xtrain"]
+     32 y = data["ytrain"]
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/scipy/io/matlab/_mio.py:226, in loadmat(file_name, mdict, appendmat, **kwargs)
+    224 variable_names = kwargs.pop('variable_names', None)
+    225 with _open_file_context(file_name, appendmat) as f:
+--> 226     MR, _ = mat_reader_factory(f, **kwargs)
+    227     matfile_dict = MR.get_variables(variable_names)
+    229 if mdict is not None:
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/scipy/io/matlab/_mio.py:74, in mat_reader_factory(file_name, appendmat, **kwargs)
+     54 """
+     55 Create reader for matlab .mat format files.
+     56 
+   (...)
+     71 
+     72 """
+     73 byte_stream, file_opened = _open_file(file_name, appendmat)
+---> 74 mjv, mnv = _get_matfile_version(byte_stream)
+     75 if mjv == 0:
+     76     return MatFile4Reader(byte_stream, **kwargs), file_opened
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/scipy/io/matlab/_miobase.py:251, in _get_matfile_version(fileobj)
+    249 if maj_val in (1, 2):
+    250     return ret
+--> 251 raise ValueError('Unknown mat file type, version %s, %s' % ret)
+
+ValueError: Unknown mat file type, version 104, 116
+ValueError: Unknown mat file type, version 104, 116
