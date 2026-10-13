@@ -1,0 +1,55 @@
+name: Workflow
+
+on:
+  push:
+    branches:
+    - main
+  workflow_dispatch:
+
+permissions:
+  contents: write  # to push the workflow_testing_indicator branch
+
+jobs:
+  execute_notebooks_and_publish_dashboard:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Clone the repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.10.12
+      uses: actions/setup-python@v5
+      with:
+        # Change this based on the python version in Google colab
+        python-version: '3.10.12'
+
+    - name: Install dependencies
+      run: |
+        pip install -U --no-cache-dir -r requirements.txt | cat
+        sudo apt-get update && sudo apt-get install -y graphviz
+
+    - name: Cache datasets
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.keras/datasets
+          ~/tensorflow_datasets
+          ${{ github.workspace }}/data
+        key: datasets
+
+    - name: Execute notebooks
+      continue-on-error: true  # failures are shown as red marks on the dashboard
+      run: |
+        pytest -n auto -s --verbose tests/test_notebooks.py
+
+    - name: Create dashboard
+      run: |
+        mkdir -p workflow_testing_indicator
+        cp -r test_results/. workflow_testing_indicator/ 2>/dev/null || true
+        python scripts/create_figure_dashboard.py --user_name ${{ github.repository }} --branch ${{ github.ref_name }}
+
+    - name: Push test-results to workflow_testing_indicator
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: workflow_testing_indicator/
+        publish_branch: workflow_testing_indicator

@@ -1,0 +1,6 @@
+test_results/
+workflow_testing_indicator/
+figures/
+data/
+__pycache__/
+.ipynb_checkpoints/

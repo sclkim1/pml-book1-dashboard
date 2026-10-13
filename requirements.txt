@@ -1,0 +1,22 @@
+# Same as probml/pyprobml requirements.txt (libraries pre-installed in colab)
+jaxlib
+jax
+jupyter
+matplotlib
+numpy
+requests
+scipy
+seaborn
+scikit-learn
+h5py
+pandas
+graphviz
+arviz
+pyyaml
+# For running notebooks and building the dashboard
+pytest
+pytest-xdist
+nbclient
+nbformat
+ipykernel
+tabulate
