@@ -70,9 +70,16 @@ inside the notebook (see 4.11 and 4.12), so they are downloaded beforehand into 
 folders the libraries check first. The notebooks then skip their own download.
 
 ```powershell
-# CIFAR-10 for cifar_viz_tf (Keras cache). ~163 MB; the server is slow (~60-80 KB/s here)
+# CIFAR-10 for cifar_viz_tf (Keras cache). ~163 MB
+# Hugging Face mirror: ~16 MB/s here (the original server gave ~62 KB/s, see 4.11)
 New-Item -ItemType Directory -Force "$HOME\.keras\datasets" | Out-Null
-curl.exe -L -C - --retry 5 -o "$HOME\.keras\datasets\cifar-10-batches-py.tar.gz" https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz
+curl.exe -L --fail --retry 5 -o "$HOME\.keras\datasets\cifar-10-batches-py.tar.gz" https://huggingface.co/cloneofsimo/test_model/resolve/main/cifar-10-python.tar.gz
+# Fallback, original server (slow):
+#   curl.exe -L -C - --retry 5 -o "$HOME\.keras\datasets\cifar-10-batches-py.tar.gz" https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz
+
+# Verify CIFAR-10: must be 170,498,071 bytes, MD5 c58f30108f718f92721af3b95e74349a
+(Get-Item "$HOME\.keras\datasets\cifar-10-batches-py.tar.gz").Length
+(Get-FileHash "$HOME\.keras\datasets\cifar-10-batches-py.tar.gz" -Algorithm MD5).Hash
 
 # EMNIST for emnist_viz_jax (torchvision cache, root="~/data"). ~536 MB
 New-Item -ItemType Directory -Force "$HOME\data\EMNIST\raw" | Out-Null
@@ -181,7 +188,17 @@ environment; 4.11–4.12 are datasets; 4.13 is a CI-only difference.
   same pytest worker (here `quantile_plot`) look hung too, but pass when run alone.
 - **Cause:** Keras downloads CIFAR-10 from `www.cs.toronto.edu`, which served ~60–80 KB/s here
   (163 MB ≈ 35–45 min), and Keras's downloader has no timeout.
-- **Fix:** download the file into the Keras cache first (step 2.6).
+- **Fix:** download the file into the Keras cache first (step 2.6), from a faster mirror.
+  Measured here (15 s samples):
+
+  | Mirror | Speed | Identical file |
+  |---|---|---|
+  | `www.cs.toronto.edu/~kriz/` (original, used by Keras) | ~62 KB/s | — |
+  | `dataset.bj.bcebos.com/cifar/` (PaddlePaddle's mirror) | ~108 KB/s | not checked |
+  | `huggingface.co/cloneofsimo/test_model` | **~16 MB/s** | ✅ size and MD5 match the original |
+
+  The Hugging Face copy is in a personal repository, not an official mirror, so check the size
+  and MD5 after downloading; Keras also verifies the hash before using the file.
 
 ### 4.12 `emnist_viz_jax`: `RuntimeError: File not found or corrupted.`
 - **Cause:** torchvision 0.16.2 downloads EMNIST from `www.itl.nist.gov/…/gzip.zip`, which no
@@ -201,8 +218,7 @@ no LaTeX, so it is affected by 4.3, 4.5, 4.9 and 4.12. The fixes above have **no
 |---|---|---|---|
 | CI, run [38333885122](../../actions/runs/38333885122) | `ubuntu-latest`, `requirements.txt` | 15 | 13 |
 | Local, first attempt | clone of base + `requirements.txt` | 6 | 22 |
-| Local, after fixes 4.3–4.12 | `pyprobml` + `requirements-local.txt` + pre-downloaded datasets | 27 | 0 |
+| Local, after fixes 4.3–4.12 | `pyprobml` + `requirements-local.txt` + pre-downloaded datasets | **28** | **0** |
 
-The last local row combines the full run (24 passed) with individual re-runs after each fix
-(`iris_kmeans`, `emnist_viz_jax`, `quantile_plot`). `cifar_viz_tf` has not been run yet: its
-dataset (4.11) was still downloading. A single clean run of all 28 notebooks is still to be done.
+The last row is a single clean run of all 28 notebooks (`pytest -n 4`, 49 s, Windows 11).
+`pip freeze` was identical before and after the run, so no notebook installed anything.
