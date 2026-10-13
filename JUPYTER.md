@@ -81,6 +81,20 @@ The test runner only runs the notebooks of the figure mapping (28 of the 35 in c
 Checked by hand / like JupyterLab: **all 35 notebooks of chapters 1–2 pass** in `pml-jupyter`
 (after the edits of REPRODUCE.md 4.26).
 
+### Links between notebooks
+
+The figure notebooks (`fig_<chapter>_<n>.ipynb`) only hold a caption with links to the notebooks
+that generate the figure. Upstream links point to Google Colab; `scripts/local_links.py` replaces
+them with relative links (e.g. `beta_dist_plot.ipynb`), which open the local notebook in JupyterLab.
+Done so far: `fig_2_17`. For other notebooks:
+
+```powershell
+& "$HOME\anaconda3\envs\pml-jupyter\python.exe" scripts/local_links.py notebooks/book1/02/fig_2_2.ipynb
+```
+
+Only links whose target exists in this repository are changed. Add edited notebooks to
+`LOCAL_EDITS` in `scripts/sync_from_pyprobml.py`, so a sync does not undo the change.
+
 ## 5. Differences from the automated test
 
 | | Test runner (`pytest`) | JupyterLab |
