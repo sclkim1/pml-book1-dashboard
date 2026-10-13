@@ -1,0 +1,71 @@
+An error occurred while executing the following cell:
+------------------
+# Plot resisudal from 1d linear regression
+# Based on https://github.com/probml/pmtk3/blob/master/demos/linregResiduals.m
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
+try:
+    import probml_utils as pml
+except ModuleNotFoundError:
+    %pip install -qq git+https://github.com/probml/probml-utils.git
+    import probml_utils as pml
+
+np.random.seed(0)
+N = 21
+x = np.linspace(0.0, 20, N)
+X0 = x.reshape(N, 1)
+X = np.c_[np.ones((N, 1)), X0]
+w = np.array([-1.5, 1 / 9.0])
+y = w[0] * x + w[1] * np.square(x)
+y = y + np.random.normal(0, 1, N) * 2
+
+w = np.linalg.lstsq(X, y, rcond=None)[0]
+# print(w)
+y_estim = np.dot(X, w)
+
+plt.plot(X[:, 1], y, "o")
+plt.plot(X[:, 1], y_estim, "-")
+pml.savefig("linregResidualsNoBars.pdf")
+plt.show()
+
+for x0, y0, y_hat in zip(X[:, 1], y, y_estim):
+    plt.plot([x0, x0], [y0, y_hat], "k-")
+plt.plot(X[:, 1], y, "o")
+plt.plot(X[:, 1], y_estim, "-")
+plt.plot(X[:, 1], y_estim, "x", color="r", markersize=12)
+pml.savefig("linregResidualsBars.pdf")
+plt.show()
+------------------
+
+
+---------------------------------------------------------------------------
+ImportError                               Traceback (most recent call last)
+Cell In[1], line 6
+      1 # Plot resisudal from 1d linear regression
+      2 # Based on https://github.com/probml/pmtk3/blob/master/demos/linregResiduals.m
+      5 import numpy as np
+----> 6 import matplotlib.pyplot as plt
+      7 import os
+      9 try:
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/matplotlib/__init__.py:264
+    259         if parse_version(module.__version__) < parse_version(minver):
+    260             raise ImportError(f"Matplotlib requires {modname}>={minver}; "
+    261                               f"you have {module.__version__}")
+--> 264 _check_versions()
+    267 # The decorator ensures this always returns the same handler (and it is only
+    268 # attached once).
+    269 @functools.cache
+    270 def _ensure_handler():
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/matplotlib/__init__.py:260, in _check_versions()
+    258 module = importlib.import_module(modname)
+    259 if parse_version(module.__version__) < parse_version(minver):
+--> 260     raise ImportError(f"Matplotlib requires {modname}>={minver}; "
+    261                       f"you have {module.__version__}")
+
+ImportError: Matplotlib requires numpy>=1.23; you have 1.22.4

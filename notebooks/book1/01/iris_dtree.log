@@ -1,0 +1,58 @@
+An error occurred while executing the following cell:
+------------------
+# Python ≥3.5 is required
+import sys
+
+assert sys.version_info >= (3, 5)
+
+# Scikit-Learn ≥0.20 is required
+import sklearn
+
+assert sklearn.__version__ >= "0.20"
+
+# Common imports
+import numpy as np
+import os
+import pandas as pd
+
+from matplotlib.colors import ListedColormap
+from sklearn.datasets import load_iris
+import seaborn as sns
+
+
+# to make this notebook's output stable across runs
+np.random.seed(42)
+
+# To plot pretty figures
+%matplotlib inline
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+------------------
+
+
+---------------------------------------------------------------------------
+ImportError                               Traceback (most recent call last)
+Cell In[1], line 16
+     13 import os
+     14 import pandas as pd
+---> 16 from matplotlib.colors import ListedColormap
+     17 from sklearn.datasets import load_iris
+     18 import seaborn as sns
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/matplotlib/__init__.py:264
+    259         if parse_version(module.__version__) < parse_version(minver):
+    260             raise ImportError(f"Matplotlib requires {modname}>={minver}; "
+    261                               f"you have {module.__version__}")
+--> 264 _check_versions()
+    267 # The decorator ensures this always returns the same handler (and it is only
+    268 # attached once).
+    269 @functools.cache
+    270 def _ensure_handler():
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/matplotlib/__init__.py:260, in _check_versions()
+    258 module = importlib.import_module(modname)
+    259 if parse_version(module.__version__) < parse_version(minver):
+--> 260     raise ImportError(f"Matplotlib requires {modname}>={minver}; "
+    261                       f"you have {module.__version__}")
+
+ImportError: Matplotlib requires numpy>=1.23; you have 1.22.4

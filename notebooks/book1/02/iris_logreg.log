@@ -1,0 +1,264 @@
+An error occurred while executing the following cell:
+------------------
+########################
+# Fig 2.11
+# Initially use 1 feature, 2 classes
+
+x = iris["data"][:, 3:]  # petal width
+y = (iris["target"] == 2).astype(jnp.int32)  # 1 if Iris-Virginica, else 0'
+
+parameters = lr.fit(x, y, lambd=1)
+
+x_new = jnp.linspace(0, 3, 1000).reshape(-1, 1)
+y_prob = lr.predict_proba(parameters[0], x_new)
+decision_boundary = x_new[y_prob > 0.5][0]
+
+plt.figure()
+plt.scatter(x[y == 0], y[y == 0], s=SCATTER_SIZE, c="b", marker="s")
+plt.scatter(x[y == 1], y[y == 1], s=SCATTER_SIZE, c="g", marker="^")
+plt.plot(
+    [decision_boundary, decision_boundary],
+    [-1, 2],
+    color="black",
+    linestyle="-.",
+    label="Decision boundary",
+)
+plt.plot(x_new, y_prob, "g-", label="Iris-Virginica")
+plt.plot(x_new, 1 - y_prob, "b--", label="Not Iris-Virginica")
+
+plt.arrow(decision_boundary, 0.08, -0.3, 0, head_width=0.05, head_length=0.1, fc="b", ec="b")
+plt.arrow(decision_boundary, 0.92, 0.3, 0, head_width=0.05, head_length=0.1, fc="g", ec="g")
+
+plt.xlabel("Petal width (cm)")
+plt.ylabel("Probability")
+plt.legend(bbox_to_anchor=(1, 1))
+plt.axis([0, 3, -0.02, 1.02])
+sns.despine()
+savefig("iris-logreg-1d.pdf")
+------------------
+
+
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+Cell In[3], line 8
+      5 x = iris["data"][:, 3:]  # petal width
+      6 y = (iris["target"] == 2).astype(jnp.int32)  # 1 if Iris-Virginica, else 0'
+----> 8 parameters = lr.fit(x, y, lambd=1)
+     10 x_new = jnp.linspace(0, 3, 1000).reshape(-1, 1)
+     11 y_prob = lr.predict_proba(parameters[0], x_new)
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/probml_utils/LogisticRegression.py:67, in fit(X, y, max_iter, lambd, random_key, tol)
+     51 def fit(X, y, max_iter=None, lambd=1, random_key=0, tol=1e-8):
+     52     """
+     53     Arguments:
+     54         X : training dataset, shape = (no. of examples, no. of features)
+   (...)
+     65 
+     66     """
+---> 67     classes = jnp.unique(y)
+     68     n_classes = len(classes)
+     69     key = jax.random.PRNGKey(random_key)
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/jax/_src/numpy/setops.py:694, in unique(ar, return_index, return_inverse, return_counts, axis, equal_nan, size, fill_value)
+    664 @export
+    665 def unique(ar: ArrayLike, return_index: bool = False, return_inverse: bool = False,
+    666            return_counts: bool = False, axis: int | None = None,
+    667            *, equal_nan: bool = True, size: int | None = None, fill_value: ArrayLike | None = None,
+    668            sorted: bool = True):
+    669   """Return the unique values from an array.
+    670 
+    671   JAX implementation of :func:`numpy.unique`.
+    672 
+    673   Because the size of the output of ``unique`` is data-dependent, the function
+    674   is not typically compatible with :func:`~jax.jit` and other JAX transformations.
+    675   The JAX version adds the optional ``size`` argument which must be specified
+    676   statically for ``jnp.unique`` to be used in such contexts.
+    677 
+    678   Args:
+    679     ar: N-dimensional array from which unique values will be extracted.
+    680     return_index: if True, also return the indices in ``ar`` where each value occurs
+    681     return_inverse: if True, also return the indices that can be used to reconstruct
+    682       ``ar`` from the unique values.
+    683     return_counts: if True, also return the number of occurrences of each unique value.
+    684     axis: if specified, compute unique values along the specified axis. If None (default),
+    685       then flatten ``ar`` before computing the unique values.
+    686     equal_nan: if True, consider NaN values equivalent when determining uniqueness.
+    687     size: if specified, return only the first ``size`` sorted unique elements. If there are fewer
+    688       unique elements than ``size`` indicates, the return value will be padded with ``fill_value``.
+    689     fill_value: when ``size`` is specified and there are fewer than the indicated number of
+    690       elements, fill the remaining entries ``fill_value``. Defaults to the minimum unique value.
+    691     sorted: unused by JAX.
+    692 
+    693   Returns:
+--> 694     An array or tuple of arrays, depending on the values of ``return_index``, ``return_inverse``,
+    695     and ``return_counts``. Returned values are
+    696 
+    697     - ``unique_values``:
+    698         if ``axis`` is None, a 1D array of length ``n_unique``, If ``axis`` is
+    699         specified, shape is ``(*ar.shape[:axis], n_unique, *ar.shape[axis + 1:])``.
+    700     - ``unique_index``:
+    701         *(returned only if return_index is True)* An array of shape ``(n_unique,)``. Contains
+    702         the indices of the first occurrence of each unique value in ``ar``. For 1D inputs,
+    703         ``ar[unique_index]`` is equivalent to ``unique_values``.
+    704     - ``unique_inverse``:
+    705         *(returned only if return_inverse is True)* An array of shape ``(ar.size,)`` if ``axis``
+    706         is None, or of shape ``(ar.shape[axis],)`` if ``axis`` is specified.
+    707         Contains the indices within ``unique_values`` of each value in ``ar``. For 1D inputs,
+    708         ``unique_values[unique_inverse]`` is equivalent to ``ar``.
+    709     - ``unique_counts``:
+    710         *(returned only if return_counts is True)* An array of shape ``(n_unique,)``.
+    711         Contains the number of occurrences of each unique value in ``ar``.
+    712 
+    713   See also:
+    714     - :func:`jax.numpy.unique_counts`: shortcut to ``unique(arr, return_counts=True)``.
+    715     - :func:`jax.numpy.unique_inverse`: shortcut to ``unique(arr, return_inverse=True)``.
+    716     - :func:`jax.numpy.unique_all`: shortcut to ``unique`` with all return values.
+    717     - :func:`jax.numpy.unique_values`: like ``unique``, but no optional return values.
+    718 
+    719   Examples:
+    720     >>> x = jnp.array([3, 4, 1, 3, 1])
+    721     >>> jnp.unique(x)
+    722     Array([1, 3, 4], dtype=int32)
+    723 
+    724     **JIT compilation & the size argument**
+    725 
+    726     If you try this under :func:`~jax.jit` or another transformation, you will get an
+    727     error because the output shape is dynamic:
+    728 
+    729     >>> jax.jit(jnp.unique)(x)  # doctest: +IGNORE_EXCEPTION_DETAIL
+    730     Traceback (most recent call last):
+    731        ...
+    732     jax.errors.ConcretizationTypeError: Abstract tracer value encountered where concrete value is expected: traced array with shape int32[5].
+    733     The error arose for the first argument of jnp.unique(). To make jnp.unique() compatible with JIT and other transforms, you can specify a concrete value for the size argument, which will determine the output size.
+    734 
+    735     The issue is that the output of transformed functions must have static shapes.
+    736     In order to make this work, you can pass a static ``size`` parameter:
+    737 
+    738     >>> jit_unique = jax.jit(jnp.unique, static_argnames=['size'])
+    739     >>> jit_unique(x, size=3)
+    740     Array([1, 3, 4], dtype=int32)
+    741 
+    742     If your static size is smaller than the true number of unique values, they will be truncated.
+    743 
+    744     >>> jit_unique(x, size=2)
+    745     Array([1, 3], dtype=int32)
+    746 
+    747     If the static size is larger than the true number of unique values, they will be padded with
+    748     ``fill_value``, which defaults to the minimum unique value:
+    749 
+    750     >>> jit_unique(x, size=5)
+    751     Array([1, 3, 4, 1, 1], dtype=int32)
+    752     >>> jit_unique(x, size=5, fill_value=0)
+    753     Array([1, 3, 4, 0, 0], dtype=int32)
+    754 
+    755     **Multi-dimensional unique values**
+    756 
+    757     If you pass a multi-dimensional array to ``unique``, it will be flattened by default:
+    758 
+    759     >>> M = jnp.array([[1, 2],
+    760     ...                [2, 3],
+    761     ...                [1, 2]])
+    762     >>> jnp.unique(M)
+    763     Array([1, 2, 3], dtype=int32)
+    764 
+    765     If you pass an ``axis`` keyword, you can find unique *slices* of the array along
+    766     that axis:
+    767 
+    768     >>> jnp.unique(M, axis=0)
+    769     Array([[1, 2],
+    770            [2, 3]], dtype=int32)
+    771 
+    772     **Returning indices**
+    773 
+    774     If you set ``return_index=True``, then ``unique`` returns the indices of the
+    775     first occurrence of each unique value:
+    776 
+    777     >>> x = jnp.array([3, 4, 1, 3, 1])
+    778     >>> values, indices = jnp.unique(x, return_index=True)
+    779     >>> print(values)
+    780     [1 3 4]
+    781     >>> print(indices)
+    782     [2 0 1]
+    783     >>> jnp.all(values == x[indices])
+    784     Array(True, dtype=bool)
+    785 
+    786     In multiple dimensions, the unique values can be extracted with :func:`jax.numpy.take`
+    787     evaluated along the specified axis:
+    788 
+    789     >>> values, indices = jnp.unique(M, axis=0, return_index=True)
+    790     >>> jnp.all(values == jnp.take(M, indices, axis=0))
+    791     Array(True, dtype=bool)
+    792 
+    793     **Returning inverse**
+    794 
+    795     If you set ``return_inverse=True``, then ``unique`` returns the indices within the
+    796     unique values for every entry in the input array:
+    797 
+    798     >>> x = jnp.array([3, 4, 1, 3, 1])
+    799     >>> values, inverse = jnp.unique(x, return_inverse=True)
+    800     >>> print(values)
+    801     [1 3 4]
+    802     >>> print(inverse)
+    803     [1 2 0 1 0]
+    804     >>> jnp.all(values[inverse] == x)
+    805     Array(True, dtype=bool)
+    806 
+    807     In multiple dimensions, the input can be reconstructed using
+    808     :func:`jax.numpy.take`:
+    809 
+    810     >>> values, inverse = jnp.unique(M, axis=0, return_inverse=True)
+    811     >>> jnp.all(jnp.take(values, inverse, axis=0) == M)
+    812     Array(True, dtype=bool)
+    813 
+    814     **Returning counts**
+    815 
+    816     If you set ``return_counts=True``, then ``unique`` returns the number of occurrences
+    817     within the input for every unique value:
+    818 
+    819     >>> x = jnp.array([3, 4, 1, 3, 1])
+    820     >>> values, counts = jnp.unique(x, return_counts=True)
+    821     >>> print(values)
+    822     [1 3 4]
+    823     >>> print(counts)
+    824     [2 2 1]
+    825 
+    826     For multi-dimensional arrays, this also returns a 1D array of counts
+    827     indicating number of occurrences along the specified axis:
+    828 
+    829     >>> values, counts = jnp.unique(M, axis=0, return_counts=True)
+    830     >>> print(values)
+    831     [[1 2]
+    832      [2 3]]
+    833     >>> print(counts)
+    834     [2 1]
+    835   """
+    836   # TODO: Investigate if it's possible that we could save some work in
+    837   # _unique_sorted_mask when sorting is not requested, but that would require
+    838   # refactoring the implementation a bit.
+    839   del sorted  # unused
+
+    [... skipping hidden 6 frame]
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/jax/experimental/attrs.py:15
+      1 # Copyright 2024 The JAX Authors.
+      2 #
+      3 # Licensed under the Apache License, Version 2.0 (the "License");
+   (...)
+     12 # See the License for the specific language governing permissions and
+     13 # limitations under the License.
+---> 15 from jax._src.attrs import (
+     16     jax_setattr as jax_setattr,
+     17     jax_getattr as jax_getattr,
+     18     jax_appendattr as jax_appendattr,
+     19     Box as Box,
+     20     List as List,
+     21 )
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/jax/_src/attrs.py:40
+     37 PyTree = Any
+     38 PyTreeDef = Any
+---> 40 ReadWrite = pe.ReadWrite
+     41 Append = pe.Append
+     43 register = api_util.register_class_with_attrs
+
+AttributeError: module 'jax._src.interpreters.partial_eval' has no attribute 'ReadWrite'

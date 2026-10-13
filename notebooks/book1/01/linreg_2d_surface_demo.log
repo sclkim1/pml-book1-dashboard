@@ -1,0 +1,179 @@
+An error occurred while executing the following cell:
+------------------
+# Fit linear and quadratic surfaces to data
+# Based on https://github.com/probml/pmtk3/blob/master/demos/surfaceFitDemo.m
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+try:
+    import probml_utils as pml
+except ModuleNotFoundError:
+    %pip install -qq git+https://github.com/probml/probml-utils.git
+    import probml_utils as pml
+from scipy.io import loadmat
+import requests
+from io import BytesIO
+from mpl_toolkits.mplot3d import Axes3D
+
+url = "https://raw.githubusercontent.com/probml/probml-data/main/data/moteData/moteData.mat"
+response = requests.get(url)
+# rawdata = response.text
+rawdata = BytesIO(response.content)
+data = loadmat(rawdata)
+
+X = data["X"]
+y = data["y"]
+
+n = len(y)
+X_pad = np.column_stack((np.ones(n), X))
+
+
+for use_quad in (False, True):
+    phi = X_pad
+
+    if use_quad:
+        phi = np.column_stack((X_pad, X**2))
+
+    fig = plt.figure()
+    ax = Axes3D(fig)
+    ax.set_zlim(15, 19)
+    ax.scatter(X[:, 0], X[:, 1], y, color="r")
+
+    n = 10
+    xrange = np.linspace(min(X[:, 0]), max(X[:, 0]), n)
+    yrange = np.linspace(min(X[:, 1]), max(X[:, 1]), n)
+    xx, yy = np.meshgrid(xrange, yrange)
+    flatxx = xx.reshape((n**2, 1))
+    flatyy = yy.reshape((n**2, 1))
+    w = np.linalg.lstsq(phi, y)[0]
+
+    z = np.column_stack((flatxx, flatyy))
+    z = np.column_stack((np.ones(n**2), z))
+    if use_quad:
+        z = np.column_stack((z, flatxx**2, flatyy**2))
+
+    f = np.dot(z, w)
+    ax.plot_surface(xx, yy, f.reshape(n, n), rstride=1, cstride=1, cmap="jet")
+
+    name = "linregSurfaceLinear.pdf"
+    if use_quad:
+        name = "linregSurfaceQuad.pdf"
+
+    pml.savefig(name)
+    plt.show()
+------------------
+
+----- stdout -----
+Note: you may need to restart the kernel to use updated packages.
+------------------
+
+---------------------------------------------------------------------------
+ModuleNotFoundError                       Traceback (most recent call last)
+Cell In[1], line 13
+     11     get_ipython().run_line_magic('pip', 'install -qq git+https://github.com/probml/probml-utils.git')
+     12     import probml_utils as pml
+---> 13 from scipy.io import loadmat
+     14 import requests
+     15 from io import BytesIO
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/scipy/io/__init__.py:97
+      1 """
+      2 ==================================
+      3 Input and output (:mod:`scipy.io`)
+   (...)
+     94    ParseArffError
+     95 """
+     96 # matfile read and write
+---> 97 from .matlab import loadmat, savemat, whosmat
+     99 # netCDF file support
+    100 from ._netcdf import netcdf_file, netcdf_variable
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/scipy/io/matlab/__init__.py:45
+      1 """
+      2 MATLAB® file utilities (:mod:`scipy.io.matlab`)
+      3 ===============================================
+   (...)
+     42 
+     43 """
+     44 # Matlab file read and write utilities
+---> 45 from ._mio import loadmat, savemat, whosmat
+     46 from ._mio5 import MatlabFunction
+     47 from ._mio5_params import MatlabObject, MatlabOpaque, mat_struct
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/scipy/io/matlab/_mio.py:9
+      6 from contextlib import contextmanager
+      8 from ._miobase import _get_matfile_version, docfiller
+----> 9 from ._mio4 import MatFile4Reader, MatFile4Writer
+     10 from ._mio5 import MatFile5Reader, MatFile5Writer
+     12 __all__ = ['mat_reader_factory', 'loadmat', 'savemat', 'whosmat']
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/scipy/io/matlab/_mio4.py:8
+      4 import warnings
+      6 import numpy as np
+----> 8 import scipy.sparse
+     10 from ._miobase import (MatFileReader, docfiller, matdims, read_dtype,
+     11                       convert_dtypes, arr_to_chars, arr_dtype_number)
+     13 from ._mio_utils import squeeze_element, chars_to_strings
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/scipy/sparse/__init__.py:294
+    288 # Original code by Travis Oliphant.
+    289 # Modified and extended by Ed Schofield, Robert Cimrman,
+    290 # Nathan Bell, and Jake Vanderplas.
+    292 import warnings as _warnings
+--> 294 from ._base import *
+    295 from ._csr import *
+    296 from ._csc import *
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/scipy/sparse/_base.py:5
+      2 from warnings import warn
+      4 import numpy as np
+----> 5 from scipy._lib._util import VisibleDeprecationWarning
+      7 from ._sputils import (asmatrix, check_reshape_kwargs, check_shape,
+      8                        get_sum_dtype, isdense, isscalarlike,
+      9                        matrix, validateaxis,)
+     11 from ._matrix import spmatrix
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/scipy/_lib/_util.py:18
+     10 from typing import (
+     11     Optional,
+     12     Union,
+     13     TYPE_CHECKING,
+     14     TypeVar,
+     15 )
+     17 import numpy as np
+---> 18 from scipy._lib._array_api import array_namespace
+     21 AxisError: type[Exception]
+     22 ComplexWarning: type[Warning]
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/scipy/_lib/_array_api.py:17
+     14 import numpy as np
+     16 from scipy._lib import array_api_compat
+---> 17 from scipy._lib.array_api_compat import (
+     18     is_array_api_obj,
+     19     size,
+     20     numpy as np_compat,
+     21 )
+     23 __all__ = ['array_namespace', '_asarray', 'size']
+     26 # To enable array API and strict array-like input validation
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/scipy/_lib/array_api_compat/numpy/__init__.py:1
+----> 1 from numpy import *
+      3 # from numpy import * doesn't overwrite these builtin names
+      4 from numpy import abs, max, min, round
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/numpy/__init__.py:379, in __getattr__(attr)
+    371         if len(w) > 0:
+    372             error_message = "{}: {}".format(w[-1].category.__name__, str(w[-1].message))
+    373             msg = (
+    374                 "Polyfit sanity test emitted a warning, most likely due "
+    375                 "to using a buggy Accelerate backend."
+    376                 "\nIf you compiled yourself, more information is available at:"
+    377                 "\nhttps://numpy.org/doc/stable/user/building.html#accelerated-blas-lapack-libraries"
+    378                 "\nOtherwise report this to the vendor "
+--> 379                 "that provided NumPy.\n{}\n".format(error_message))
+    380             raise RuntimeError(msg)
+    381 del _mac_os_check
+
+ModuleNotFoundError: No module named 'numpy.strings'

@@ -1,0 +1,37 @@
+An error occurred while executing the following cell:
+------------------
+def plot_one(item):
+    image, raw_label = item
+    label = training_data.classes[raw_label]
+
+    p = figure(title=f"label = {label}", tooltips=[("x", "$x"), ("y", "$y"), ("value", "@image")], match_aspect=True)
+    p.x_range.range_padding = p.y_range.range_padding = 0
+
+    # must give a vector of image data for image parameter
+    subplot = p.image(image=[np.array(image.squeeze())], x=0, y=0, dw=1, dh=1, level="image")
+
+    p.title.align = "center"
+    p.axis.visible = False
+    p.grid.grid_line_width = 0.5
+
+    return p
+
+
+# Take the first 25 images
+subplots = list(map(plot_one, itertools.islice(training_data, 25)))
+
+grid = gridplot(subplots, ncols=5, toolbar_location=None, plot_width=150, plot_height=150)
+
+show(grid)
+------------------
+
+
+---------------------------------------------------------------------------
+TypeError                                 Traceback (most recent call last)
+Cell In[4], line 21
+     18 # Take the first 25 images
+     19 subplots = list(map(plot_one, itertools.islice(training_data, 25)))
+---> 21 grid = gridplot(subplots, ncols=5, toolbar_location=None, plot_width=150, plot_height=150)
+     23 show(grid)
+
+TypeError: gridplot() got an unexpected keyword argument 'plot_width'
