@@ -64,6 +64,11 @@ jobs:
           https://biometrics.nist.gov/cs_links/EMNIST/gzip.zip
         echo "58c8d27c78d21e728a6bc7b3cc06412e  $f" | md5sum -c
 
+    - name: Make the hardcoded figure folder writable (see REPRODUCE.md 4.16)
+      run: |
+        # linreg_poly_vs_degree sets FIG_DIR=/teamspace/studios/this_studio/...; upstream CI runs as root
+        sudo mkdir -p /teamspace && sudo chown "$USER" /teamspace
+
     - name: Execute notebooks
       continue-on-error: true  # failures are shown as red marks on the dashboard
       run: |

@@ -249,6 +249,16 @@ environment; 4.11–4.12 are datasets; 4.13 is CI; 4.14–4.15 appeared only in 
   base, which had 0.1.6.
 - **Fix:** `matplotlib-inline==0.1.6`.
 
+### 4.16 CI: `linreg_poly_vs_degree` fails, `PermissionError: [Errno 13] Permission denied: '/teamspace'`
+- **Cause:** the upstream notebook hardcodes
+  `os.environ["FIG_DIR"] = "/teamspace/studios/this_studio/pyprobml/notebooks/figures"`
+  (the author's cloud workspace). Upstream CI runs in a container as root, which can create
+  `/teamspace`; the GitHub runner user cannot. On Windows the path becomes `C:\teamspace\…`,
+  which a normal user can create, so it passes locally, **but leaves 15 figure PDFs in
+  `C:\teamspace`**. Delete that folder after local runs if you don't want it.
+- **Fix:** the notebook is left identical to upstream (`sync_from_pyprobml.py` would overwrite an
+  edit). CI creates the folder instead: `sudo mkdir -p /teamspace && sudo chown "$USER" /teamspace`.
+
 
 ## 5. Results
 
@@ -256,7 +266,8 @@ environment; 4.11–4.12 are datasets; 4.13 is CI; 4.14–4.15 appeared only in 
 |---|---|---|---|
 | CI, run [38333885122](../../actions/runs/38333885122) | `ubuntu-latest`, `requirements.txt` | 15 | 13 |
 | CI, pinned setup, first try, run [38341210973](../../actions/runs/38341210973) | `ubuntu-latest`, `requirements-local.txt` before 4.14/4.15 | 0 | 28 |
-| CI, pinned setup with 4.14/4.15 | `ubuntu-latest`, `requirements-local.txt` + TeX Live + datasets | _run pending_ | |
+| CI, pinned setup with 4.14/4.15, run [38342131247](../../actions/runs/38342131247) | `ubuntu-latest`, `requirements-local.txt` + TeX Live + datasets | 27 | 1 (4.16) |
+| CI, pinned setup with 4.14–4.16 | same + writable `/teamspace` | _run pending_ | |
 | Local, first attempt | clone of base + `requirements.txt` | 6 | 22 |
 | Local, after fixes 4.3–4.12 | `pyprobml` + `requirements-local.txt` + pre-downloaded datasets | **28** | **0** |
 
