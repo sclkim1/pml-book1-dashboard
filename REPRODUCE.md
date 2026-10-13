@@ -388,7 +388,7 @@ on PATH, theano falls back to pure Python and those 3 notebooks time out.
 | Upstream pyprobml dashboard (for comparison) | their CI | 165 | 7 |
 | Local, first full run | `pyprobml-exp` (fresh env + 15 libraries, before 4.20–4.24) | 151 | 21 |
 | Local, clean run, rebuilt env | `pyprobml-fresh` from `requirements-local.txt` + 2.3, Windows 11, 16 min | **164** | 8 |
-| CI | `ubuntu-latest`, pinned setup | _run pending_ | |
+| CI, run [38352919703](../../actions/runs/38352919703) | `ubuntu-latest`, pinned setup, 31 min | **165** | 7 |
 
 The 8 local failures:
 
@@ -398,7 +398,8 @@ The 8 local failures:
 | `ae_mnist_tf` | pandas trade-off (4.24) |
 | `pcaImageDemo` | `C:\PcaTrainFaceImages.pdf` still had the high integrity label in that run; fixed afterwards (4.17) |
 
-So 165 can pass locally, the same number as upstream; the sets differ by one notebook each way
+CI fails exactly the 6 upstream failures plus `ae_mnist_tf`. So 165 pass both on CI and (with
+4.17 applied) locally: the same number as upstream; the sets differ by one notebook each way
 (`mix_bernoulli_em_mnist` fails upstream but passes here; `ae_mnist_tf` the opposite).
 `pip freeze` was identical before and after the run.
 
