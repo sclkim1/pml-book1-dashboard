@@ -5,8 +5,11 @@ for chapters 1–2 (29 dashboard rows, 28 notebooks). The dashboard can be built
 
 | | Where | Environment | Result |
 |---|---|---|---|
-| **A. GitHub Actions** | `ubuntu-latest` runner, on every push to `main` | `requirements.txt` (unpinned) | published to the [`workflow_testing_indicator`](../../tree/workflow_testing_indicator) branch |
-| **B. Local conda env** | Windows 11, conda env `pyprobml` | `requirements-local.txt` (pinned) | `test_results/` + `workflow_testing_indicator/dashboard_figures_book1.md` |
+| **A. GitHub Actions** | `ubuntu-latest` runner, on every push to `main` | `requirements-local.txt` (pinned) + TeX Live + pre-downloaded datasets | published to the [`workflow_testing_indicator`](../../tree/workflow_testing_indicator) branch |
+| **B. Local conda env** | Windows 11, conda env `pyprobml` | `requirements-local.txt` (pinned) + MiKTeX + pre-downloaded datasets | `test_results/` + `workflow_testing_indicator/dashboard_figures_book1.md` |
+
+Both use the same pinned package list (`requirements-local.txt`, despite the name) and the same
+dataset fixes. `requirements.txt` is the original, unpinned pyprobml list, kept for reference.
 
 Section 1 sets up the tools, section 2 builds the local environment, section 3 runs it, and
 section 4 lists every problem found along the way, its cause and its fix.
@@ -208,15 +211,27 @@ environment; 4.11–4.12 are datasets; 4.13 is a CI-only difference.
 - **Fix:** download from `biometrics.nist.gov` into `~/data/EMNIST/raw/gzip.zip` (step 2.6).
   torchvision verifies the MD5 and skips its own download.
 
-### 4.13 Differences between the CI run and the local run
-CI (`.github/workflows/dashboard.yml`) still uses the original unpinned `requirements.txt` and has
-no LaTeX, so it is affected by 4.3, 4.5, 4.9 and 4.12. The fixes above have **not** been applied to CI.
+### 4.13 CI used the unpinned setup (15–17 of 28 passed, varying between runs)
+- **Cause:** the first CI version installed the unpinned `requirements.txt` and had no LaTeX
+  or dataset fixes, so it hit 4.3, 4.5, 4.9, 4.11 and 4.12.
+- **Fix:** `.github/workflows/dashboard.yml` now applies the same fixes as the local setup:
+
+  | Local (Windows) | CI (Ubuntu) |
+  |---|---|
+  | `pip install -r requirements-local.txt` | same, but `torch==2.1.2`/`torchvision==0.16.2` first from the CPU-only index `https://download.pytorch.org/whl/cpu` (the default Linux wheels bundle ~2.5 GB of CUDA libraries) |
+  | MiKTeX | apt: `texlive-latex-base texlive-latex-extra texlive-fonts-recommended cm-super dvipng` |
+  | step 2.6 downloads + MD5 check | same URLs and MD5 checks; files cached between runs (`actions/cache`, key `datasets-v2`) |
+  | setuptools repair (2.2) | not needed: fresh Python, no Anaconda base |
+
+  The workflow also has a `concurrency` group: a new push cancels a still-running older
+  run, so a stale run cannot overwrite the published dashboard.
 
 ## 5. Results
 
 | Run | Environment | Passed | Failed |
 |---|---|---|---|
 | CI, run [38333885122](../../actions/runs/38333885122) | `ubuntu-latest`, `requirements.txt` | 15 | 13 |
+| CI, pinned setup (4.13) | `ubuntu-latest`, `requirements-local.txt` + TeX Live + datasets | _first run pending_ | |
 | Local, first attempt | clone of base + `requirements.txt` | 6 | 22 |
 | Local, after fixes 4.3–4.12 | `pyprobml` + `requirements-local.txt` + pre-downloaded datasets | **28** | **0** |
 

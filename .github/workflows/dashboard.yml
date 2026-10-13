@@ -9,6 +9,11 @@ on:
 permissions:
   contents: write  # to push the workflow_testing_indicator branch
 
+concurrency:
+  # a newer run cancels an older one, so a stale run cannot overwrite the dashboard
+  group: dashboard-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   execute_notebooks_and_publish_dashboard:
     runs-on: ubuntu-latest
@@ -22,19 +27,42 @@ jobs:
         # Change this based on the python version in Google colab
         python-version: '3.10.12'
 
-    - name: Install dependencies
+    - name: Install system packages (LaTeX for notebooks that latexify, graphviz)
       run: |
-        pip install -U --no-cache-dir -r requirements.txt | cat
-        sudo apt-get update && sudo apt-get install -y graphviz
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends \
+          graphviz texlive-latex-base texlive-latex-extra texlive-fonts-recommended cm-super dvipng
+
+    - name: Install pinned Python packages (see REPRODUCE.md)
+      run: |
+        # CPU-only PyTorch; the default Linux wheels bundle large CUDA libraries
+        pip install --no-cache-dir torch==2.1.2 torchvision==0.16.2 --index-url https://download.pytorch.org/whl/cpu | cat
+        pip install --no-cache-dir -r requirements-local.txt | cat
 
     - name: Cache datasets
       uses: actions/cache@v4
       with:
         path: |
           ~/.keras/datasets
+          ~/data
           ~/tensorflow_datasets
-          ${{ github.workspace }}/data
-        key: datasets
+        key: datasets-v2
+
+    - name: Pre-download slow or broken datasets (see REPRODUCE.md 2.6)
+      run: |
+        mkdir -p ~/.keras/datasets ~/data/EMNIST/raw
+
+        # CIFAR-10 for cifar_viz_tf: Hugging Face mirror, the original server is very slow
+        f=~/.keras/datasets/cifar-10-batches-py.tar.gz
+        [ -f "$f" ] || curl -L --fail --retry 5 -sS -o "$f" \
+          https://huggingface.co/cloneofsimo/test_model/resolve/main/cifar-10-python.tar.gz
+        echo "c58f30108f718f92721af3b95e74349a  $f" | md5sum -c
+
+        # EMNIST for emnist_viz_jax: torchvision 0.16's URL no longer serves the file
+        f=~/data/EMNIST/raw/gzip.zip
+        [ -f "$f" ] || curl -L --fail --retry 5 -sS -o "$f" \
+          https://biometrics.nist.gov/cs_links/EMNIST/gzip.zip
+        echo "58c8d27c78d21e728a6bc7b3cc06412e  $f" | md5sum -c
 
     - name: Execute notebooks
       continue-on-error: true  # failures are shown as red marks on the dashboard
