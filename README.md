@@ -16,6 +16,7 @@ On every push to `main` (or a manual run from the Actions tab), `.github/workflo
 
 See [REPRODUCE.md](REPRODUCE.md) for building the pinned conda environment
 (`requirements-local.txt`), running the notebooks on Windows, and every setup problem found along the way.
+See [JUPYTER.md](JUPYTER.md) for opening and checking the notebooks by hand in JupyterLab.
 
 ## Adding chapters
 
