@@ -19,6 +19,8 @@
 /notebooks/**
 !/notebooks/**/
 !/notebooks/**/*.ipynb
+# ...and the empty figures/ folders they save into (see JUPYTER.md section 1)
+!/notebooks/**/figures/.gitkeep
 
 __pycache__/
 .ipynb_checkpoints/

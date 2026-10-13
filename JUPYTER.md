@@ -30,6 +30,20 @@ $k | Add-Member -Force env ([ordered]@{ THEANO_FLAGS = "blas__ldflags=,gcc__cxxf
 $k | ConvertTo-Json -Depth 5 | Set-Content $f -Encoding utf8
 ```
 
+Many notebooks save figures to `figures/` or `../figures/` relative to the folder they run in, without
+creating it (`FileNotFoundError: ... 'figures\\cifar10-data.pdf'`). The test runner runs from the
+repository root, where `figures/` exists; JupyterLab runs each notebook in its own folder. The
+repository therefore contains an empty `figures/` folder (with a `.gitkeep` file) in every notebook
+folder and in `notebooks/book1/`; the figures saved into them are ignored by git. If a folder is
+missing (e.g. for newly synced notebooks), create them with:
+
+```powershell
+Get-ChildItem notebooks\book1 -Recurse -Filter *.ipynb |
+    Where-Object { $_.DirectoryName -notmatch "ipynb_checkpoints" } |
+    Select-Object -ExpandProperty DirectoryName -Unique |
+    ForEach-Object { New-Item -ItemType Directory -Force "$_\figures", "$(Split-Path $_)\figures" | Out-Null }
+```
+
 For chapters 3–22, also do the machine setup (REPRODUCE.md 1.1) and the dataset pre-downloads (2.6).
 
 ## 2. Start JupyterLab
@@ -92,6 +106,7 @@ Chapters 1–2 (28 notebooks): 28 passed in `pml-jupyter`.
 | Symptom | Fix |
 |---|---|
 | `ModuleNotFoundError` | wrong kernel (section 3) |
+| `FileNotFoundError: ... 'figures\\<name>.pdf'` | the `figures` folder is missing; create it (section 1) |
 | A cell starts `%pip install ...` | wrong kernel; interrupt it — unpinned installs break the env (REPRODUCE.md 4.3) |
 | `blas_opt_info` error in pymc3 notebooks | kernel lacks `THEANO_FLAGS` (section 1) |
 | Kernel dies / keeps restarting | `& $py -m pip check` must print `No broken requirements found.` |
