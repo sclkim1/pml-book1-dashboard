@@ -29,6 +29,10 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 ------------------
 
+----- stderr -----
+/opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/sklearn/utils/_param_validation.py:14: UserWarning: A NumPy version >=1.23.5 and <2.5.0 is required for this version of SciPy (detected version 1.22.4)
+  from scipy.sparse import csr_matrix, issparse
+------------------
 
 ---------------------------------------------------------------------------
 ImportError                               Traceback (most recent call last)
