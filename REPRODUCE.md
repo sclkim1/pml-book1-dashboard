@@ -434,8 +434,10 @@ on PATH, theano falls back to pure Python and those 3 notebooks time out.
   | `prob` | `pd.set_option("precision", 2)` → `"display.precision"`; `timemachine.txt` URL → `probml/probml-data/main/data/` |
   | `autodiff_tf`, `pca`, `ae_mnist_tf` | same `"display.precision"` edit (found by searching all notebooks); fixes the known failure `ae_mnist_tf` |
 
-  `linalg` and `linreg_sklearn` have the same pandas line but fail further on
-  (`jax.experimental.optimizers` removed, Boston housing dataset removed); left for their chapters.
+  | `linalg` | same `"display.precision"` edit; `from jax.experimental import optimizers` → `jax.example_libraries` (moved; the notebook only imports it) |
+  | `linreg_sklearn` | same `"display.precision"` edit; `sklearn.datasets.load_boston()` (removed in scikit-learn 1.2) → the same data read from its original source `http://lib.stat.cmu.edu/datasets/boston`, as scikit-learn's deprecation notice suggests, wrapped in a `Bunch` with `data`, `target`, `feature_names` |
+
+  `linalg` and `linreg_sklearn` were found later (a by-hand run hit the pandas line); both pass.
 - **Check:** all 35 notebooks of chapters 1–2 pass when executed like JupyterLab (each in its own
   folder, kernel `pml-jupyter`, without the test runner's rewrites), 2.8 min.
 

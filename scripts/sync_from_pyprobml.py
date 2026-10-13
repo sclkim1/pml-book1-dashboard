@@ -23,6 +23,8 @@ LOCAL_EDITS = {
     "notebooks/book1/08/autodiff_tf.ipynb",
     "notebooks/book1/20/pca.ipynb",
     "notebooks/book1/20/ae_mnist_tf.ipynb",
+    "notebooks/book1/07/linalg.ipynb",
+    "notebooks/book1/11/supplementary/linreg_sklearn.ipynb",
 }
 
 UPSTREAM = "probml/pyprobml"
