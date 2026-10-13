@@ -1,0 +1,43 @@
+# Pinned, mutually compatible versions for running the notebooks (Python 3.10).
+#
+# Everything a notebook would otherwise `pip install` itself is listed here, so the
+# notebooks' `try: import X / except ImportError: pip install X` cells never run.
+# Unpinned in-notebook installs pulled tensorflow 2.21 + numpy 2.x mid-run and broke
+# scipy/matplotlib/pandas built against numpy 1.x.
+numpy==1.22.4           # probml-utils pins distrax==0.1.3, which requires numpy<1.23
+scipy==1.10.1
+pandas==1.5.3
+matplotlib==3.5.3        # iris_pca uses fig.gca(projection="3d"), removed in 3.6
+seaborn==0.12.2
+scikit-learn==1.3.2
+h5py==3.10.0
+arviz==0.15.1
+bokeh==2.4.3             # emnist_viz_jax uses figure(plot_width=...), removed in 3.0
+graphviz
+pyyaml
+requests
+
+jax==0.4.23              # chex releases that accept numpy<1.23 use jax.core.Shape, removed in later jax
+jaxlib==0.4.23
+optax==0.2.1
+chex==0.1.7
+
+tensorflow==2.12.1      # supports numpy 1.22 (TF >= 2.14 needs numpy >= 1.23.5)
+tensorflow-probability==0.20.1  # matches TF 2.12; newer versions need tf_keras
+tensorflow-datasets==4.9.2
+tensorflow-metadata==1.13.1   # newer versions need protobuf 5; TF 2.12 needs protobuf < 5
+
+torch==2.1.2
+torchvision==0.16.2
+
+git+https://github.com/probml/probml-utils.git
+nltk
+
+# Running notebooks and building the dashboard
+jupyter
+ipykernel
+nbclient
+nbformat
+pytest
+pytest-xdist
+tabulate

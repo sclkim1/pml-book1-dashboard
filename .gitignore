@@ -4,3 +4,7 @@ figures/
 data/
 __pycache__/
 .ipynb_checkpoints/
+# outputs some notebooks write to the working directory
+/*.pdf
+/*.png
+/*.dot

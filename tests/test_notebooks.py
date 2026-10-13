@@ -13,6 +13,7 @@ from nbclient import NotebookClient
 TIMEOUT = 1200  # seconds
 TEST_DIR = "test_results"
 MAPPING_CSV = "internal/figures_url_mapping_book1.csv"
+KERNEL_NAME = os.environ.get("NB_KERNEL", "python3")  # e.g. NB_KERNEL=pyprobml for a local conda env
 os.environ["FIG_DIR"] = "figures"
 os.environ["DUAL_SAVE"] = ""  # To save both .pdf and .png
 
@@ -53,7 +54,7 @@ def test_run_notebooks(notebook):
     init = time()
     try:
         nb = nbformat.read(notebook, as_version=4)
-        NotebookClient(nb, timeout=TIMEOUT, kernel_name="python3").execute()
+        NotebookClient(nb, timeout=TIMEOUT, kernel_name=KERNEL_NAME).execute()
         save_status(notebook, "right")
         print("passed in {:.2f} seconds: {} ".format(time() - init, notebook))
     except Exception as e:
