@@ -84,16 +84,16 @@ Checked by hand / like JupyterLab: **all 35 notebooks of chapters 1–2 pass** i
 ### Links between notebooks
 
 The figure notebooks (`fig_<chapter>_<n>.ipynb`) only hold a caption with links to the notebooks
-that generate the figure. Upstream links point to Google Colab; `scripts/local_links.py` replaces
-them with relative links (e.g. `beta_dist_plot.ipynb`), which open the local notebook in JupyterLab.
-Done so far: `fig_2_17`. For other notebooks:
+that generate the figure, and some notebooks link to related ones. Upstream links point to Google
+Colab; `scripts/local_links.py` replaced them with relative links (e.g. `beta_dist_plot.ipynb`,
+`../03/gmm_2d.ipynb`), which open the local notebook in JupyterLab: 50 links in 35 notebooks.
 
-```powershell
-& "$HOME\anaconda3\envs\pml-jupyter\python.exe" scripts/local_links.py notebooks/book1/02/fig_2_2.ipynb
-```
-
-Only links whose target exists in this repository are changed. Add edited notebooks to
-`LOCAL_EDITS` in `scripts/sync_from_pyprobml.py`, so a sync does not undo the change.
+- Only markdown links are changed; the "Open in Colab" badges at the top of notebooks are kept.
+- Links to old paths (`notebooks/rnn_torch.ipynb`, `probml-notebooks`) or the wrong chapter point
+  to the only local notebook with that file name.
+- 13 links stay on Colab: their notebooks (`text_preproc_torch`, `jax_intro`, `datasets`, `opt`,
+  `bagging_boosting_trees_and_forests`) are not in this repository.
+- `scripts/sync_from_pyprobml.py` runs `local_links.py` after every sync.
 
 ## 5. Differences from the automated test
 
