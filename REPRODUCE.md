@@ -167,7 +167,7 @@ To re-run a single notebook: add `-k <name>`, e.g. `-k iris_kmeans`.
 
 Each entry: **symptom → cause → fix**. Entries 4.1–4.2 are tooling; 4.3–4.10 are the Python
 environment; 4.11–4.12 are datasets; 4.13 is CI; 4.14–4.15 appeared only in a fresh env / CI;
-4.16–4.17 are hardcoded paths; 4.18–4.24 came with chapters 3–22.
+4.16–4.17 are hardcoded paths; 4.18–4.24 came with chapters 3–22; 4.25 is a flaky download.
 
 ### 4.1 `git push` fails with exit code 128 and no message
 - **Cause:** the installed Git was 2.9.0 (2016). Its `git-remote-https` helper (and Git Bash's
@@ -383,6 +383,19 @@ on PATH, theano falls back to pure Python and those 3 notebooks time out.
   not an option here (no Windows wheels; chex/optax need jax 0.4).
 - **Decision:** `pandas==1.5.3` (verified with chapters 1–2, no extra downgrades of xarray /
   xarray-einstats). `ae_mnist_tf` remains a failure.
+
+### 4.25 CI: random notebooks fail with `ValueError: Unknown mat file type, version 104, 116`
+- **Symptom:** CI run [38358185226](../../actions/runs/38358185226) gave 162/172: `fisher_discrim_vowel`,
+  `lassoPathProstate`, `hclust_yeast_demo` failed, although they passed in the run before.
+- **Cause:** 18 notebooks (11 of them executed) download data/images with
+  `https://github.com/<owner>/<repo>/blob/<ref>/<path>?raw=true`, which github.com redirects to
+  `raw.githubusercontent.com`. github.com intermittently answers these with a **503 HTML page**
+  (reproduced locally: 503, 503, then 200 for the same URL), and the notebooks pass the response to
+  `loadmat` without checking the status: "version 104, 116" is `ht` from `<html>`.
+  `raw.githubusercontent.com` returned 200 every time.
+- **Fix:** `REGEX_REWRITES` in `tests/test_notebooks.py` rewrites such URLs in memory (like 4.17) to
+  `https://raw.githubusercontent.com/<owner>/<repo>/<ref>/<path>`, the file the redirect would
+  reach. The notebook files stay identical to upstream. All 11 executed notebooks pass with it locally.
 
 
 ## 5. Results

@@ -68,12 +68,25 @@ SOURCE_REWRITES = {
     'savefig("/PcaTrainFaceImages.png")': 'savefig("PcaTrainFaceImages.png")',  # pcaImageDemo
 }
 
+# github.com/<owner>/<repo>/(blob|tree)/<ref>/<path>?raw=true redirects to raw.githubusercontent.com, but
+# github.com intermittently answers it with a 503 HTML page, which the notebooks then try to parse
+# (e.g. loadmat: "Unknown mat file type"). Download the same file from raw.githubusercontent.com directly.
+# See REPRODUCE.md 4.25.
+REGEX_REWRITES = [
+    (
+        re.compile(r"https?://github\.com/([^/\s\"']+)/([^/\s\"']+)/(?:blob|tree)/([^\s\"'?]+)\?raw=true"),
+        r"https://raw.githubusercontent.com/\1/\2/\3",
+    ),
+]
+
 
 def apply_rewrites(nb):
     for cell in nb.cells:
         if cell.cell_type == "code":
             for old, new in SOURCE_REWRITES.items():
                 cell.source = cell.source.replace(old, new)
+            for pattern, repl in REGEX_REWRITES:
+                cell.source = pattern.sub(repl, cell.source)
     return nb
 
 
