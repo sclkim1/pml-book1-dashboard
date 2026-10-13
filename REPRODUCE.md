@@ -62,9 +62,16 @@ Expected output of 2.5: `OK 2.12.1 3.0 3.0 3.0`.
 pip prints dependency-conflict warnings about `conda-repo-cli`, `gensim` and `optree`. Those
 packages come from Anaconda base and are not used by the notebooks; the warnings can be ignored.
 
-> **Clone of base vs. fresh env.** Cloning base is what was tested here. A fresh env
-> (`conda create -n pyprobml python=3.10 -y`, then steps 2.3–2.5) should also work with
-> `requirements-local.txt`, and would skip the setuptools repair in 2.2, but it was **not tested**.
+> **Clone of base vs. fresh env.** Both were tested and both pass 28/28. A fresh env is the
+> more reproducible choice because it does not depend on what is in your Anaconda base:
+> ```powershell
+> conda create -n pyprobml-fresh python=3.10 -y      # tested with Python 3.10.22
+> $py = "$HOME\anaconda3\envs\pyprobml-fresh\python.exe"
+> & $py -m pip install -U pip
+> & $py -m pip install -r requirements-local.txt     # step 2.2 (setuptools repair) is not needed
+> & $py -m ipykernel install --user --name pyprobml-fresh
+> ```
+> Then use `$env:NB_KERNEL = "pyprobml-fresh"` in section 3.
 
 ### 2.6 Pre-download slow or broken datasets
 
@@ -124,7 +131,7 @@ To re-run a single notebook: add `-k <name>`, e.g. `-k iris_kmeans`.
 ## 4. Problems found and how they were fixed
 
 Each entry: **symptom → cause → fix**. Entries 4.1–4.2 are tooling; 4.3–4.10 are the Python
-environment; 4.11–4.12 are datasets; 4.13 is a CI-only difference.
+environment; 4.11–4.12 are datasets; 4.13 is CI; 4.14–4.15 appeared only in a fresh env / CI.
 
 ### 4.1 `git push` fails with exit code 128 and no message
 - **Cause:** the installed Git was 2.9.0 (2016). Its `git-remote-https` helper (and Git Bash's
@@ -226,14 +233,35 @@ environment; 4.11–4.12 are datasets; 4.13 is a CI-only difference.
   The workflow also has a `concurrency` group: a new push cancels a still-running older
   run, so a stale run cannot overwrite the published dashboard.
 
+### 4.14 Fresh env / CI: every notebook fails, `cannot import name 'TypeAliasType' from 'typing_extensions'` or `Kernel died before replying to kernel_info`
+- **Cause:** `tensorflow==2.12.1` requires `typing-extensions<4.6`, but current Jupyter kernel
+  packages need ≥ 4.6. The env cloned from base was unaffected because base already had older
+  Jupyter packages; a fresh env (and CI) installed the newest ones, and the kernel crashed at startup.
+- **Fix:** pin the kernel stack to the versions that worked locally: `typing-extensions==4.5.0`,
+  `ipykernel==6.19.2`, `ipython==8.10.0`, `jupyter-client==7.3.4`, `jupyter-core==5.2.0`,
+  `nbclient==0.5.13`, `nbformat==5.7.0`, `jsonschema==4.17.3`, `pyzmq==23.2.0`, `tornado==6.1`,
+  `traitlets==5.7.1`. The `jupyter` meta-package was removed from the list; `probml-utils` still installs it as a
+  dependency, but the kernel pins above keep it compatible.
+
+### 4.15 Fresh env: every notebook fails, `'RcParams' object has no attribute '_get'`
+- **Cause:** `matplotlib-inline` ≥ 0.1.7 (the inline plot backend) calls `rcParams._get`, which
+  only exists in matplotlib ≥ 3.7; we pin matplotlib 3.5.3 (4.5). Again hidden in the clone of
+  base, which had 0.1.6.
+- **Fix:** `matplotlib-inline==0.1.6`.
+
+
 ## 5. Results
 
 | Run | Environment | Passed | Failed |
 |---|---|---|---|
 | CI, run [38333885122](../../actions/runs/38333885122) | `ubuntu-latest`, `requirements.txt` | 15 | 13 |
-| CI, pinned setup (4.13) | `ubuntu-latest`, `requirements-local.txt` + TeX Live + datasets | _first run pending_ | |
+| CI, pinned setup, first try, run [38341210973](../../actions/runs/38341210973) | `ubuntu-latest`, `requirements-local.txt` before 4.14/4.15 | 0 | 28 |
+| CI, pinned setup with 4.14/4.15 | `ubuntu-latest`, `requirements-local.txt` + TeX Live + datasets | _run pending_ | |
 | Local, first attempt | clone of base + `requirements.txt` | 6 | 22 |
 | Local, after fixes 4.3–4.12 | `pyprobml` + `requirements-local.txt` + pre-downloaded datasets | **28** | **0** |
 
-The last row is a single clean run of all 28 notebooks (`pytest -n 4`, 49 s, Windows 11).
-`pip freeze` was identical before and after the run, so no notebook installed anything.
+| Local, fresh env (no Anaconda base) | `pyprobml-fresh` (Python 3.10.22) + `requirements-local.txt` with 4.14/4.15 | **28** | **0** |
+
+The two local "after fixes" rows are single clean runs of all 28 notebooks (`pytest -n 4`,
+Windows 11; 49 s and 44 s). For the clone-of-base run, `pip freeze` was identical before and
+after, so no notebook installed anything.
