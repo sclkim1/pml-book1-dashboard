@@ -77,7 +77,9 @@ $env:NB_KERNEL = "pml-jupyter"
 & "$HOME\anaconda3\envs\pml-jupyter\python.exe" -m pytest -n 4 -q -p no:cacheprovider tests/test_notebooks.py -k "iris_plot or iris_kmeans"
 ```
 
-Chapters 1–2 (28 notebooks): 28 passed in `pml-jupyter`.
+The test runner only runs the notebooks of the figure mapping (28 of the 35 in chapters 1–2).
+Checked by hand / like JupyterLab: **all 35 notebooks of chapters 1–2 pass** in `pml-jupyter`
+(after the edits of REPRODUCE.md 4.26).
 
 ## 5. Differences from the automated test
 
