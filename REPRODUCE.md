@@ -87,6 +87,9 @@ $py = "$HOME\anaconda3\envs\pyprobml-fresh\python.exe"
 # 2.3 minepy (MIC_correlation_2d): source-only, built with the pinned setuptools (4.22)
 & $py -m pip install --no-build-isolation minepy==1.2.6
 
+# 2.3b one-line fixes to installed distrax and causalgraphicalmodels (4.27)
+& $py scripts/patch_packages.py
+
 # 2.4 Register the env as a Jupyter kernel named "pyprobml-fresh"
 & $py -m ipykernel install --user --name pyprobml-fresh --display-name "Python (pyprobml-fresh)"
 
@@ -173,7 +176,7 @@ the kernel's `THEANO_FLAGS`, and how a notebook run by hand differs from the tes
 Each entry: **symptom → cause → fix**. Entries 4.1–4.2 are tooling; 4.3–4.10 are the Python
 environment; 4.11–4.12 are datasets; 4.13 is CI; 4.14–4.15 appeared only in a fresh env / CI;
 4.16–4.17 are hardcoded paths; 4.18–4.24 came with chapters 3–22; 4.25 is a flaky download;
-4.26 came from checking chapters 1–2 by hand in JupyterLab.
+4.26 came from checking chapters 1–2 by hand in JupyterLab, 4.27 from chapter 3.
 
 ### 4.1 `git push` fails with exit code 128 and no message
 - **Cause:** the installed Git was 2.9.0 (2016). Its `git-remote-https` helper (and Git Bash's
@@ -435,6 +438,31 @@ on PATH, theano falls back to pure Python and those 3 notebooks time out.
   (`jax.experimental.optimizers` removed, Boston housing dataset removed); left for their chapters.
 - **Check:** all 35 notebooks of chapters 1–2 pass when executed like JupyterLab (each in its own
   folder, kernel `pml-jupyter`, without the test runner's rewrites), 2.8 min.
+
+### 4.27 Chapter 3 by hand: `module 'jax' has no attribute 'xla'`, `cannot import name 'Iterable' from 'collections'`
+Neither notebook is run by the dashboard (not in the figure mapping); found in JupyterLab.
+
+- **`mix_bernoulli_sgd_mnist`: `AttributeError: module 'jax' has no attribute 'xla'`**, inside distrax
+  (`distrax/_src/utils/jittable.py`, `_is_jax_data`) when a distrax object passes through
+  `jax.lax.scan` (`probml_utils.mix_bernoulli_lib.BMM.fit_sgd`).
+  - **Cause:** `probml-utils` pins `distrax==0.1.3`, which calls `jax.xla.abstractify`; jax 0.4.23
+    (4.6) removed `jax.xla`. distrax 0.1.5 fixed it by calling `jax.interpreters.xla.abstractify`,
+    which jax 0.4.23 has, but installing it pulls jax 0.6 and numpy 2 (breaks 4.5).
+  - **Fix:** apply distrax 0.1.5's one-line change to the installed distrax.
+- **`sprinkler_pgm`: the notebook `%pip install`ed `causalgraphicalmodels` mid-run (4.3), which then
+  failed with `ImportError: cannot import name 'Iterable' from 'collections'`.**
+  - **Cause:** `causalgraphicalmodels` and `pgmpy` were not in `requirements-local.txt`.
+    causalgraphicalmodels 0.0.4 (its latest release) imports `collections.Iterable`, removed in
+    Python 3.10. The notebook uses `pgmpy.models.BayesianModel`, an old name.
+  - **Fix:** pin `causalgraphicalmodels==0.0.4` and `pgmpy==0.1.23` (has `BayesianModel`, installs
+    nothing else; 0.1.26 pulls xgboost and google-generativeai), and patch the import to
+    `collections.abc`.
+  - Needs Graphviz's `dot` (4.23). A shell started before `windows_admin_setup.ps1` added
+    Graphviz to the PATH fails with `ExecutableNotFound: failed to execute WindowsPath('dot')`;
+    open a new terminal before starting JupyterLab.
+- **Patches:** `scripts/patch_packages.py` applies both one-line edits to the installed packages
+  (step 2.3b; CI runs it after the installs). Idempotent; rerun it after reinstalling a package.
+- **Check:** all 12 notebooks of chapter 3 pass when executed like JupyterLab.
 
 
 ## 5. Results

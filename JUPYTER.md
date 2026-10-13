@@ -16,6 +16,7 @@ $py = "$HOME\anaconda3\envs\pml-jupyter\python.exe"
 & $py -m pip install -r requirements-local.txt     # if it fails (e.g. "Could not resolve host"),
                                                    # remove the env and start again
 & $py -m pip install --no-build-isolation minepy==1.2.6
+& $py scripts/patch_packages.py                    # REPRODUCE.md 4.27
 & $py -m ipykernel install --user --name pml-jupyter --display-name "Python (pml-jupyter)"
 & $py -m pip check                                 # -> No broken requirements found.
 ```
