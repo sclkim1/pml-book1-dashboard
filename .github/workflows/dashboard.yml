@@ -70,8 +70,7 @@ jobs:
     - name: Make hardcoded absolute paths writable (see REPRODUCE.md 4.16, 4.17)
       run: |
         # Upstream CI runs as root, so these notebooks can write anywhere; the runner user cannot.
-        # linreg_poly_vs_degree: FIG_DIR=/teamspace/studios/this_studio/...
-        sudo mkdir -p /teamspace && sudo chown "$USER" /teamspace
+        # (linreg_poly_vs_degree's FIG_DIR=/teamspace/... is edited to "figures" in the notebook)
         # gaussEvec, seq_logo_demo, ...: FIG_DIR=/Users/kpmurphy/github/bookv2/figures
         sudo mkdir -p /Users/kpmurphy/github/bookv2/figures && sudo chown -R "$USER" /Users
         # (pcaImageDemo's savefig("/PcaTrainFaceImages.png") is redirected by tests/test_notebooks.py)

@@ -110,4 +110,4 @@ Chapters 1–2 (28 notebooks): 28 passed in `pml-jupyter`.
 | A cell starts `%pip install ...` | wrong kernel; interrupt it — unpinned installs break the env (REPRODUCE.md 4.3) |
 | `blas_opt_info` error in pymc3 notebooks | kernel lacks `THEANO_FLAGS` (section 1) |
 | Kernel dies / keeps restarting | `& $py -m pip check` must print `No broken requirements found.` |
-| `PermissionError` for `C:\teamspace\...` or `C:\Users\kpmurphy\...` | run `scripts/windows_admin_setup.ps1` as admin (REPRODUCE.md 1.1) |
+| `PermissionError` for `C:\Users\kpmurphy\...` | run `scripts/windows_admin_setup.ps1` as admin (REPRODUCE.md 1.1) |

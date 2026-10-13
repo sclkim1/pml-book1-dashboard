@@ -12,6 +12,11 @@ import json
 import os
 import urllib.request
 
+# Notebooks edited in this repository (REPRODUCE.md 4.16): not overwritten by a sync
+LOCAL_EDITS = {
+    "notebooks/book1/01/linreg_poly_vs_degree.ipynb",
+}
+
 UPSTREAM = "probml/pyprobml"
 BRANCH = "master"
 RAW = f"https://raw.githubusercontent.com/{UPSTREAM}/{BRANCH}"
@@ -77,8 +82,11 @@ prefixes = tuple(f"notebooks/book1/{int(c):02d}/" for c in chapters)
 mapped = {"notebooks/" + "/".join(url.split("/")[-3:]) for row in rows for url in ast.literal_eval(row["url"])}
 notebooks = sorted({p for p in book1_notebooks if p.startswith(prefixes)} | (mapped & set(book1_notebooks)))
 for path in notebooks:
+    if path in LOCAL_EDITS and os.path.exists(path):
+        print(f"kept local edit: {path}")
+        continue
     save(path, fetch(f"{RAW}/{path}"))
-print(f"{len(notebooks)} notebooks copied")
+print(f"{len(notebooks)} notebooks synced")
 
 for icon in ["right", "wrong"]:
     save(f"tests/icons/{icon}.png", fetch(f"{RAW}/tests/icons/{icon}.png"))

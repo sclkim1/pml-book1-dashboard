@@ -58,7 +58,6 @@ Start-Process powershell -Verb RunAs -Wait -ArgumentList '-NoProfile -ExecutionP
 | It creates / installs | For |
 |---|---|
 | `C:\Users\kpmurphy\github\bookv2\figures` (= `/Users/kpmurphy/...`) | 5 notebooks (4.17) |
-| `C:\teamspace\studios\this_studio\pyprobml\notebooks\figures` (= `/teamspace/...`) | `linreg_poly_vs_degree` (4.16) |
 | wget, Graphviz (winget); `~\bin\unzip.cmd`; Graphviz and `~\bin` added to your user PATH | 4.23 |
 
 Then, without admin rights, give wget a CA bundle (4.23) and open a new terminal:
@@ -271,7 +270,8 @@ environment; 4.11–4.12 are datasets; 4.13 is CI; 4.14–4.15 appeared only in 
   | MiKTeX | apt: `texlive-latex-base texlive-latex-extra texlive-fonts-recommended cm-super dvipng` |
   | step 2.6 downloads + MD5 check | same URLs and MD5 checks; files cached between runs (`actions/cache`, key `datasets-v3`) |
   | `minepy` with `--no-build-isolation` (2.3) | same |
-  | `scripts/windows_admin_setup.ps1`: hardcoded folders (4.16, 4.17) | `sudo mkdir` + `chown` of `/teamspace`, `/Users/kpmurphy/github/bookv2/figures` |
+  | `scripts/windows_admin_setup.ps1`: hardcoded folder (4.17) | `sudo mkdir` + `chown` of `/Users/kpmurphy/github/bookv2/figures` |
+  | `linreg_poly_vs_degree` edited (4.16) | same |
   | `SOURCE_REWRITES` in `tests/test_notebooks.py` (4.17) | same |
   | `scripts/windows_admin_setup.ps1`: wget, unzip, Graphviz (4.23) | preinstalled on the runner (wget, unzip), apt `graphviz` |
   | `THEANO_FLAGS` with `gcc__cxxflags=-static` (4.20) | `blas__ldflags=` only; the runner's g++ works normally |
@@ -302,8 +302,18 @@ environment; 4.11–4.12 are datasets; 4.13 is CI; 4.14–4.15 appeared only in 
   `/teamspace`; the GitHub runner user cannot. On Windows the path becomes `C:\teamspace\…`,
   which a normal user can create, so it passes locally, **but leaves 15 figure PDFs in
   `C:\teamspace`**. Delete that folder after local runs if you don't want it.
-- **Fix:** the notebook is left identical to upstream (`sync_from_pyprobml.py` would overwrite an
-  edit). CI creates the folder instead: `sudo mkdir -p /teamspace && sudo chown "$USER" /teamspace`.
+- **First fix:** keep the notebook identical to upstream and create the folder: `sudo mkdir -p /teamspace`
+  + `chown` on CI, `C:\teamspace` via the admin script on Windows.
+- **Current fix (the only notebook edited in this repository):** one line, the original kept as a comment:
+  ```python
+  #os.environ["FIG_DIR"] = "/teamspace/studios/this_studio/pyprobml/notebooks/figures"
+  os.environ["FIG_DIR"] = "figures"  # relative to the working folder (REPRODUCE.md 4.16)
+  ```
+  The figures go to `figures/` in the folder the notebook runs in: the repository root for the test
+  runner, `notebooks/book1/01/figures/` in JupyterLab (JUPYTER.md). No `/teamspace` folder, admin
+  rights or `sudo` needed. `./notebooks/figures` was tried first, but it is also relative to the
+  working folder and ended up in `notebooks/book1/01/notebooks/figures/` in JupyterLab.
+  `scripts/sync_from_pyprobml.py` lists the notebook in `LOCAL_EDITS` and does not overwrite it.
 
 ### 4.17 `/Users/kpmurphy/...` and `/PcaTrainFaceImages.png`: `PermissionError` / `FileNotFoundError`
 - **Notebooks:** `gaussEvec`, `discrim_analysis_dboundaries_plot2`, `iris_logreg_loss_surface`,
