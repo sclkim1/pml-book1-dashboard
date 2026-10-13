@@ -9,16 +9,12 @@ $ErrorActionPreference = "Stop"
 $home_dir = "C:\Users\$User"
 
 # --- 1. Hardcoded paths (REPRODUCE.md 4.16, 4.17) ---------------------------------------------
-$dirs = @(
-    "C:\Users\kpmurphy\github\bookv2\figures",                      # /Users/kpmurphy/...: gaussEvec, seq_logo_demo, ...
-    "C:\teamspace\studios\this_studio\pyprobml\notebooks\figures"   # /teamspace/...: linreg_poly_vs_degree
-)
-foreach ($d in $dirs) {
-    New-Item -ItemType Directory -Force $d | Out-Null
-    Write-Host "created $d"
-}
+$d = "C:\Users\kpmurphy\github\bookv2\figures"   # /Users/kpmurphy/...: gaussEvec, seq_logo_demo, ...
+New-Item -ItemType Directory -Force $d | Out-Null
+Write-Host "created $d"
 icacls "C:\Users\kpmurphy" /grant "${User}:(OI)(CI)M" /T | Out-Null
-icacls "C:\teamspace" /grant "${User}:(OI)(CI)M" /T | Out-Null
+
+# (linreg_poly_vs_degree's FIG_DIR=/teamspace/... is edited to "figures" in the notebook, 4.16)
 
 # (pcaImageDemo's savefig("/PcaTrainFaceImages.png") is redirected by tests/test_notebooks.py instead)
 
