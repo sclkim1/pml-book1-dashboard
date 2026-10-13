@@ -21,6 +21,8 @@ LOCAL_EDITS = {
     "notebooks/book1/08/autodiff_tf.ipynb",
     "notebooks/book1/20/pca.ipynb",
     "notebooks/book1/20/ae_mnist_tf.ipynb",
+    # Colab links -> local links (scripts/local_links.py, JUPYTER.md)
+    "notebooks/book1/02/fig_2_17.ipynb",
 }
 
 UPSTREAM = "probml/pyprobml"
