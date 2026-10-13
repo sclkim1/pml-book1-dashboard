@@ -59,7 +59,6 @@ Start-Process powershell -Verb RunAs -Wait -ArgumentList '-NoProfile -ExecutionP
 |---|---|
 | `C:\Users\kpmurphy\github\bookv2\figures` (= `/Users/kpmurphy/...`) | 5 notebooks (4.17) |
 | `C:\teamspace\studios\this_studio\pyprobml\notebooks\figures` (= `/teamspace/...`) | `linreg_poly_vs_degree` (4.16) |
-| `C:\PcaTrainFaceImages.pdf`, `.png`, with the integrity label lowered | `pcaImageDemo` (4.17) |
 | wget, Graphviz (winget); `~\bin\unzip.cmd`; Graphviz and `~\bin` added to your user PATH | 4.23 |
 
 Then, without admin rights, give wget a CA bundle (4.23) and open a new terminal:
@@ -266,7 +265,8 @@ environment; 4.11–4.12 are datasets; 4.13 is CI; 4.14–4.15 appeared only in 
   | MiKTeX | apt: `texlive-latex-base texlive-latex-extra texlive-fonts-recommended cm-super dvipng` |
   | step 2.6 downloads + MD5 check | same URLs and MD5 checks; files cached between runs (`actions/cache`, key `datasets-v3`) |
   | `minepy` with `--no-build-isolation` (2.3) | same |
-  | `scripts/windows_admin_setup.ps1`: hardcoded paths (4.16, 4.17) | `sudo mkdir`/`touch` + `chown` of `/teamspace`, `/Users/kpmurphy/github/bookv2/figures`, `/PcaTrainFaceImages.{pdf,png}` |
+  | `scripts/windows_admin_setup.ps1`: hardcoded folders (4.16, 4.17) | `sudo mkdir` + `chown` of `/teamspace`, `/Users/kpmurphy/github/bookv2/figures` |
+  | `SOURCE_REWRITES` in `tests/test_notebooks.py` (4.17) | same |
   | `scripts/windows_admin_setup.ps1`: wget, unzip, Graphviz (4.23) | preinstalled on the runner (wget, unzip), apt `graphviz` |
   | `THEANO_FLAGS` with `gcc__cxxflags=-static` (4.20) | `blas__ldflags=` only; the runner's g++ works normally |
 
@@ -305,11 +305,17 @@ environment; 4.11–4.12 are datasets; 4.13 is CI; 4.14–4.15 appeared only in 
   (the author's laptop); `pcaImageDemo` calls `savefig("/PcaTrainFaceImages.png")`, i.e. the filesystem root.
 - **Cause:** as in 4.16, only root (upstream's container) can create these. On Windows they become
   `C:\Users\kpmurphy\...` and `C:\PcaTrainFaceImages.*`; creating either needs admin rights.
-  Moreover, files in `C:\` inherit a *High Mandatory Level (no write-up)* integrity label, so even
-  with write permission granted, a file created by an elevated process stays unwritable for normal processes.
-- **Fix:** `scripts/windows_admin_setup.ps1` creates the folder and files, grants your account
-  modify access, and lowers the files' integrity label (`icacls … /setintegritylevel M`).
-  CI does the same with `sudo mkdir`/`touch` + `chown`. `C:\Users\kpmurphy` is an ordinary folder, not a user profile.
+  Pre-creating the root files as admin did not work either: files in `C:\` inherit a
+  *High Mandatory Level (no write-up)* integrity label, so a file created by an elevated process
+  stays unwritable for normal processes even with write permission granted.
+- **Fix:**
+  - `/Users/kpmurphy/...` (5 notebooks): `scripts/windows_admin_setup.ps1` creates the folder and
+    grants your account modify access; CI uses `sudo mkdir` + `chown`. `C:\Users\kpmurphy` is an
+    ordinary folder, not a user profile.
+  - `/PcaTrainFaceImages.png`: `tests/test_notebooks.py` rewrites `savefig("/PcaTrainFaceImages.png")`
+    to `savefig("PcaTrainFaceImages.png")` **in memory** before running the notebook
+    (`SOURCE_REWRITES`), so the figure goes to `figures/` like all others. The notebook file stays
+    identical to upstream. No admin rights or `sudo` needed.
 
 ### 4.18 Upstream figure mapping points to moved or missing notebooks
 - **Symptom:** `File not found: notebooks/book1/21/gmm_2d.ipynb` while building the dashboard.
@@ -396,10 +402,10 @@ The 8 local failures:
 |---|---|
 | `lrschedule_tf`, `groupLassoDemo` (needs `spams`), `mlp_1d_regression_hetero_tfp`, `sparse_mlp` (`jax.experimental.stax` removed), `pcaStandardization`, `gmm_chooseK_pymc3` | **also fail upstream** |
 | `ae_mnist_tf` | pandas trade-off (4.24) |
-| `pcaImageDemo` | `C:\PcaTrainFaceImages.pdf` still had the high integrity label in that run; fixed afterwards (4.17) |
+| `pcaImageDemo` | could not write `C:\PcaTrainFaceImages.pdf`; passes since the in-memory rewrite (4.17) |
 
-CI fails exactly the 6 upstream failures plus `ae_mnist_tf`. So 165 pass both on CI and (with
-4.17 applied) locally: the same number as upstream; the sets differ by one notebook each way
+CI fails exactly the 6 upstream failures plus `ae_mnist_tf`. So 165 pass both on CI and locally
+(after 4.17's rewrite): the same number as upstream; the sets differ by one notebook each way
 (`mix_bernoulli_em_mnist` fails upstream but passes here; `ae_mnist_tf` the opposite).
 `pip freeze` was identical before and after the run.
 

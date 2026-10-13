@@ -20,15 +20,7 @@ foreach ($d in $dirs) {
 icacls "C:\Users\kpmurphy" /grant "${User}:(OI)(CI)M" /T | Out-Null
 icacls "C:\teamspace" /grant "${User}:(OI)(CI)M" /T | Out-Null
 
-# pcaImageDemo calls savefig("/PcaTrainFaceImages.png") -> files in the drive root
-foreach ($f in "C:\PcaTrainFaceImages.pdf", "C:\PcaTrainFaceImages.png") {
-    if (-not (Test-Path $f)) { New-Item -ItemType File $f | Out-Null }
-    icacls $f /grant "${User}:M" | Out-Null
-    # Files in C:\ inherit a "High Mandatory Level (no write-up)" label; created by this elevated
-    # script they stay unwritable for normal (medium-integrity) processes unless the label is lowered.
-    icacls $f /setintegritylevel M | Out-Null
-    Write-Host "created $f"
-}
+# (pcaImageDemo's savefig("/PcaTrainFaceImages.png") is redirected by tests/test_notebooks.py instead)
 
 # --- 2. Command-line tools (REPRODUCE.md 4.23) -------------------------------------------------
 # wget: ae_mnist_conv, vae_mnist_conv_lightning, matrix_factorization_recommender

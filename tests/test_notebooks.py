@@ -61,6 +61,22 @@ def escape_ansi(line):
     return ansi_escape.sub("", line)
 
 
+# Outputs upstream notebooks write to the filesystem root, which only root (upstream's CI container)
+# can do. Rewritten in memory before execution, so the notebook files stay identical to upstream.
+# savefig() without the leading "/" saves into FIG_DIR like every other notebook. See REPRODUCE.md 4.17.
+SOURCE_REWRITES = {
+    'savefig("/PcaTrainFaceImages.png")': 'savefig("PcaTrainFaceImages.png")',  # pcaImageDemo
+}
+
+
+def apply_rewrites(nb):
+    for cell in nb.cells:
+        if cell.cell_type == "code":
+            for old, new in SOURCE_REWRITES.items():
+                cell.source = cell.source.replace(old, new)
+    return nb
+
+
 # To update workflow status for a figure
 def save_status(notebook, icon):
     full_path = os.path.join(TEST_DIR, notebook)
@@ -72,7 +88,7 @@ def save_status(notebook, icon):
 def test_run_notebooks(notebook):
     init = time()
     try:
-        nb = nbformat.read(notebook, as_version=4)
+        nb = apply_rewrites(nbformat.read(notebook, as_version=4))
         NotebookClient(nb, timeout=TIMEOUT, kernel_name=KERNEL_NAME).execute()
         save_status(notebook, "right")
         print("passed in {:.2f} seconds: {} ".format(time() - init, notebook))

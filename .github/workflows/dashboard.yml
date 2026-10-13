@@ -74,9 +74,7 @@ jobs:
         sudo mkdir -p /teamspace && sudo chown "$USER" /teamspace
         # gaussEvec, seq_logo_demo, ...: FIG_DIR=/Users/kpmurphy/github/bookv2/figures
         sudo mkdir -p /Users/kpmurphy/github/bookv2/figures && sudo chown -R "$USER" /Users
-        # pcaImageDemo: savefig("/PcaTrainFaceImages.png") writes to the filesystem root
-        sudo touch /PcaTrainFaceImages.pdf /PcaTrainFaceImages.png
-        sudo chown "$USER" /PcaTrainFaceImages.pdf /PcaTrainFaceImages.png
+        # (pcaImageDemo's savefig("/PcaTrainFaceImages.png") is redirected by tests/test_notebooks.py)
 
     - name: Execute notebooks
       continue-on-error: true  # failures are shown as red marks on the dashboard
