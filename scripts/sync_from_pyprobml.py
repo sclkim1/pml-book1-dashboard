@@ -10,6 +10,8 @@ import csv
 import io
 import json
 import os
+import subprocess
+import sys
 import urllib.request
 
 # Notebooks edited in this repository: not overwritten by a sync
@@ -21,8 +23,6 @@ LOCAL_EDITS = {
     "notebooks/book1/08/autodiff_tf.ipynb",
     "notebooks/book1/20/pca.ipynb",
     "notebooks/book1/20/ae_mnist_tf.ipynb",
-    # Colab links -> local links (scripts/local_links.py, JUPYTER.md)
-    "notebooks/book1/02/fig_2_17.ipynb",
 }
 
 UPSTREAM = "probml/pyprobml"
@@ -95,6 +95,9 @@ for path in notebooks:
         continue
     save(path, fetch(f"{RAW}/{path}"))
 print(f"{len(notebooks)} notebooks synced")
+
+# Colab links between notebooks -> local links, as in the committed notebooks (JUPYTER.md)
+subprocess.run([sys.executable, "scripts/local_links.py", *notebooks], check=True)
 
 for icon in ["right", "wrong"]:
     save(f"tests/icons/{icon}.png", fetch(f"{RAW}/tests/icons/{icon}.png"))
