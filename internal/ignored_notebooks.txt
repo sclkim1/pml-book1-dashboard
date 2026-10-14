@@ -21,7 +21,6 @@ notebooks/misc/ae_mnist_gdl_tf.ipynb
 notebooks/misc/vae_celeba_tf.ipynb
 notebooks/misc/vae_mnist_gdl_tf.ipynb
 notebooks/misc/opt_jax.ipynb
-notebooks/misc/opt_flax.ipynb
 notebooks/misc/autodiff_tf.ipynb
 notebooks/misc/autodiff_pytorch.ipynb
 notebooks/book2/28/hmm_flows_pos_tagging.ipynb
