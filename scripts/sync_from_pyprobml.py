@@ -28,6 +28,7 @@ LOCAL_EDITS = {
     # REPRODUCE.md 4.29
     "notebooks/book1/11/supplementary/linreg_pymc3.ipynb",
     "notebooks/book1/08/sgd_comparison.ipynb",
+    "notebooks/book1/04/bayes_intro.ipynb",
 }
 
 # Notebooks upstream ignores that run here (flax pinned, REPRODUCE.md 4.29): dropped from the list
@@ -39,6 +40,8 @@ UNIGNORED = {
     "notebooks/book1/15/multi_head_attention_jax.ipynb",
     "notebooks/book1/15/positional_encoding_jax.ipynb",
     "notebooks/book1/15/rnn_jax.ipynb",
+    # arviz API fixed in the notebook (REPRODUCE.md 4.29); upstream lists its old path
+    "notebooks/misc/bayes_intro.ipynb",
 }
 
 UPSTREAM = "probml/pyprobml"
