@@ -35,6 +35,7 @@ LOCAL_EDITS = {
     "notebooks/book1/08/opt_jax.ipynb",
     "notebooks/book1/10/logreg_jax.ipynb",
     "notebooks/book1/10/logreg_pytorch.ipynb",
+    "notebooks/book1/08/lrschedule_tf.ipynb",
 }
 
 # Notebooks upstream ignores that run here (flax pinned, REPRODUCE.md 4.29): dropped from the list
