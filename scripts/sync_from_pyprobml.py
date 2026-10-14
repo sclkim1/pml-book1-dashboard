@@ -30,6 +30,7 @@ LOCAL_EDITS = {
     "notebooks/book1/08/sgd_comparison.ipynb",
     "notebooks/book1/04/bayes_intro.ipynb",
     "notebooks/book1/08/autodiff_jax.ipynb",
+    "notebooks/book1/13/flax_intro.ipynb",
 }
 
 # Notebooks upstream ignores that run here (flax pinned, REPRODUCE.md 4.29): dropped from the list
@@ -45,6 +46,8 @@ UNIGNORED = {
     "notebooks/misc/bayes_intro.ipynb",
     # notebook bug fixed (x overwritten by a vector before the has_aux cell)
     "notebooks/misc/autodiff_jax.ipynb",
+    # ported from flax.optim / fit_flax.py to optax
+    "notebooks/misc/flax_intro.ipynb",
 }
 
 UPSTREAM = "probml/pyprobml"
