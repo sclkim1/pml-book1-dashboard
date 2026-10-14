@@ -103,6 +103,8 @@ print(f"{len(notebooks)} notebooks synced")
 
 # Colab links between notebooks -> local links, as in the committed notebooks (JUPYTER.md)
 subprocess.run([sys.executable, "scripts/local_links.py", *notebooks], check=True)
+# `!mkdir figures # for saving plots` -> os.makedirs (REPRODUCE.md 4.30)
+subprocess.run([sys.executable, "scripts/fix_mkdir.py", *notebooks], check=True)
 
 for icon in ["right", "wrong"]:
     save(f"tests/icons/{icon}.png", fetch(f"{RAW}/tests/icons/{icon}.png"))

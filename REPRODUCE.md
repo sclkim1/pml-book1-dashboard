@@ -513,6 +513,18 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
   `surprise`/`augmax` in notebooks of the ignore list, old APIs (`stax`, `optimizers`, `plot_hpd`
   in ignored notebooks).
 
+### 4.30 Windows: `!mkdir figures # for saving plots` creates folders `#`, `for`, `saving`, `plots`
+- **Symptom:** in JupyterLab, cells print (Korean Windows, often garbled) "A subdirectory or file
+  figures already exists. Error occurred while processing: figures." and the same for `#`, `for`,
+  `saving`, `plots`; empty folders with those names appear next to the notebooks.
+- **Cause:** 41 notebooks (chapters 9, 11, 13–15, 19, 20) run `!mkdir figures # for saving plots`.
+  `!` runs cmd.exe on Windows, which has no `#` comments, so mkdir gets five folder names. The
+  notebook keeps running (shell errors do not stop a cell).
+- **Fix:** `scripts/fix_mkdir.py` replaces the line with
+  `import os; os.makedirs("figures", exist_ok=True)`, which works everywhere and is silent when
+  `figures` exists; `sync_from_pyprobml.py` runs it after every sync. Delete old junk folders with
+  `Get-ChildItem notebooks -Recurse -Directory | Where-Object Name -in "#","for","saving","plots" | Remove-Item`.
+
 
 ## 5. Results
 
