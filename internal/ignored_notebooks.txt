@@ -36,7 +36,6 @@ notebooks/book1/14/lenet_torch.ipynb
 notebooks/book1/14/batchnorm_jax.ipynb
 notebooks/book1/14/batchnorm_torch.ipynb
 notebooks/book1/15/multi_head_attention_torch.ipynb
-notebooks/book1/15/gru_jax.ipynb
 notebooks/book1/15/gru_torch.ipynb
 notebooks/book1/15/entailment_attention_mlp_jax.ipynb
 notebooks/book1/15/entailment_attention_mlp_torch.ipynb
@@ -57,7 +56,6 @@ notebooks/book1/15/bert_torch.ipynb
 notebooks/book1/15/rnn_sentiment_jax.ipynb
 notebooks/book1/15/rnn_sentiment_torch.ipynb
 notebooks/book1/13/multi_gpu_training_torch.ipynb
-notebooks/book1/15/lstm_jax.ipynb
 notebooks/book1/15/lstm_torch.ipynb
 notebooks/book2/16/lecun1989
 notebooks/book2/23/flow_spline_mnist
