@@ -1,4 +1,3 @@
-notebooks/misc/knn_demo.ipynb
 notebooks/misc/prob.ipynb
 notebooks/misc/colab_intro.ipynb
 notebooks/misc/pandas_intro.ipynb
@@ -14,7 +13,6 @@ notebooks/misc/cnn_cifar_pytorch.ipynb
 notebooks/misc/pca.ipynb
 notebooks/misc/ae_mnist_gdl_tf.ipynb
 notebooks/misc/vae_celeba_tf.ipynb
-notebooks/misc/vae_mnist_gdl_tf.ipynb
 notebooks/misc/autodiff_tf.ipynb
 notebooks/misc/autodiff_pytorch.ipynb
 notebooks/book2/28/hmm_flows_pos_tagging.ipynb
@@ -22,7 +20,6 @@ notebooks/book2/28/hmm_poisson_changepoint_tfp.ipynb
 notebooks/book2/28/hmm_with_ngram.ipynb
 notebooks/book1/09/naive_bayes_mnist_jax.ipynb
 notebooks/book1/09/naive_bayes_mnist_torch.ipynb
-notebooks/book1/19/image_augmentation_jax.ipynb
 notebooks/book1/19/image_augmentation_torch.ipynb
 notebooks/book1/19/finetune_cnn_jax.ipynb
 notebooks/book1/19/finetune_cnn_torch.ipynb
@@ -31,7 +28,6 @@ notebooks/book1/20/skipgram_torch.ipynb
 notebooks/book1/14/resnet_jax.ipynb
 notebooks/book1/14/resnet_torch.ipynb
 notebooks/book1/14/lenet_torch.ipynb
-notebooks/book1/14/batchnorm_jax.ipynb
 notebooks/book1/14/batchnorm_torch.ipynb
 notebooks/book1/15/multi_head_attention_torch.ipynb
 notebooks/book1/15/gru_torch.ipynb
