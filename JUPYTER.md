@@ -17,9 +17,26 @@ $py = "$HOME\anaconda3\envs\pml-jupyter\python.exe"
                                                    # remove the env and start again
 & $py -m pip install --no-build-isolation minepy==1.2.6
 & $py scripts/patch_packages.py                    # REPRODUCE.md 4.27
+& $py scripts/install_sgd_comparison.py            # sgd_comparison, REPRODUCE.md 4.29
 & $py -m ipykernel install --user --name pml-jupyter --display-name "Python (pml-jupyter)"
 & $py -m pip check                                 # -> No broken requirements found.
 ```
+
+**Lock the installed versions** (REPRODUCE.md 4.28). Many notebooks run `%pip install <package>`
+when an import fails, and pip then upgrades whatever that package wants: one run of
+`laplace_approx_beta_binom_pymc4` before `pymc` was pinned installed pymc 5 and upgraded numpy,
+scipy, pandas, matplotlib and arviz, which broke every notebook. A pip constraints file for this env
+lets pip add new packages but never change an installed version:
+
+```powershell
+$prefix = "$HOME\anaconda3\envs\pml-jupyter"
+& $py -m pip freeze | Where-Object { $_ -notmatch " @ " } | Set-Content "$prefix\pinned-constraints.txt" -Encoding ascii
+& $py -m pip config --site set global.constraint "$prefix\pinned-constraints.txt"   # writes $prefix\pip.ini
+```
+
+A notebook whose `%pip install` would need other versions now fails with a pip error instead.
+To change versions on purpose, edit `requirements-local.txt`, run
+`$env:PIP_CONSTRAINT = ""; & $py -m pip install -r requirements-local.txt`, then rerun the two lines above.
 
 Then give the kernel the settings the test runner sets for the pymc3 notebooks
 (REPRODUCE.md 4.20):
@@ -80,7 +97,8 @@ $env:NB_KERNEL = "pml-jupyter"
 
 The test runner only runs the notebooks of the figure mapping (28 of the 35 in chapters 1–2).
 Checked by hand / like JupyterLab: **all 35 notebooks of chapters 1–2 pass** in `pml-jupyter`
-(after the edits of REPRODUCE.md 4.26).
+(after the edits of REPRODUCE.md 4.26). Chapters 3 and 9 pass too; for chapters 4–8 and 10–22,
+which notebooks fail and why, see REPRODUCE.md 4.29.
 
 ### Links between notebooks
 
@@ -124,7 +142,8 @@ Colab; `scripts/local_links.py` replaced them with relative links (e.g. `beta_di
 |---|---|
 | `ModuleNotFoundError` | wrong kernel (section 3) |
 | `FileNotFoundError: ... 'figures\\<name>.pdf'` | the `figures` folder is missing; create it (section 1) |
-| A cell starts `%pip install ...` | wrong kernel; interrupt it — unpinned installs break the env (REPRODUCE.md 4.3) |
+| A cell starts `%pip install ...` | wrong kernel, or a package not in `requirements-local.txt`; with the lock (section 1) it cannot change installed versions |
+| `ImportError: cannot import name copy_if_needed` (scipy), many notebooks fail at once | a `%pip install` changed the env without the lock: compare `pip freeze` with `pinned-constraints.txt` and reinstall those versions (REPRODUCE.md 4.28) |
 | `blas_opt_info` error in pymc3 notebooks | kernel lacks `THEANO_FLAGS` (section 1) |
 | Kernel dies / keeps restarting | `& $py -m pip check` must print `No broken requirements found.` |
 | `PermissionError` for `C:\Users\kpmurphy\...` | run `scripts/windows_admin_setup.ps1` as admin (REPRODUCE.md 1.1) |

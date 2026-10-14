@@ -25,6 +25,9 @@ LOCAL_EDITS = {
     "notebooks/book1/20/ae_mnist_tf.ipynb",
     "notebooks/book1/07/linalg.ipynb",
     "notebooks/book1/11/supplementary/linreg_sklearn.ipynb",
+    # REPRODUCE.md 4.29
+    "notebooks/book1/11/supplementary/linreg_pymc3.ipynb",
+    "notebooks/book1/08/sgd_comparison.ipynb",
 }
 
 UPSTREAM = "probml/pyprobml"
