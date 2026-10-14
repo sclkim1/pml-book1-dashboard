@@ -51,6 +51,10 @@ LOCAL_EDITS = {
     "notebooks/book1/19/image_augmentation_jax.ipynb",
     "notebooks/book1/19/finetune_cnn_jax.ipynb",
     "notebooks/book1/22/matrix_factorization_recommender_surprise_lib.ipynb",
+    # sklearn / flax / keras API changes (REPRODUCE.md 4.34)
+    "notebooks/book1/16/knn_demo.ipynb",
+    "notebooks/book1/14/batchnorm_jax.ipynb",
+    "notebooks/book1/20/vae_mnist_gdl_tf.ipynb",
 }
 
 # Notebooks upstream ignores that run here (flax pinned, REPRODUCE.md 4.29): dropped from the list
@@ -90,6 +94,11 @@ UNIGNORED = {
     # packages pinned, Colab/input() fixes (REPRODUCE.md 4.33)
     "notebooks/misc/matrix_factorization_recommender_surprise_lib.ipynb",
     "notebooks/misc/feature_importance_trees_tutorial.ipynb",
+    "notebooks/book1/19/image_augmentation_jax.ipynb",
+    # sklearn / flax / keras API changes (REPRODUCE.md 4.34)
+    "notebooks/misc/knn_demo.ipynb",
+    "notebooks/misc/vae_mnist_gdl_tf.ipynb",
+    "notebooks/book1/14/batchnorm_jax.ipynb",
 }
 
 UPSTREAM = "probml/pyprobml"

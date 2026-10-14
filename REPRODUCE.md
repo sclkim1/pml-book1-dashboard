@@ -615,10 +615,22 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
     tfds then loads it from `~\tensorflow_datasets`.
 - **Result:** `feature_importance_trees_tutorial` and `matrix_factorization_recommender_surprise_lib`
   pass and are removed from the ignore list. `finetune_cnn_jax` runs, but its training cell exceeds
-  the 20-min timeout on CPU; `image_augmentation_jax` waits for the CIFAR-10 download. Both stay
-  ignored.
+  the 20-min timeout on CPU and stays ignored. `image_augmentation_jax` passes (17 s) once
+  CIFAR-10 is in `~\tensorflow_datasets` (the download took 53 min here). Removed from the ignore
+  list, so the dashboard shows figure 19.1.
   - `matrix_factorization_recommender_surprise_lib`: `Dataset.load_builtin("ml-1m", prompt=False)`;
     otherwise surprise asks "download? [Y/n]" with `input()` (`StdinNotImplementedError`).
+
+### 4.34 Old library APIs: `knn_demo`, `batchnorm_jax`, `vae_mnist_gdl_tf` (ignored notebooks)
+- `knn_demo`: `No module named 'sklearn.datasets.samples_generator'` (removed in scikit-learn
+  0.24) → `from sklearn.datasets import make_blobs`.
+- `batchnorm_jax`: `batch_stats, params = variables.pop("params")` used `FrozenDict.pop`, which
+  returned (rest, popped); flax >= 0.7 returns plain dicts → `params = variables["params"]` and
+  `batch_stats = {k: v for k, v in variables.items() if k != "params"}`.
+- `vae_mnist_gdl_tf`: `KeyError: The optimizer cannot recognize variable encoder_conv_0/kernel:0`.
+  One Adam optimizer trains several models; TF >= 2.11 optimizers bind to the first model's
+  variables → `tf.keras.optimizers.legacy.Adam(1e-3)`, which keeps per-variable slots as before.
+- **Result:** all three pass (notebook edits, `LOCAL_EDITS`) and are removed from the ignore list.
 
 
 ## 5. Results
