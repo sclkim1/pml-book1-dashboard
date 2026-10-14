@@ -6,7 +6,6 @@ notebooks/misc/pandas_intro.ipynb
 notebooks/misc/jax_intro.ipynb
 notebooks/misc/prob.ipynb
 notebooks/misc/logreg_sklearn.ipynb
-notebooks/misc/logreg_pytorch.ipynb
 notebooks/misc/linalg.ipynb
 notebooks/misc/feature_importance_trees_tutorial.ipynb
 notebooks/misc/mlp_cifar_pytorch.ipynb
