@@ -14,6 +14,13 @@ PATCHES = {
     "distrax": [("jax.xla.abstractify(", "jax.interpreters.xla.abstractify(")],
     # causalgraphicalmodels 0.0.4 (latest release): collections.Iterable is gone since Python 3.10.
     "causalgraphicalmodels": [("from collections import Iterable", "from collections.abc import Iterable")],
+    # arviz 0.12.1 (pinned for pymc3) sets a whole row of az.compare's table with .at, which
+    # pandas 1.5 rejects (InvalidIndexError); later arviz uses .loc (gmm_chooseK_pymc3, REPRODUCE.md 4.29).
+    # plot_compare reads the first row with [0], a label lookup when the models have integer names.
+    "arviz": [
+        ("df_comp.at[val] = (", "df_comp.loc[val] = ("),
+        ('comp_df[f"{information_criterion}_scale"][0]', 'comp_df[f"{information_criterion}_scale"].iloc[0]'),
+    ],
 }
 
 for package, edits in PATCHES.items():
