@@ -1,13 +1,11 @@
 notebooks/misc/knn_demo.ipynb
 notebooks/misc/prob.ipynb
-notebooks/misc/matrix_factorization_recommender_surprise_lib.ipynb
 notebooks/misc/colab_intro.ipynb
 notebooks/misc/pandas_intro.ipynb
 notebooks/misc/jax_intro.ipynb
 notebooks/misc/prob.ipynb
 notebooks/misc/logreg_sklearn.ipynb
 notebooks/misc/linalg.ipynb
-notebooks/misc/feature_importance_trees_tutorial.ipynb
 notebooks/misc/mlp_cifar_pytorch.ipynb
 notebooks/misc/bnn_hierarchical_numpyro.ipynb
 notebooks/misc/pre_trained_image_classifier_torch.ipynb

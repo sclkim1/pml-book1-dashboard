@@ -6,7 +6,9 @@ On Windows `!` runs cmd.exe, and its (Korean) error messages show up garbled in 
   works everywhere and is silent when `figures` exists.
 - `!ls [-l] [dir]`: there is no `ls` in cmd.exe. Use os.listdir instead.
 - `!unzip ...`: on a rerun the files exist and unzip waits for a "replace? [y]es/[n]o" answer, so
-  the cell hangs. Add `-o` (overwrite). (Not Windows-specific.)
+  the cell hangs. Add `-n` (never overwrite: existing files are skipped, so a rerun does not
+  extract e.g. the 261 MB hotdog.zip again); `-o` from an earlier version of this script becomes
+  `-n`. (Not Windows-specific.)
 - `!wget URL` without `-O`: an existing file is never overwritten, so every rerun downloads it
   again as `name.1`, `name.2`, ... (hotdog.zip is 261 MB). Add `-nc` (no-clobber): skip existing
   files. Lines with `-O` (small d2l.py, images) are left alone. (Not Windows-specific.)
@@ -24,7 +26,7 @@ MKDIR_NEW = (rb'"import os; os.makedirs(\"figures\", exist_ok=True)'
 LS = re.compile(rb'"!ls(?: -l)?(?: ([^"\\ ]+))?(?=(?:\\n)?")')
 
 
-UNZIP = re.compile(rb'"( *)!unzip (?!-o )')
+UNZIP = re.compile(rb'"( *)!unzip (?:-o )?(?!-n )')
 
 WGET = re.compile(rb'"( *)!wget (?!(?:[^"]* )?(?:-O|-nc) )')
 
@@ -41,7 +43,7 @@ for path in sys.argv[1:]:
         text = f.read()
     new, n1 = MKDIR.subn(MKDIR_NEW, text)
     new, n2 = LS.subn(ls_new, new)
-    new, n3 = UNZIP.subn(rb'"\1!unzip -o ', new)
+    new, n3 = UNZIP.subn(rb'"\1!unzip -n ', new)
     new, n4 = WGET.subn(rb'"\1!wget -nc ', new)
     if n1 or n2 or n3 or n4:
         with open(path, "wb") as f:
