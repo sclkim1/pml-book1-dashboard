@@ -39,12 +39,12 @@ To change versions on purpose, edit `requirements-local.txt`, run
 `$env:PIP_CONSTRAINT = ""; & $py -m pip install -r requirements-local.txt`, then rerun the two lines above.
 
 Then give the kernel the settings the test runner sets for the pymc3 notebooks
-(REPRODUCE.md 4.20):
+(REPRODUCE.md 4.20) and for notebooks that read UTF-8 files (4.31):
 
 ```powershell
 $f = "$env:APPDATA\jupyter\kernels\pml-jupyter\kernel.json"
 $k = Get-Content $f -Raw | ConvertFrom-Json
-$k | Add-Member -Force env ([ordered]@{ THEANO_FLAGS = "blas__ldflags=,gcc__cxxflags=-static"; PYTHONIOENCODING = "utf-8" })
+$k | Add-Member -Force env ([ordered]@{ THEANO_FLAGS = "blas__ldflags=,gcc__cxxflags=-static"; PYTHONIOENCODING = "utf-8"; PYTHONUTF8 = "1" })
 $k | ConvertTo-Json -Depth 5 | Set-Content $f -Encoding utf8
 ```
 

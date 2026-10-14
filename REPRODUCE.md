@@ -552,6 +552,45 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
   the 20-min timeout. `fix_shell.py` adds `-o` (overwrite) to every `!unzip`. No `#` comment on
   that line: cmd.exe would pass it to unzip as file names.
 
+### 4.31 Windows: `UnicodeDecodeError: 'cp949' codec can't decode byte 0xe2 ...` (11 notebooks)
+- **Symptom:** `word_analogies_*` (GloVe vectors), `cnn1d_sentiment_*`, `rnn_sentiment_*`, `nmt_*`,
+  `nmt_attention_torch` and `transformers_*` (d2l text corpora) fail when they read their data.
+- **Cause:** they `open(path)` without `encoding=`. On Windows that means the locale code page
+  (cp949 on Korean Windows), not UTF-8 as on Linux. `PYTHONIOENCODING` only covers stdin/stdout.
+- **Fix:** Python UTF-8 mode, `PYTHONUTF8=1`: set by `tests/test_notebooks.py` (inherited by the
+  kernel) and in the `pml-jupyter` kernel spec for JupyterLab (JUPYTER.md). No notebook edits, so
+  upstream copies keep working.
+- **Then flax >= 0.7 / jax API changes** in the jax versions (notebook edits, `LOCAL_EDITS`):
+  - `grads.copy({...})` → `{**grads, ...}` (`cnn1d_sentiment_jax`, `rnn_sentiment_jax`): gradients
+    are plain dicts now, and `dict.copy()` takes no arguments.
+  - `nn.GRUCell.initialize_carry(rng, batch_dims, size)` →
+    `nn.GRUCell(features=size, parent=None).initialize_carry(rng, batch_dims + (size,))`, same for
+    `OptimizedLSTMCell` (`'int' object is not subscriptable`), and `nn.GRUCell()(state, x)` →
+    `nn.GRUCell(features=state.shape[-1])(state, x)` (`missing ... argument: 'features'`); LSTM:
+    `features=carry[1].shape[-1]`. In `nmt_jax`, `nmt_attention_jax`, `rnn_sentiment_jax`,
+    `gru_jax`, `lstm_jax`.
+  - `state[-1].tile(...)` → `jnp.tile(state[-1], ...)` (`nmt_jax`): jax arrays have no `.tile`.
+- **Result:** `word_analogies_*`, `cnn1d_sentiment_*`, `nmt_*`, `nmt_attention_*` and
+  `transformers_*` pass and are removed from the ignore list (`UNIGNORED`). `rnn_sentiment_torch`
+  decodes now but its training cell exceeds the 20-min timeout on CPU; it stays ignored, as do
+  `rnn_sentiment_jax`, `gru_jax` and `lstm_jax` until checked.
+
+### 4.32 Big data files downloaded or extracted again on every run
+- **Symptom:** reruns of the chapter 15/20 d2l notebooks spend minutes re-extracting IMDb
+  (100k files), GloVe, SNLI, ...; `!wget URL` cells download the file again as `name.1`,
+  `name.2`, ... (`hotdog.zip` 261 MB, MovieLens, CelebA, checkpoints). Two notebooks running at
+  once can also read a half-extracted file: `word_analogies_jax` got 161,068 of 400,000 GloVe
+  lines (`ValueError: setting an array element with a sequence ... inhomogeneous shape`).
+- **Cause:** d2l's `download()` keeps an archive whose SHA-1 matches, but `download_extract()`
+  calls `extractall` every time. wget without `-O` never overwrites a file and saves a numbered copy.
+- **Fix (no download options in the notebooks themselves, so done by rewrites after every sync):**
+  - `scripts/fix_download.py` (18 notebooks): extract only if `<archive>.extracted` is missing,
+    and write that marker after a complete extraction (an interrupted one is redone).
+    Delete the marker to force a new extraction.
+  - `scripts/fix_shell.py`: `!wget URL` without `-O` → `!wget -nc URL` (no-clobber: an existing
+    file is kept, 7 notebooks). Lines with `-O` (small `d2l.py`, images) still download.
+  - Delete a file in `notebooks/book1/data/` (or next to the notebook) to download it again.
+
 
 ## 5. Results
 

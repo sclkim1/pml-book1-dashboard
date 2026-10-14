@@ -21,6 +21,9 @@ os.environ["DUAL_SAVE"] = ""  # To save both .pdf and .png
 # blas__ldflags is set. On Windows, link the MinGW runtime statically: otherwise modules compiled with
 # a g++ on PATH (e.g. Strawberry Perl's) need DLLs Python cannot find. See REPRODUCE.md.
 os.environ.setdefault("THEANO_FLAGS", "blas__ldflags=" + (",gcc__cxxflags=-static" if sys.platform == "win32" else ""))
+# Notebooks open UTF-8 data files (GloVe, d2l text corpora) without an encoding: on Windows that is
+# the locale code page (e.g. cp949). UTF-8 mode makes it UTF-8, as on Linux (REPRODUCE.md 4.31).
+os.environ.setdefault("PYTHONUTF8", "1")
 
 
 def notebooks_from_mapping(csv_name):
