@@ -501,6 +501,7 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
   | `cifar10_cnn_lightning` | no `pl_bolts` | `lightning-bolts==0.7.0`; then trains > 20 min on CPU (fine by hand) |
   | `linreg_pymc3` | `az.plot_hpd` removed | notebook edit: `az.plot_hdi(..., hdi_prob=...)` |
   | `bayes_intro` (was ignored) | arviz 0.12: `credible_interval` renamed, `plot_joint` removed, `plot_ppc` returns one Axes for one variable | notebook edit: `hdi_prob=`, `plot_pair(..., marginals=True)`, `np.ravel(ax)[0]`; removed from the ignore list (`UNIGNORED`) |
+  | `autodiff_jax` (was ignored) | `Gradient only defined for scalar-output functions`: the `has_aux` cell uses `x`, which the cell before set to a vector (notebook bug) | notebook edit: `x = 2.0`, `y = 3.0` at the start of the cell; removed from the ignore list (`UNIGNORED`) |
   | `sgd_comparison` | `sls`/`sps`/`adasls` missing; `adasls` setup.py broken (missing comma, `sklearn` dummy package); `%pip install haven` installs an unrelated package into the same `haven/` folder; haven-ai 0.7 has no `haven_utils.exp_utils`; `google.colab.data_table` | `sls`/`sps` pinned by commit, `scikit-image==0.22.0`, `opencv-python-headless==4.11.0.86`; `scripts/install_sgd_comparison.py` installs adasls (setup.py fixed) and haven-ai 0.6.7 (both without `sklearn`); notebook edit: Colab import commented out, table shown with pandas |
 
 - **flax also revives** 7 ignored notebooks: `multi_gpu_training_jax`, `conv2d_jax`, `lenet_jax`,
