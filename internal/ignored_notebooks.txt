@@ -16,7 +16,6 @@ notebooks/misc/bnn_hierarchical_pymc3.ipynb
 notebooks/misc/bnn_hierarchical_numpyro.ipynb
 notebooks/misc/pre_trained_image_classifier_torch.ipynb
 notebooks/misc/pymc3_intro.ipynb
-notebooks/misc/bayes_intro.ipynb
 notebooks/misc/cnn_cifar_pytorch.ipynb
 notebooks/misc/pca.ipynb
 notebooks/misc/ae_mnist_gdl_tf.ipynb
