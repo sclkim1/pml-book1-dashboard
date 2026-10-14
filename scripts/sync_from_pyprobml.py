@@ -81,6 +81,8 @@ UNIGNORED = {
     "notebooks/book1/15/transformers_torch.ipynb",
     "notebooks/book1/20/word_analogies_jax.ipynb",
     "notebooks/book1/20/word_analogies_torch.ipynb",
+    "notebooks/book1/15/gru_jax.ipynb",
+    "notebooks/book1/15/lstm_jax.ipynb",
 }
 
 UPSTREAM = "probml/pyprobml"

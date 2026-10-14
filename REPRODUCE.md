@@ -570,10 +570,10 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
     `features=carry[1].shape[-1]`. In `nmt_jax`, `nmt_attention_jax`, `rnn_sentiment_jax`,
     `gru_jax`, `lstm_jax`.
   - `state[-1].tile(...)` → `jnp.tile(state[-1], ...)` (`nmt_jax`): jax arrays have no `.tile`.
-- **Result:** `word_analogies_*`, `cnn1d_sentiment_*`, `nmt_*`, `nmt_attention_*` and
-  `transformers_*` pass and are removed from the ignore list (`UNIGNORED`). `rnn_sentiment_torch`
-  decodes now but its training cell exceeds the 20-min timeout on CPU; it stays ignored, as do
-  `rnn_sentiment_jax`, `gru_jax` and `lstm_jax` until checked.
+- **Result:** `word_analogies_*`, `cnn1d_sentiment_*`, `nmt_*`, `nmt_attention_*`,
+  `transformers_*`, `gru_jax` and `lstm_jax` pass and are removed from the ignore list
+  (`UNIGNORED`). `rnn_sentiment_torch` and `rnn_sentiment_jax` run now, but their training cell
+  exceeds the 20-min timeout on CPU; they stay ignored.
 
 ### 4.32 Big data files downloaded or extracted again on every run
 - **Symptom:** reruns of the chapter 15/20 d2l notebooks spend minutes re-extracting IMDb
