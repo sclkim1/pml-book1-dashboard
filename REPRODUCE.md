@@ -613,6 +613,10 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
     can take longer than the 20-min cell timeout (~60 KB/s here). Download it once beforehand:
     `& $py -c "import tensorflow_datasets as tfds; tfds.builder('cifar10').download_and_prepare()"`;
     tfds then loads it from `~\tensorflow_datasets`.
+- **Result:** `feature_importance_trees_tutorial` and `matrix_factorization_recommender_surprise_lib`
+  pass and are removed from the ignore list. `finetune_cnn_jax` runs, but its training cell exceeds
+  the 20-min timeout on CPU; `image_augmentation_jax` waits for the CIFAR-10 download. Both stay
+  ignored.
   - `matrix_factorization_recommender_surprise_lib`: `Dataset.load_builtin("ml-1m", prompt=False)`;
     otherwise surprise asks "download? [Y/n]" with `input()` (`StdinNotImplementedError`).
 
