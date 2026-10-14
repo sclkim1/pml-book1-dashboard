@@ -93,6 +93,9 @@ $py = "$HOME\anaconda3\envs\pyprobml-fresh\python.exe"
 # 2.3c adasls and haven-ai for sgd_comparison, not pip-installable as is (4.29)
 & $py scripts/install_sgd_comparison.py
 
+# 2.3d scikit-surprise: no Windows wheels; built against the pinned numpy (4.33)
+& $py -m pip install --no-build-isolation scikit-surprise==1.1.4 surprise==0.1
+
 # 2.4 Register the env as a Jupyter kernel named "pyprobml-fresh"
 & $py -m ipykernel install --user --name pyprobml-fresh --display-name "Python (pyprobml-fresh)"
 
@@ -549,8 +552,9 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
   `matrix_factorization_recommender`, `matrix_factorization_recommender_surprise_lib`).
 - **`!unzip`** (`matrix_factorization_recommender*`, `vae_celeba_tf`, `finetune_cnn_jax`): on a
   rerun the files exist and unzip waits for a "replace? [y]es/[n]o" answer, so the cell hangs until
-  the 20-min timeout. `fix_shell.py` adds `-o` (overwrite) to every `!unzip`. No `#` comment on
-  that line: cmd.exe would pass it to unzip as file names.
+  the 20-min timeout. `fix_shell.py` adds `-n` (never overwrite: existing files are skipped, so a
+  rerun does not extract the 261 MB `hotdog.zip` again; first `-o`, changed in 4.33) to every
+  `!unzip`. No `#` comment on that line: cmd.exe would pass it to unzip as file names.
 
 ### 4.31 Windows: `UnicodeDecodeError: 'cp949' codec can't decode byte 0xe2 ...` (11 notebooks)
 - **Symptom:** `word_analogies_*` (GloVe vectors), `cnn1d_sentiment_*`, `rnn_sentiment_*`, `nmt_*`,
@@ -590,6 +594,27 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
   - `scripts/fix_shell.py`: `!wget URL` without `-O` → `!wget -nc URL` (no-clobber: an existing
     file is kept, 7 notebooks). Lines with `-O` (small `d2l.py`, images) still download.
   - Delete a file in `notebooks/book1/data/` (or next to the notebook) to download it again.
+
+### 4.33 Missing packages: xgboost, augmax, surprise (4 ignored notebooks)
+- **Symptom:** `No module named 'xgboost'` (`feature_importance_trees_tutorial`), `'augmax'`
+  (`image_augmentation_jax`, `finetune_cnn_jax`), `'surprise'`
+  (`matrix_factorization_recommender_surprise_lib`).
+- **Fix:** pinned in `requirements-local.txt`, all checked with a dry run against the lock (4.28):
+  `xgboost==2.0.3`, `lime==0.2.0.1`, `shap==0.44.1` (newest for numba 0.56 / numpy 1.22),
+  `augmax==0.3.4` (newest for jax 0.4.23), `jax-resnet==0.0.4`. scikit-surprise has no Windows
+  wheels: `pip install --no-build-isolation scikit-surprise==1.1.4 surprise==0.1` builds it with
+  MSVC against the env's numpy 1.22 (step 2.3d; build isolation would compile against numpy 2).
+- **Then Colab-only code and prompts** (notebook edits, `LOCAL_EDITS`):
+  - `image_augmentation_jax`: `!wget ... -O cat_dog.jpg` and `cv2.imread("cat_dog.jpg")` instead of
+    `/content/cat_dog.jpg` and `!mv` (wget names the file `cat_dog.jpg?raw=true`).
+  - `finetune_cnn_jax`: `hotdog.zip` and `hotdog/...` next to the notebook instead of `/content/`.
+  - both: `montage(..., multichannel=True)` → `channel_axis=-1` (removed in scikit-image 0.22).
+  - `image_augmentation_jax` loads `tfds.load("cifar10")`: the first download from cs.toronto.edu
+    can take longer than the 20-min cell timeout (~60 KB/s here). Download it once beforehand:
+    `& $py -c "import tensorflow_datasets as tfds; tfds.builder('cifar10').download_and_prepare()"`;
+    tfds then loads it from `~\tensorflow_datasets`.
+  - `matrix_factorization_recommender_surprise_lib`: `Dataset.load_builtin("ml-1m", prompt=False)`;
+    otherwise surprise asks "download? [Y/n]" with `input()` (`StdinNotImplementedError`).
 
 
 ## 5. Results

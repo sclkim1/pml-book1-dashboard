@@ -18,6 +18,7 @@ $py = "$HOME\anaconda3\envs\pml-jupyter\python.exe"
 & $py -m pip install --no-build-isolation minepy==1.2.6
 & $py scripts/patch_packages.py                    # REPRODUCE.md 4.27
 & $py scripts/install_sgd_comparison.py            # sgd_comparison, REPRODUCE.md 4.29
+& $py -m pip install --no-build-isolation scikit-surprise==1.1.4 surprise==0.1  # REPRODUCE.md 4.33
 & $py -m ipykernel install --user --name pml-jupyter --display-name "Python (pml-jupyter)"
 & $py -m pip check                                 # -> No broken requirements found.
 ```

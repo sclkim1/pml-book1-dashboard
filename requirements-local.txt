@@ -67,7 +67,14 @@ scikit-image==0.22.0     # sgd_comparison (via adasls)
 sls @ git+https://github.com/IssamLaradji/sls.git@19346532fc45956e025461bfad516796736a4ec0  # sgd_comparison
 sps @ git+https://github.com/IssamLaradji/sps.git@e4e6f37778a31e6f2f0101e2ff5e0b1b93dacf1b  # sgd_comparison
 opencv-python-headless==4.11.0.86  # sgd_comparison (via haven-ai); newest that supports numpy 1.22
+xgboost==2.0.3           # feature_importance_trees_tutorial
+lime==0.2.0.1            # feature_importance_trees_tutorial (!pip install lime)
+shap==0.44.1             # feature_importance_trees_tutorial (!pip install shap); newest for numba 0.56 / numpy 1.22
+augmax==0.3.4            # image_augmentation_jax, finetune_cnn_jax; newest for jax 0.4.23
+jax-resnet==0.0.4        # finetune_cnn_jax
 # adasls and haven-ai (sgd_comparison) cannot be pip-installed as is: run scripts/install_sgd_comparison.py
+# scikit-surprise (matrix_factorization_recommender_surprise_lib) has no Windows wheels: build it against
+# this numpy with `pip install --no-build-isolation scikit-surprise==1.1.4 surprise==0.1` (REPRODUCE.md 4.33)
 # minepy (MIC_correlation_2d) is installed separately: see REPRODUCE.md
 
 # Running notebooks and building the dashboard.

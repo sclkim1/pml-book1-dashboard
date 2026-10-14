@@ -47,6 +47,10 @@ LOCAL_EDITS = {
     "notebooks/book1/15/nmt_attention_jax.ipynb",
     "notebooks/book1/15/gru_jax.ipynb",
     "notebooks/book1/15/lstm_jax.ipynb",
+    # Colab paths and input() prompts removed (REPRODUCE.md 4.33)
+    "notebooks/book1/19/image_augmentation_jax.ipynb",
+    "notebooks/book1/19/finetune_cnn_jax.ipynb",
+    "notebooks/book1/22/matrix_factorization_recommender_surprise_lib.ipynb",
 }
 
 # Notebooks upstream ignores that run here (flax pinned, REPRODUCE.md 4.29): dropped from the list
@@ -83,6 +87,9 @@ UNIGNORED = {
     "notebooks/book1/20/word_analogies_torch.ipynb",
     "notebooks/book1/15/gru_jax.ipynb",
     "notebooks/book1/15/lstm_jax.ipynb",
+    # packages pinned, Colab/input() fixes (REPRODUCE.md 4.33)
+    "notebooks/misc/matrix_factorization_recommender_surprise_lib.ipynb",
+    "notebooks/misc/feature_importance_trees_tutorial.ipynb",
 }
 
 UPSTREAM = "probml/pyprobml"
