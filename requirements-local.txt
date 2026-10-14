@@ -56,6 +56,17 @@ group-lasso==1.5.0
 # Notebooks the dashboard does not run, checked by hand in JupyterLab (REPRODUCE.md 4.27)
 pgmpy==0.1.23            # sprinkler_pgm: still has BayesianModel; 0.1.26 pulls xgboost/google-generativeai
 causalgraphicalmodels==0.0.4  # sprinkler_pgm; needs scripts/patch_packages.py (collections.Iterable)
+pymc==4.2.2              # *_pymc4 notebooks (import pymc); newest that keeps the pins above (pymc 5 upgrades numpy, scipy, pandas, arviz)
+jaxtyping==0.3.7         # bootstrap_demo_bernoulli
+tinygp==0.2.4            # gp_kernel_plot; 0.3 kernels are equinox modules (Cannot set attribute scale)
+jaxopt==0.8.5            # gp_kernel_plot
+flax==0.8.4              # *_jax notebooks of chapters 8, 13-15, 20 (import flax); newest without a jax upgrade
+lightning-bolts==0.7.0   # cifar10_cnn_lightning (import pl_bolts)
+scikit-image==0.22.0     # sgd_comparison (via adasls)
+sls @ git+https://github.com/IssamLaradji/sls.git@19346532fc45956e025461bfad516796736a4ec0  # sgd_comparison
+sps @ git+https://github.com/IssamLaradji/sps.git@e4e6f37778a31e6f2f0101e2ff5e0b1b93dacf1b  # sgd_comparison
+opencv-python-headless==4.11.0.86  # sgd_comparison (via haven-ai); newest that supports numpy 1.22
+# adasls and haven-ai (sgd_comparison) cannot be pip-installed as is: run scripts/install_sgd_comparison.py
 # minepy (MIC_correlation_2d) is installed separately: see REPRODUCE.md
 
 # Running notebooks and building the dashboard.

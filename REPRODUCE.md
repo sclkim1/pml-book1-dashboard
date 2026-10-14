@@ -90,6 +90,9 @@ $py = "$HOME\anaconda3\envs\pyprobml-fresh\python.exe"
 # 2.3b one-line fixes to installed distrax and causalgraphicalmodels (4.27)
 & $py scripts/patch_packages.py
 
+# 2.3c adasls and haven-ai for sgd_comparison, not pip-installable as is (4.29)
+& $py scripts/install_sgd_comparison.py
+
 # 2.4 Register the env as a Jupyter kernel named "pyprobml-fresh"
 & $py -m ipykernel install --user --name pyprobml-fresh --display-name "Python (pyprobml-fresh)"
 
@@ -465,6 +468,50 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
 - **Patches:** `scripts/patch_packages.py` applies both one-line edits to the installed packages
   (step 2.3b; CI runs it after the installs). Idempotent; rerun it after reinstalling a package.
 - **Check:** all 12 notebooks of chapter 3 pass when executed like JupyterLab.
+
+### 4.28 JupyterLab: one `%pip install pymc` broke the whole env (`cannot import name copy_if_needed`)
+- **Symptom:** after running `laplace_approx_beta_binom_pymc4` by hand, it and then other notebooks
+  failed inside scipy: `ImportError: cannot import name copy_if_needed`; pip had printed
+  `distrax 0.1.3 requires numpy<1.23 ..., but you have numpy 1.26.4`.
+- **Cause:** the notebook's `try: import pymc / except: %pip install pymc` installed pymc 5.25.1,
+  and pip upgraded numpy 1.22.4 → 1.26.4, scipy 1.10.1 → 1.15.3, pandas 1.5.3 → 2.3.3,
+  matplotlib 3.5.3 → 3.10.9, arviz 0.12.1 → 0.23.4 (plus 10 new packages). 4.3 again, but by hand:
+  the automated runs never hit it because the notebooks they execute have their packages pinned.
+- **Repair:** `pip uninstall` the 10 new packages and `pip install --no-deps` the 5 old versions
+  (a running kernel locks numpy's/scipy's DLLs on Windows: shut it down first); `pip freeze` was
+  then identical to the snapshot taken before.
+- **Prevention:** a pip constraints file with the env's `pip freeze`, set in the env's `pip.ini`
+  (JUPYTER.md section 1): pip can add packages but not change installed versions. With it,
+  `pip install pymc` resolves to **pymc 4.2.2** (+ aesara), which keeps all pins and runs the
+  notebook (73 s); pinned in `requirements-local.txt`. The by-hand checks run with
+  `PIP_NO_INDEX=1`, so a notebook cannot install anything at all.
+
+### 4.29 JupyterLab check of chapters 4–8, 10–22: packages notebooks would `%pip install`
+- **Check:** the 252 notebooks of these chapters run like JupyterLab (own folder, kernel
+  `pml-jupyter`, `PIP_NO_INDEX=1`): 186 pass. The 6 failing dashboard notebooks also fail upstream
+  (4.24 table); 53 of the failures are in `internal/ignored_notebooks.txt`.
+- **Fixed** (the notebooks outside the dashboard and the ignore list, plus a pin each; installed
+  under the lock of 4.28, which kept every existing version):
+
+  | Notebook | Error | Fix |
+  |---|---|---|
+  | `bootstrap_demo_bernoulli` | `NameError: latexify` (`jaxtyping` missing) | `jaxtyping==0.3.7` |
+  | `gp_kernel_plot` | `tinygp` missing; with tinygp 0.3 `Cannot set attribute scale` (kernels became equinox modules) | `tinygp==0.2.4`, `jaxopt==0.8.5` |
+  | `layer_norm_jax`, `lecun1989_with_commentary` | no `flax` | `flax==0.8.4` (newest without a jax upgrade) |
+  | `cifar10_cnn_lightning` | no `pl_bolts` | `lightning-bolts==0.7.0`; then trains > 20 min on CPU (fine by hand) |
+  | `linreg_pymc3` | `az.plot_hpd` removed | notebook edit: `az.plot_hdi(..., hdi_prob=...)` |
+  | `sgd_comparison` | `sls`/`sps`/`adasls` missing; `adasls` setup.py broken (missing comma, `sklearn` dummy package); `%pip install haven` installs an unrelated package into the same `haven/` folder; haven-ai 0.7 has no `haven_utils.exp_utils`; `google.colab.data_table` | `sls`/`sps` pinned by commit, `scikit-image==0.22.0`, `opencv-python-headless==4.11.0.86`; `scripts/install_sgd_comparison.py` installs adasls (setup.py fixed) and haven-ai 0.6.7 (both without `sklearn`); notebook edit: Colab import commented out, table shown with pandas |
+
+- **flax also revives** 7 ignored notebooks: `multi_gpu_training_jax`, `conv2d_jax`, `lenet_jax`,
+  `attention_jax`, `multi_head_attention_jax`, `positional_encoding_jax`, `rnn_jax`. The other ignored
+  flax notebooks still fail: `flax.optim` removed (`opt_flax`, `flax_intro`), API changes
+  (`gru_jax`, `lstm_jax`, `nmt_attention_jax`, `batchnorm_jax`), cp949 decoding of the d2l data
+  files (`*_sentiment_jax`, `nmt_jax`, `transformers_jax`), downloads (`bert_jax`, SNLI `Icon\r`),
+  > 20 min on CPU (`densenet_jax`, `resnet_jax`), pickling in DataLoader workers (`skipgram_jax`).
+- **Left as is** (ignored, upstream or platform problems): cp949 errors in the torch NLP notebooks,
+  CUDA-only `multi_gpu_training_torch`, > 20 min torch CIFAR training, missing `xgboost`/
+  `surprise`/`augmax` in notebooks of the ignore list, old APIs (`stax`, `optimizers`, `plot_hpd`
+  in ignored notebooks).
 
 
 ## 5. Results
