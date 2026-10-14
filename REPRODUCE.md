@@ -509,6 +509,7 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
   | `logreg_pytorch` (was ignored) | `Can't call numpy() on Tensor that requires grad` (plotting the stored loss tensors) | notebook edit: `loss_trace.append(loss.item())` in the 4 training cells; removed from the ignore list (`UNIGNORED`) |
   | `groupLassoDemo` (dashboard; failed upstream too) | `%pip install spams` builds from source and fails (`No module named 'distutils.msvccompiler'`): no Windows/py3.10 wheel | `spams-bin==2.6.14` (prebuilt wheels for Windows and manylinux, same `import spams`, works with numpy 1.22); no notebook edit; passes in the test runner |
   | `mlp_1d_regression_hetero_tfp` (dashboard; failed upstream too) | `'Normal' object has no attribute 'shape'`: Keras >= 2.11 reads `.shape` of the model output, and `call` returned a raw `tfd.Normal` | notebook edit: the Normal is built by a `tfp.layers.DistributionLambda` (created in `__init__`), old `return` kept as a comment; the learned stddev matches the true noise (0.29/0.49/1.11 vs 0.25/0.5/1.25); passes in the test runner |
+  | `sparse_mlp` (dashboard; failed upstream too) | `jax.experimental.stax` moved; `dot.view()` opened an external image viewer; `%cd /pyprobml/scripts` (Colab path) | notebook edit: `jax.example_libraries.stax`, `dot` shown inline (`dot.view()` kept as a comment), `%cd` commented out; passes in the test runner |
   | `lrschedule_tf` (dashboard, fig 8.17; failed upstream too) | `Axis limits cannot be NaN or Inf`: one pixel is 0 in all 1000 training images, its std is 0, so standardizing gave NaN and every loss was NaN; then `pd` used but never imported | notebook edit: `pixel_stds[pixel_stds == 0] = 1`, `import pandas as pd`; passes in the test runner |
   | `sgd_comparison` | `sls`/`sps`/`adasls` missing; `adasls` setup.py broken (missing comma, `sklearn` dummy package); `%pip install haven` installs an unrelated package into the same `haven/` folder; haven-ai 0.7 has no `haven_utils.exp_utils`; `google.colab.data_table` | `sls`/`sps` pinned by commit, `scikit-image==0.22.0`, `opencv-python-headless==4.11.0.86`; `scripts/install_sgd_comparison.py` installs adasls (setup.py fixed) and haven-ai 0.6.7 (both without `sklearn`); notebook edit: Colab import commented out, table shown with pandas |
 
@@ -533,10 +534,20 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
 - **Cause:** 41 notebooks (chapters 9, 11, 13–15, 19, 20) run `!mkdir figures # for saving plots`.
   `!` runs cmd.exe on Windows, which has no `#` comments, so mkdir gets five folder names. The
   notebook keeps running (shell errors do not stop a cell).
-- **Fix:** `scripts/fix_mkdir.py` replaces the line with
+- **Fix:** `scripts/fix_shell.py` (first named `fix_mkdir.py`) replaces the line with
   `import os; os.makedirs("figures", exist_ok=True)`, which works everywhere and is silent when
   `figures` exists; `sync_from_pyprobml.py` runs it after every sync. Delete old junk folders with
   `Get-ChildItem notebooks -Recurse -Directory | Where-Object Name -in "#","for","saving","plots" | Remove-Item`.
+- **Same for `!ls`:** cmd.exe has no `ls` ("'ls' is not recognized as an internal or external
+  command", garbled in Korean Windows because cmd.exe writes cp949 and the kernel, with
+  `PYTHONIOENCODING=utf-8`, reads UTF-8). `fix_shell.py` also replaces `!ls [-l] [dir]` with
+  `import os; print(sorted(os.listdir(...)))` in the 7 notebooks that use it (`sparse_mlp`,
+  `cifar10_cnn_lightning`, `ae_mnist_gdl_tf`, `vae_celeba_tf`, `vae_mnist_conv_lightning`,
+  `matrix_factorization_recommender`, `matrix_factorization_recommender_surprise_lib`).
+- **`!unzip`** (`matrix_factorization_recommender*`, `vae_celeba_tf`, `finetune_cnn_jax`): on a
+  rerun the files exist and unzip waits for a "replace? [y]es/[n]o" answer, so the cell hangs until
+  the 20-min timeout. `fix_shell.py` adds `-o` (overwrite) to every `!unzip`. No `#` comment on
+  that line: cmd.exe would pass it to unzip as file names.
 
 
 ## 5. Results
@@ -558,7 +569,7 @@ The 8 local failures:
 | `ae_mnist_tf` | pandas trade-off (4.24) |
 | `pcaImageDemo` | could not write `C:\PcaTrainFaceImages.pdf`; passes since the in-memory rewrite (4.17) |
 
-(Later: `lrschedule_tf`, `groupLassoDemo` and `mlp_1d_regression_hetero_tfp` pass since the fixes of 4.29.)
+(Later: `lrschedule_tf`, `groupLassoDemo`, `mlp_1d_regression_hetero_tfp` and `sparse_mlp` pass since the fixes of 4.29.)
 
 CI fails exactly the 6 upstream failures plus `ae_mnist_tf`. So 165 pass both on CI and locally
 (after 4.17's rewrite): the same number as upstream; the sets differ by one notebook each way

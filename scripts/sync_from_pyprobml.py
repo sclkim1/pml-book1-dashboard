@@ -37,6 +37,7 @@ LOCAL_EDITS = {
     "notebooks/book1/10/logreg_pytorch.ipynb",
     "notebooks/book1/08/lrschedule_tf.ipynb",
     "notebooks/book1/13/mlp_1d_regression_hetero_tfp.ipynb",
+    "notebooks/book1/13/sparse_mlp.ipynb",
 }
 
 # Notebooks upstream ignores that run here (flax pinned, REPRODUCE.md 4.29): dropped from the list
@@ -134,8 +135,8 @@ print(f"{len(notebooks)} notebooks synced")
 
 # Colab links between notebooks -> local links, as in the committed notebooks (JUPYTER.md)
 subprocess.run([sys.executable, "scripts/local_links.py", *notebooks], check=True)
-# `!mkdir figures # for saving plots` -> os.makedirs (REPRODUCE.md 4.30)
-subprocess.run([sys.executable, "scripts/fix_mkdir.py", *notebooks], check=True)
+# `!mkdir figures # ...` -> os.makedirs, `!ls` -> os.listdir (REPRODUCE.md 4.30)
+subprocess.run([sys.executable, "scripts/fix_shell.py", *notebooks], check=True)
 
 for icon in ["right", "wrong"]:
     save(f"tests/icons/{icon}.png", fetch(f"{RAW}/tests/icons/{icon}.png"))
