@@ -40,6 +40,13 @@ LOCAL_EDITS = {
     "notebooks/book1/13/sparse_mlp.ipynb",
     "notebooks/book1/20/pcaStandardization.ipynb",
     "notebooks/book1/13/bnn_hierarchical_pymc3.ipynb",
+    # flax >= 0.7 / jax API (REPRODUCE.md 4.31)
+    "notebooks/book1/15/cnn1d_sentiment_jax.ipynb",
+    "notebooks/book1/15/rnn_sentiment_jax.ipynb",
+    "notebooks/book1/15/nmt_jax.ipynb",
+    "notebooks/book1/15/nmt_attention_jax.ipynb",
+    "notebooks/book1/15/gru_jax.ipynb",
+    "notebooks/book1/15/lstm_jax.ipynb",
 }
 
 # Notebooks upstream ignores that run here (flax pinned, REPRODUCE.md 4.29): dropped from the list
@@ -63,6 +70,17 @@ UNIGNORED = {
     "notebooks/misc/logreg_pytorch.ipynb",
     # pymc3 3.11 API and BLAS-free batched_dot (REPRODUCE.md 4.29)
     "notebooks/misc/bnn_hierarchical_pymc3.ipynb",
+    # UTF-8 mode, flax/jax fixes (REPRODUCE.md 4.31)
+    "notebooks/book1/15/cnn1d_sentiment_jax.ipynb",
+    "notebooks/book1/15/cnn1d_sentiment_torch.ipynb",
+    "notebooks/book1/15/nmt_attention_jax.ipynb",
+    "notebooks/book1/15/nmt_attention_torch.ipynb",
+    "notebooks/book1/15/nmt_jax.ipynb",
+    "notebooks/book1/15/nmt_torch.ipynb",
+    "notebooks/book1/15/transformers_jax.ipynb",
+    "notebooks/book1/15/transformers_torch.ipynb",
+    "notebooks/book1/20/word_analogies_jax.ipynb",
+    "notebooks/book1/20/word_analogies_torch.ipynb",
 }
 
 UPSTREAM = "probml/pyprobml"
@@ -139,8 +157,10 @@ print(f"{len(notebooks)} notebooks synced")
 
 # Colab links between notebooks -> local links, as in the committed notebooks (JUPYTER.md)
 subprocess.run([sys.executable, "scripts/local_links.py", *notebooks], check=True)
-# `!mkdir figures # ...` -> os.makedirs, `!ls` -> os.listdir (REPRODUCE.md 4.30)
+# `!mkdir figures # ...` -> os.makedirs, `!ls` -> os.listdir, `!wget -nc` (REPRODUCE.md 4.30, 4.32)
 subprocess.run([sys.executable, "scripts/fix_shell.py", *notebooks], check=True)
+# d2l download_extract(): extract each archive once (REPRODUCE.md 4.32)
+subprocess.run([sys.executable, "scripts/fix_download.py", *notebooks], check=True)
 
 for icon in ["right", "wrong"]:
     save(f"tests/icons/{icon}.png", fetch(f"{RAW}/tests/icons/{icon}.png"))
