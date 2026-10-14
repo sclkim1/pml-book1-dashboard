@@ -53,6 +53,7 @@ rich==13.7.1
 logomaker==0.8
 bayes-logistic==0.2
 group-lasso==1.5.0
+spams-bin==2.6.14        # groupLassoDemo (import spams): prebuilt wheels; `spams` itself does not build on Windows/py3.10
 # Notebooks the dashboard does not run, checked by hand in JupyterLab (REPRODUCE.md 4.27)
 pgmpy==0.1.23            # sprinkler_pgm: still has BayesianModel; 0.1.26 pulls xgboost/google-generativeai
 causalgraphicalmodels==0.0.4  # sprinkler_pgm; needs scripts/patch_packages.py (collections.Iterable)
