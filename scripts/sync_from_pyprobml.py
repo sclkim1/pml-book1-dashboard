@@ -30,6 +30,17 @@ LOCAL_EDITS = {
     "notebooks/book1/08/sgd_comparison.ipynb",
 }
 
+# Notebooks upstream ignores that run here (flax pinned, REPRODUCE.md 4.29): dropped from the list
+UNIGNORED = {
+    "notebooks/book1/13/multi_gpu_training_jax.ipynb",
+    "notebooks/book1/14/conv2d_jax.ipynb",
+    "notebooks/book1/14/lenet_jax.ipynb",
+    "notebooks/book1/15/attention_jax.ipynb",
+    "notebooks/book1/15/multi_head_attention_jax.ipynb",
+    "notebooks/book1/15/positional_encoding_jax.ipynb",
+    "notebooks/book1/15/rnn_jax.ipynb",
+}
+
 UPSTREAM = "probml/pyprobml"
 BRANCH = "master"
 RAW = f"https://raw.githubusercontent.com/{UPSTREAM}/{BRANCH}"
@@ -55,7 +66,8 @@ chapters = {str(c) for c in args.chapters}
 save("internal/chapter_no_to_name_mapping_book1.csv", fetch(f"{RAW}/internal/chapter_no_to_name_mapping_book1.csv"))
 
 # Notebooks upstream does not execute in CI (matched by file name, as upstream does)
-save("internal/ignored_notebooks.txt", fetch(f"{RAW}/internal/ignored_notebooks.txt"))
+ignored = fetch(f"{RAW}/internal/ignored_notebooks.txt").decode().splitlines(keepends=True)
+save("internal/ignored_notebooks.txt", "".join(l for l in ignored if l.strip() not in UNIGNORED).encode())
 
 tree = json.loads(fetch(f"https://api.github.com/repos/{UPSTREAM}/git/trees/{BRANCH}?recursive=1"))["tree"]
 book1_notebooks = [t["path"] for t in tree if t["path"].startswith("notebooks/book1/") and t["path"].endswith(".ipynb")]
