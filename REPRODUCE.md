@@ -507,6 +507,7 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
   | `opt_jax` (was ignored) | `AssertionError`: 5 epochs of SGD do not reach sklearn's nearly unregularized MLE (iris is nearly separable), so probabilities differ by > 0.1; `jax.experimental.optimizers` moved | notebook edit: assert the same predicted classes (`> 0.5`), old assert kept as a comment; `jax.example_libraries.optimizers`; removed from the ignore list (`UNIGNORED`) |
   | `logreg_jax` (was ignored) | `jax.experimental.optimizers` moved | notebook edit: `jax.example_libraries.optimizers`; removed from the ignore list (`UNIGNORED`) |
   | `logreg_pytorch` (was ignored) | `Can't call numpy() on Tensor that requires grad` (plotting the stored loss tensors) | notebook edit: `loss_trace.append(loss.item())` in the 4 training cells; removed from the ignore list (`UNIGNORED`) |
+  | `groupLassoDemo` (dashboard; failed upstream too) | `%pip install spams` builds from source and fails (`No module named 'distutils.msvccompiler'`): no Windows/py3.10 wheel | `spams-bin==2.6.14` (prebuilt wheels for Windows and manylinux, same `import spams`, works with numpy 1.22); no notebook edit; passes in the test runner |
   | `lrschedule_tf` (dashboard, fig 8.17; failed upstream too) | `Axis limits cannot be NaN or Inf`: one pixel is 0 in all 1000 training images, its std is 0, so standardizing gave NaN and every loss was NaN; then `pd` used but never imported | notebook edit: `pixel_stds[pixel_stds == 0] = 1`, `import pandas as pd`; passes in the test runner |
   | `sgd_comparison` | `sls`/`sps`/`adasls` missing; `adasls` setup.py broken (missing comma, `sklearn` dummy package); `%pip install haven` installs an unrelated package into the same `haven/` folder; haven-ai 0.7 has no `haven_utils.exp_utils`; `google.colab.data_table` | `sls`/`sps` pinned by commit, `scikit-image==0.22.0`, `opencv-python-headless==4.11.0.86`; `scripts/install_sgd_comparison.py` installs adasls (setup.py fixed) and haven-ai 0.6.7 (both without `sklearn`); notebook edit: Colab import commented out, table shown with pandas |
 
@@ -556,7 +557,7 @@ The 8 local failures:
 | `ae_mnist_tf` | pandas trade-off (4.24) |
 | `pcaImageDemo` | could not write `C:\PcaTrainFaceImages.pdf`; passes since the in-memory rewrite (4.17) |
 
-(Later: `lrschedule_tf` passes since the notebook edit of 4.29.)
+(Later: `lrschedule_tf` and `groupLassoDemo` pass since the fixes of 4.29.)
 
 CI fails exactly the 6 upstream failures plus `ae_mnist_tf`. So 165 pass both on CI and locally
 (after 4.17's rewrite): the same number as upstream; the sets differ by one notebook each way
