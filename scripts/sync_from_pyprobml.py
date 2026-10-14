@@ -38,6 +38,7 @@ LOCAL_EDITS = {
     "notebooks/book1/08/lrschedule_tf.ipynb",
     "notebooks/book1/13/mlp_1d_regression_hetero_tfp.ipynb",
     "notebooks/book1/13/sparse_mlp.ipynb",
+    "notebooks/book1/20/pcaStandardization.ipynb",
 }
 
 # Notebooks upstream ignores that run here (flax pinned, REPRODUCE.md 4.29): dropped from the list

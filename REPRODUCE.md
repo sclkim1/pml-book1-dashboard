@@ -510,6 +510,7 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
   | `groupLassoDemo` (dashboard; failed upstream too) | `%pip install spams` builds from source and fails (`No module named 'distutils.msvccompiler'`): no Windows/py3.10 wheel | `spams-bin==2.6.14` (prebuilt wheels for Windows and manylinux, same `import spams`, works with numpy 1.22); no notebook edit; passes in the test runner |
   | `mlp_1d_regression_hetero_tfp` (dashboard; failed upstream too) | `'Normal' object has no attribute 'shape'`: Keras >= 2.11 reads `.shape` of the model output, and `call` returned a raw `tfd.Normal` | notebook edit: the Normal is built by a `tfp.layers.DistributionLambda` (created in `__init__`), old `return` kept as a comment; the learned stddev matches the true noise (0.29/0.49/1.11 vs 0.25/0.5/1.25); passes in the test runner |
   | `sparse_mlp` (dashboard; failed upstream too) | `jax.experimental.stax` moved; `dot.view()` opened an external image viewer; `%cd /pyprobml/scripts` (Colab path) | notebook edit: `jax.example_libraries.stax`, `dot` shown inline (`dot.view()` kept as a comment), `%cd` commented out; passes in the test runner |
+  | `pcaStandardization` (dashboard; failed upstream too) | `Reader needs file name or open file-like object`: reads `../data/heightWeight/heightWeight.mat`, which only exists in a pyprobml checkout | notebook edit: download it from `raw.githubusercontent.com/probml/probml-data` (as `height_weight_whiten_plot` does), old lines kept as comments; passes in the test runner |
   | `lrschedule_tf` (dashboard, fig 8.17; failed upstream too) | `Axis limits cannot be NaN or Inf`: one pixel is 0 in all 1000 training images, its std is 0, so standardizing gave NaN and every loss was NaN; then `pd` used but never imported | notebook edit: `pixel_stds[pixel_stds == 0] = 1`, `import pandas as pd`; passes in the test runner |
   | `sgd_comparison` | `sls`/`sps`/`adasls` missing; `adasls` setup.py broken (missing comma, `sklearn` dummy package); `%pip install haven` installs an unrelated package into the same `haven/` folder; haven-ai 0.7 has no `haven_utils.exp_utils`; `google.colab.data_table` | `sls`/`sps` pinned by commit, `scikit-image==0.22.0`, `opencv-python-headless==4.11.0.86`; `scripts/install_sgd_comparison.py` installs adasls (setup.py fixed) and haven-ai 0.6.7 (both without `sklearn`); notebook edit: Colab import commented out, table shown with pandas |
 
@@ -569,7 +570,7 @@ The 8 local failures:
 | `ae_mnist_tf` | pandas trade-off (4.24) |
 | `pcaImageDemo` | could not write `C:\PcaTrainFaceImages.pdf`; passes since the in-memory rewrite (4.17) |
 
-(Later: `lrschedule_tf`, `groupLassoDemo`, `mlp_1d_regression_hetero_tfp` and `sparse_mlp` pass since the fixes of 4.29.)
+(Later: `lrschedule_tf`, `groupLassoDemo`, `mlp_1d_regression_hetero_tfp`, `sparse_mlp` and `pcaStandardization` pass since the fixes of 4.29.)
 
 CI fails exactly the 6 upstream failures plus `ae_mnist_tf`. So 165 pass both on CI and locally
 (after 4.17's rewrite): the same number as upstream; the sets differ by one notebook each way
