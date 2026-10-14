@@ -632,6 +632,38 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
   variables → `tf.keras.optimizers.legacy.Adam(1e-3)`, which keeps per-variable slots as before.
 - **Result:** all three pass (notebook edits, `LOCAL_EDITS`) and are removed from the ignore list.
 
+### 4.35 `bert_*`: `BadZipFile: File is not a zip file` (wikitext-2)
+- **Cause:** the d2l `DATA_HUB` URL `https://s3.amazonaws.com/research.metamind.io/wikitext/wikitext-2-v1.zip`
+  is gone: S3 answers with a 487-byte XML `PermanentRedirect` error, and d2l's `download()` saves
+  it as `data/wikitext-2-v1.zip`.
+- **Fix:** `bert_jax`, `bert_torch` download from `https://wikitext.smerity.com/wikitext-2-v1.zip`,
+  the same file (SHA-1 `3c914d17...` matches `DATA_HUB`). `scripts/fix_download.py` also adds
+  `r.raise_for_status()` after `requests.get` in d2l's `download()` (24 notebooks), so a dead link
+  fails at the download with the HTTP error instead of a bad file later.
+
+### 4.36 `vae_celeba_tf`: `'rm' is not recognized`, `ERROR 404`, `No such file ... .csv`
+- **Cause:** `!rm {csv_name}` / `!rm {zip_name}` / `!rm *.jpg` (no `rm` in cmd.exe; garbled Korean
+  message), the CSV URL has `/tree/` (raw.githubusercontent.com has no such path: 404), and the zip
+  is no longer in pyprobml (404). Both files are in `probml-data/main/data/CelebA/`.
+- **Fix (notebook edits, `LOCAL_EDITS`):** both downloads from
+  `https://raw.githubusercontent.com/probml/probml-data/main/data/CelebA/`; the `!rm` lines dropped
+  (they only forced a new 34 MB download and re-extraction; `wget -nc` and `unzip -n` keep existing
+  files); the `!ls` replacement lists only non-`.jpg` files (not the 20000 images); the Colab-only
+  `%tensorflow_version` / `IS_COLAB` lines removed.
+- **Then** the same optimizer `KeyError` as `vae_mnist_gdl_tf` (4.34): one Adam trains several
+  models → `tf.keras.optimizers.legacy.Adam(1e-3)` (4 places).
+
+### 4.37 Windows: d2l notebooks hang at the first loop over a `DataLoader` (cell timeout)
+- **Symptom:** `bert_*` (in `load_data_wiki`), `entailment_attention_mlp_*`, `skipgram_*`: the
+  cell that first iterates the data never finishes (20-min timeout), long before training.
+- **Cause:** they define their own torch `Dataset` classes in the notebook and read them with
+  `DataLoader(..., num_workers=4)`. Windows starts worker processes fresh ("spawn"), and they cannot
+  load classes defined in a notebook, so the loop waits forever. DataLoaders over torchvision
+  datasets (MNIST, ...) work: those classes can be imported.
+- **Fix:** `scripts/fix_workers.py` (6 notebooks, run after every sync):
+  `num_workers = 0 if os.name == "nt" else 4`, so Windows loads data in the main process and
+  Linux (CI) keeps the workers.
+
 
 ## 5. Results
 
@@ -649,10 +681,10 @@ The 8 local failures:
 | Notebook | Reason |
 |---|---|
 | `lrschedule_tf`, `groupLassoDemo` (needs `spams`), `mlp_1d_regression_hetero_tfp`, `sparse_mlp` (`jax.experimental.stax` removed), `pcaStandardization`, `gmm_chooseK_pymc3` | **also fail upstream** |
-| `ae_mnist_tf` | pandas trade-off (4.24) |
+| `ae_mnist_tf` | pandas trade-off (4.24); passes since the `"display.precision"` edit (4.26) |
 | `pcaImageDemo` | could not write `C:\PcaTrainFaceImages.pdf`; passes since the in-memory rewrite (4.17) |
 
-(Later: `lrschedule_tf`, `groupLassoDemo`, `mlp_1d_regression_hetero_tfp`, `sparse_mlp`, `pcaStandardization` and `gmm_chooseK_pymc3` pass since the fixes of 4.29: all dashboard notebooks except `ae_mnist_tf`.)
+(Later: `lrschedule_tf`, `groupLassoDemo`, `mlp_1d_regression_hetero_tfp`, `sparse_mlp`, `pcaStandardization` and `gmm_chooseK_pymc3` pass since the fixes of 4.29, and `ae_mnist_tf` since 4.26 (rechecked in JupyterLab and with the runner): all dashboard notebooks pass locally.)
 
 CI fails exactly the 6 upstream failures plus `ae_mnist_tf`. So 165 pass both on CI and locally
 (after 4.17's rewrite): the same number as upstream; the sets differ by one notebook each way

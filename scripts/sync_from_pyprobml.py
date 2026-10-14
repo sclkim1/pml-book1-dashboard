@@ -55,6 +55,11 @@ LOCAL_EDITS = {
     "notebooks/book1/16/knn_demo.ipynb",
     "notebooks/book1/14/batchnorm_jax.ipynb",
     "notebooks/book1/20/vae_mnist_gdl_tf.ipynb",
+    # wikitext-2 from wikitext.smerity.com (REPRODUCE.md 4.35)
+    "notebooks/book1/15/bert_jax.ipynb",
+    "notebooks/book1/15/bert_torch.ipynb",
+    # CelebA from probml-data, no !rm, no Colab (REPRODUCE.md 4.36)
+    "notebooks/book1/20/vae_celeba_tf.ipynb",
 }
 
 # Notebooks upstream ignores that run here (flax pinned, REPRODUCE.md 4.29): dropped from the list
@@ -177,8 +182,10 @@ print(f"{len(notebooks)} notebooks synced")
 subprocess.run([sys.executable, "scripts/local_links.py", *notebooks], check=True)
 # `!mkdir figures # ...` -> os.makedirs, `!ls` -> os.listdir, `!wget -nc` (REPRODUCE.md 4.30, 4.32)
 subprocess.run([sys.executable, "scripts/fix_shell.py", *notebooks], check=True)
-# d2l download_extract(): extract each archive once (REPRODUCE.md 4.32)
+# d2l download helpers: extract once, raise_for_status (REPRODUCE.md 4.32, 4.35)
 subprocess.run([sys.executable, "scripts/fix_download.py", *notebooks], check=True)
+# torch DataLoader workers: none on Windows (REPRODUCE.md 4.37)
+subprocess.run([sys.executable, "scripts/fix_workers.py", *notebooks], check=True)
 
 for icon in ["right", "wrong"]:
     save(f"tests/icons/{icon}.png", fetch(f"{RAW}/tests/icons/{icon}.png"))
