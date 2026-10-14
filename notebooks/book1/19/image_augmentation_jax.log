@@ -1,0 +1,14 @@
+A cell timed out while it was being executed, after 1200 seconds.
+The message was: Cell execution timed out.
+Here is a preview of the cell contents:
+-------------------
+"""
+Let's download the CIFAR10 dataset and view some of it's images
+"""
+all_images = tfds.load("cifar10", split=["train"], as_supervised=True)
+
+for i in all_images[0].batch(240).take(1):
+    plt.figure(figsize=(10, 10))
+    plt.imshow(montage(i[0].numpy(), channel_axis=-1, rescale_intensity=False, grid_shape=(10, 24)))
+    plt.show();
+-------------------
