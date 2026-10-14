@@ -503,6 +503,7 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
   | `bayes_intro` (was ignored) | arviz 0.12: `credible_interval` renamed, `plot_joint` removed, `plot_ppc` returns one Axes for one variable | notebook edit: `hdi_prob=`, `plot_pair(..., marginals=True)`, `np.ravel(ax)[0]`; removed from the ignore list (`UNIGNORED`) |
   | `autodiff_jax` (was ignored) | `Gradient only defined for scalar-output functions`: the `has_aux` cell uses `x`, which the cell before set to a vector (notebook bug) | notebook edit: `x = 2.0`, `y = 3.0` at the start of the cell; removed from the ignore list (`UNIGNORED`) |
   | `flax_intro` (was ignored) | `flax.optim` removed (flax 0.6); `pyprobml/scripts/fit_flax.py` deleted upstream (404); `variables.pop` returns one value (flax >= 0.7 uses dicts) | notebook edit: `optax.sgd(momentum=0.9)` with `update`/`apply_updates`, a short `fit_model` with optax in place of `fit_flax.py`, `flax.core.pop(variables, ...)`, `!pip install` of flax at head and `superimport` commented out; removed from the ignore list (`UNIGNORED`) |
+  | `opt_flax` (was ignored) | `flax.optim` removed; `config.enable_omnistaging` removed from jax; `pyprobml/scripts/fit_flax.py` deleted upstream; `google.colab` | notebook edit: `optax.sgd(momentum=0.9)` passed to the same short optax `fit_model` as in `flax_intro`; flax-at-head install, `enable_omnistaging()`, pyprobml clone and Colab cell commented out; removed from the ignore list (`UNIGNORED`) |
   | `sgd_comparison` | `sls`/`sps`/`adasls` missing; `adasls` setup.py broken (missing comma, `sklearn` dummy package); `%pip install haven` installs an unrelated package into the same `haven/` folder; haven-ai 0.7 has no `haven_utils.exp_utils`; `google.colab.data_table` | `sls`/`sps` pinned by commit, `scikit-image==0.22.0`, `opencv-python-headless==4.11.0.86`; `scripts/install_sgd_comparison.py` installs adasls (setup.py fixed) and haven-ai 0.6.7 (both without `sklearn`); notebook edit: Colab import commented out, table shown with pandas |
 
 - **flax also revives** 7 ignored notebooks: `multi_gpu_training_jax`, `conv2d_jax`, `lenet_jax`,
@@ -510,7 +511,7 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
   from `internal/ignored_notebooks.txt` (and by `sync_from_pyprobml.py`, `UNIGNORED`), so the test
   runner now runs the three with book figures (`conv2d_jax`, `positional_encoding_jax`, `rnn_jax`:
   all pass; `positional_encoding_jax` needs `wget` on PATH for `d2l.py`). The other ignored
-  flax notebooks still fail: `flax.optim` removed and `fit_flax.py` deleted upstream (`opt_flax`), API changes
+  flax notebooks still fail: API changes
   (`gru_jax`, `lstm_jax`, `nmt_attention_jax`, `batchnorm_jax`), cp949 decoding of the d2l data
   files (`*_sentiment_jax`, `nmt_jax`, `transformers_jax`), downloads (`bert_jax`, SNLI `Icon\r`),
   > 20 min on CPU (`densenet_jax`, `resnet_jax`), pickling in DataLoader workers (`skipgram_jax`).
