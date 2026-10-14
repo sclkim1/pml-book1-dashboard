@@ -61,6 +61,8 @@ UNIGNORED = {
     "notebooks/misc/opt_jax.ipynb",
     "notebooks/misc/logreg_jax.ipynb",
     "notebooks/misc/logreg_pytorch.ipynb",
+    # pymc3 3.11 API and BLAS-free batched_dot (REPRODUCE.md 4.29)
+    "notebooks/misc/bnn_hierarchical_pymc3.ipynb",
 }
 
 UPSTREAM = "probml/pyprobml"
