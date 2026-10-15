@@ -23,6 +23,17 @@ $py = "$HOME\anaconda3\envs\pml-jupyter\python.exe"
 & $py -m pip check                                 # -> No broken requirements found.
 ```
 
+**Optional: NVIDIA GPU for PyTorch** (REPRODUCE.md 4.39). `requirements-local.txt` installs the
+CPU build of torch (as CI uses). With an NVIDIA GPU and a driver for CUDA >= 12.1, swap in the CUDA
+build of the same versions; the notebooks use it through their `torch.cuda.is_available()` checks
+and still run on the CPU without a GPU. TensorFlow (>= 2.11) and JAX have no GPU support on native
+Windows (only in WSL2), so those notebooks stay on the CPU.
+
+```powershell
+& $py -m pip install --no-deps --force-reinstall torch==2.1.2+cu121 torchvision==0.16.2+cu121 --index-url https://download.pytorch.org/whl/cu121
+& $py -c "import torch; print(torch.cuda.is_available(), torch.cuda.get_device_name(0))"   # -> True NVIDIA ...
+```
+
 **Lock the installed versions** (REPRODUCE.md 4.28). Many notebooks run `%pip install <package>`
 when an import fails, and pip then upgrades whatever that package wants: one run of
 `laplace_approx_beta_binom_pymc4` before `pymc` was pinned installed pymc 5 and upgraded numpy,

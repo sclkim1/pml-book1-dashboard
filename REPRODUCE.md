@@ -652,6 +652,7 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
   `%tensorflow_version` / `IS_COLAB` lines removed.
 - **Then** the same optimizer `KeyError` as `vae_mnist_gdl_tf` (4.34): one Adam trains several
   models → `tf.keras.optimizers.legacy.Adam(1e-3)` (4 places).
+- **Result:** passes (about 25 min in total, no cell over the timeout); removed from the ignore list.
 
 ### 4.37 Windows: d2l notebooks hang at the first loop over a `DataLoader` (cell timeout)
 - **Symptom:** `bert_*` (in `load_data_wiki`), `entailment_attention_mlp_*`, `skipgram_*`: the
@@ -663,7 +664,63 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
 - **Fix:** `scripts/fix_workers.py` (6 notebooks, run after every sync):
   `num_workers = 0 if os.name == "nt" else 4`, so Windows loads data in the main process and
   Linux (CI) keeps the workers.
+- **Then** `entailment_attention_mlp_*`: `OSError: [Errno 22] Invalid argument:
+  '..\\data\\snli_1.0\\Icon\r'`. The SNLI zip was made on macOS and contains `Icon\r` files; a
+  name with a carriage return cannot be created on Windows. `fix_download.py` now extracts only
+  entries without `\r` in their names (18 notebooks with `download_extract`).
+- **Then** `bert_*` hang again while building the SNLI dataset: `SNLIBERTDataset._preprocess` runs
+  `multiprocessing.Pool(4).map(self._mp_worker, ...)` on a notebook-defined class (same spawn
+  problem; the kernel died, leaving 4 idle workers). `fix_workers.py` now maps in the main process
+  on Windows and keeps the Pool on Linux.
+- **Results:** `skipgram_jax`, `skipgram_torch`, `entailment_attention_mlp_torch`, `bert_torch`
+  (171 s on the GPU, 4.39) pass and are removed from the ignore list (`UNIGNORED`);
+  `entailment_attention_mlp_jax` reaches training but 4 epochs over SNLI exceed the 20-min cell
+  timeout on CPU, and `bert_jax` was not yet retested (both stay ignored).
 
+### 4.38 `cnn_cifar_pytorch`: `'_SingleProcessDataLoaderIter' object has no attribute 'next'`
+- **Cause:** `dataiter.next()`; torch >= 1.13 DataLoader iterators only support the built-in
+  `next()` (the Python 2 style `.next()` method was removed).
+- **Fix (notebook edits, `LOCAL_EDITS`):** `next(dataiter)` in `cnn_cifar_pytorch` (2 places) and
+  `cifar10_cnn_lightning` (1 place).
+- `cifar10_cnn_lightning` also had Colab/TPU code and APIs removed since it was written:
+  - the `USE_TPU` / `COLAB_TPU_ADDR` / `torch_xla` setup and the Linux-only
+    `!grep Model: /proc/driver/nvidia/...` → `ACCELERATOR = "gpu" if torch.cuda.is_available() else "cpu"`;
+    the TPU branch of the batch-size choice removed;
+  - the two `from google.colab import files` cells (`files.download` / `files.upload`) removed;
+  - `Trainer(progress_bar_refresh_rate=10, tpu_cores=..., gpus=...)` (removed in Lightning 1.7 / 2.0)
+    → `Trainer(accelerator=ACCELERATOR, devices=1, callbacks=[TQDMProgressBar(refresh_rate=10), ...])`;
+  - `accuracy(preds, y)` → `accuracy(preds, y, task="multiclass", num_classes=10)` (torchmetrics >= 0.11);
+  - `OneCycleLR(..., steps_per_epoch=len(self.train_dataloader()))` →
+    `total_steps=self.trainer.estimated_stepping_batches` (the data come from the datamodule);
+  - `resnet18(pretrained=False, ...)` → `weights=None`.
+- **Results:** `cnn_cifar_pytorch` passes (346 s on CPU; it was listed as a timeout, but failed on
+  `.next()`) and is removed from the ignore list; `cifar10_cnn_lightning` (not ignored) passes in
+  872 s on the GPU.
+
+### 4.39 PyTorch on the GPU (local env only)
+- Many remaining failures are cell timeouts of torch training (`resnet_torch`, `densenet_torch`,
+  `rnn_sentiment_torch`, ...): `requirements-local.txt` installs `torch==2.1.2` from PyPI, the CPU
+  build on Windows, so an NVIDIA GPU (here an RTX 3090 Ti, driver 560.81, CUDA 12.6) is unused.
+- **Fix:** `pip install --no-deps --force-reinstall torch==2.1.2+cu121 torchvision==0.16.2+cu121
+  --index-url https://download.pytorch.org/whl/cu121` (same versions, same dependencies; the Windows
+  wheels bundle the CUDA libraries). `pip check` is clean, and the pinned constraint `torch==2.1.2`
+  accepts `+cu121`; the lock is regenerated afterwards (JUPYTER.md 1).
+- `requirements-local.txt` and CI keep the CPU build. TensorFlow >= 2.11 and JAX have no native
+  Windows GPU support (WSL2 only), so `*_tf` / `*_jax` notebooks still run on the CPU.
+
+### 4.40 `pre_trained_image_classifier_torch`: `UnidentifiedImageError: cannot identify image file 'img.jpg'`
+- **Cause:** `!wget https://github.com/probml/pyprobml/blob/master/images/cat_dog.jpg?raw=true -q -O img.jpg`:
+  the images left pyprobml (404), and `wget -q -O` leaves an empty `img.jpg` without a message.
+  The class list `pyprobml/master/data/imagenet_classes.txt` is gone the same way, and the last
+  cell used `percentage`, which the notebook never defines.
+- **Fix (notebook edits, `LOCAL_EDITS`):** the image from
+  `raw.githubusercontent.com/probml/probml-notebooks/main/images/cat_dog.jpg` (as
+  `image_augmentation_jax`), the class list from `probml-data/main/data/imagenet_classes.txt`
+  (1000 lines) read with `requests` (`raise_for_status()`; the `urllib` copy gave bytes labels),
+  `percentage = softmax(out, dim=1)[0] * 100`, and `resnet101(weights=ResNet101_Weights.IMAGENET1K_V1)`
+  instead of the deprecated `pretrained=True`. The notebook keeps its key order (edited with `json`,
+  not `nbformat.write`, which sorts keys and rewrote the whole file).
+- **Result:** passes; removed from the ignore list.
 
 ## 5. Results
 

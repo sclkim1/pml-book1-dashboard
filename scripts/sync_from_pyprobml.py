@@ -60,6 +60,11 @@ LOCAL_EDITS = {
     "notebooks/book1/15/bert_torch.ipynb",
     # CelebA from probml-data, no !rm, no Colab (REPRODUCE.md 4.36)
     "notebooks/book1/20/vae_celeba_tf.ipynb",
+    # DataLoader iterators have no .next() (REPRODUCE.md 4.38)
+    "notebooks/book1/14/cnn_cifar_pytorch.ipynb",
+    "notebooks/book1/14/cifar10_cnn_lightning.ipynb",
+    # moved image / class-list URLs, undefined `percentage` (REPRODUCE.md 4.40)
+    "notebooks/book1/19/pre_trained_image_classifier_torch.ipynb",
 }
 
 # Notebooks upstream ignores that run here (flax pinned, REPRODUCE.md 4.29): dropped from the list
@@ -104,6 +109,16 @@ UNIGNORED = {
     "notebooks/misc/knn_demo.ipynb",
     "notebooks/misc/vae_mnist_gdl_tf.ipynb",
     "notebooks/book1/14/batchnorm_jax.ipynb",
+    # moved data URLs, legacy Adam, no Colab (REPRODUCE.md 4.35, 4.36, 4.40)
+    "notebooks/misc/vae_celeba_tf.ipynb",
+    "notebooks/misc/pre_trained_image_classifier_torch.ipynb",
+    # no DataLoader workers / Pool on Windows, SNLI Icon\r (REPRODUCE.md 4.37)
+    "notebooks/book1/20/skipgram_jax.ipynb",
+    "notebooks/book1/20/skipgram_torch.ipynb",
+    "notebooks/book1/15/entailment_attention_mlp_torch.ipynb",
+    "notebooks/book1/15/bert_torch.ipynb",
+    # dataiter.next() -> next(dataiter) (REPRODUCE.md 4.38)
+    "notebooks/misc/cnn_cifar_pytorch.ipynb",
 }
 
 UPSTREAM = "probml/pyprobml"
