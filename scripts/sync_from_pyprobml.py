@@ -65,6 +65,8 @@ LOCAL_EDITS = {
     "notebooks/book1/14/cifar10_cnn_lightning.ipynb",
     # moved image / class-list URLs, undefined `percentage` (REPRODUCE.md 4.40)
     "notebooks/book1/19/pre_trained_image_classifier_torch.ipynb",
+    # undefined `ndims_input` (REPRODUCE.md 4.41)
+    "notebooks/book1/13/mlp_cifar_pytorch.ipynb",
 }
 
 # Notebooks upstream ignores that run here (flax pinned, REPRODUCE.md 4.29): dropped from the list
@@ -122,6 +124,12 @@ UNIGNORED = {
     # need CUDA: pass with the CUDA build of torch (REPRODUCE.md 4.39)
     "notebooks/book1/13/multi_gpu_training_torch.ipynb",
     "notebooks/book1/19/finetune_cnn_torch.ipynb",
+    # torch training on the GPU, CIFAR-10 pre-copied, `ndims_input` fix (REPRODUCE.md 4.41)
+    "notebooks/book1/14/resnet_torch.ipynb",
+    "notebooks/book1/14/densenet_torch.ipynb",
+    "notebooks/book1/15/rnn_sentiment_torch.ipynb",
+    "notebooks/book1/19/image_augmentation_torch.ipynb",
+    "notebooks/misc/mlp_cifar_pytorch.ipynb",
 }
 
 UPSTREAM = "probml/pyprobml"
