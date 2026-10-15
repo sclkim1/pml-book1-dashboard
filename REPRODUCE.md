@@ -725,6 +725,21 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
   not `nbformat.write`, which sorts keys and rewrote the whole file).
 - **Result:** passes; removed from the ignore list.
 
+### 4.41 Torch "timeouts" on the GPU: `resnet_torch`, `densenet_torch`, `rnn_sentiment_torch`, ...
+- With the CUDA build of torch (4.39): `resnet_torch` (162 s), `densenet_torch` (163 s),
+  `rnn_sentiment_torch` (61 s) pass unchanged.
+- `mlp_cifar_pytorch` and `image_augmentation_torch` timed out in the CIFAR-10 download, not in
+  training: torchvision downloads from `www.cs.toronto.edu` (slow, see 4.11) into each notebook's
+  own `data` folder (`13/data`, `book1/data`), and 20 min gave 45-117 MB of 170 MB. Copying the
+  complete `14/data/cifar-10-python.tar.gz` (from `cnn_cifar_pytorch`; MD5
+  `c58f30108f718f92721af3b95e74349a`) there makes torchvision verify it and only extract.
+  `image_augmentation_torch` then passes (21 s).
+- `mlp_cifar_pytorch` then: `NameError: name 'ndims_input' is not defined`; every other cell calls
+  it `ninputs` → `nn.Linear(ninputs, nhidden)` (notebook edit, `LOCAL_EDITS`). It trains a small
+  MLP on the CPU (it never uses `device`) and passes in 23 s.
+- **Result:** all five are removed from the ignore list (`UNIGNORED`). None is in the figure mapping,
+  so the CPU-only CI test does not run them.
+
 ## 5. Results
 
 ### 5.1 All of Book 1 (172 executed notebooks)
