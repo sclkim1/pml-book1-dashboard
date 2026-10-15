@@ -7,12 +7,9 @@ notebooks/misc/logreg_sklearn.ipynb
 notebooks/misc/linalg.ipynb
 notebooks/misc/mlp_cifar_pytorch.ipynb
 notebooks/misc/bnn_hierarchical_numpyro.ipynb
-notebooks/misc/pre_trained_image_classifier_torch.ipynb
 notebooks/misc/pymc3_intro.ipynb
-notebooks/misc/cnn_cifar_pytorch.ipynb
 notebooks/misc/pca.ipynb
 notebooks/misc/ae_mnist_gdl_tf.ipynb
-notebooks/misc/vae_celeba_tf.ipynb
 notebooks/misc/autodiff_tf.ipynb
 notebooks/misc/autodiff_pytorch.ipynb
 notebooks/book2/28/hmm_flows_pos_tagging.ipynb
@@ -23,8 +20,6 @@ notebooks/book1/09/naive_bayes_mnist_torch.ipynb
 notebooks/book1/19/image_augmentation_torch.ipynb
 notebooks/book1/19/finetune_cnn_jax.ipynb
 notebooks/book1/19/finetune_cnn_torch.ipynb
-notebooks/book1/20/skipgram_jax.ipynb
-notebooks/book1/20/skipgram_torch.ipynb
 notebooks/book1/14/resnet_jax.ipynb
 notebooks/book1/14/resnet_torch.ipynb
 notebooks/book1/14/lenet_torch.ipynb
@@ -32,11 +27,9 @@ notebooks/book1/14/batchnorm_torch.ipynb
 notebooks/book1/15/multi_head_attention_torch.ipynb
 notebooks/book1/15/gru_torch.ipynb
 notebooks/book1/15/entailment_attention_mlp_jax.ipynb
-notebooks/book1/15/entailment_attention_mlp_torch.ipynb
 notebooks/book1/14/conv2d_torch.ipynb
 notebooks/book1/15/attention_torch.ipynb
 notebooks/book1/15/entailment_attention_mlp_jax.ipynb
-notebooks/book1/15/entailment_attention_mlp_torch.ipynb
 notebooks/book1/15/kernel_regression_attention.ipynb
 notebooks/book1/15/multi_head_attention_torch.ipynb
 notebooks/book1/15/rnn_sentiment_jax.ipynb
@@ -46,7 +39,6 @@ notebooks/book1/14/densenet_jax.ipynb
 notebooks/book1/14/densenet_torch.ipynb
 notebooks/book1/15/positional_encoding_torch.ipynb
 notebooks/book1/15/bert_jax.ipynb
-notebooks/book1/15/bert_torch.ipynb
 notebooks/book1/15/rnn_sentiment_jax.ipynb
 notebooks/book1/15/rnn_sentiment_torch.ipynb
 notebooks/book1/13/multi_gpu_training_torch.ipynb
