@@ -19,7 +19,6 @@ notebooks/book1/09/naive_bayes_mnist_jax.ipynb
 notebooks/book1/09/naive_bayes_mnist_torch.ipynb
 notebooks/book1/19/image_augmentation_torch.ipynb
 notebooks/book1/19/finetune_cnn_jax.ipynb
-notebooks/book1/19/finetune_cnn_torch.ipynb
 notebooks/book1/14/resnet_jax.ipynb
 notebooks/book1/14/resnet_torch.ipynb
 notebooks/book1/14/lenet_torch.ipynb
@@ -41,7 +40,6 @@ notebooks/book1/15/positional_encoding_torch.ipynb
 notebooks/book1/15/bert_jax.ipynb
 notebooks/book1/15/rnn_sentiment_jax.ipynb
 notebooks/book1/15/rnn_sentiment_torch.ipynb
-notebooks/book1/13/multi_gpu_training_torch.ipynb
 notebooks/book1/15/lstm_torch.ipynb
 notebooks/book2/16/lecun1989
 notebooks/book2/23/flow_spline_mnist

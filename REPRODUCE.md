@@ -707,6 +707,9 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
   accepts `+cu121`; the lock is regenerated afterwards (JUPYTER.md 1).
 - `requirements-local.txt` and CI keep the CPU build. TensorFlow >= 2.11 and JAX have no native
   Windows GPU support (WSL2 only), so `*_tf` / `*_jax` notebooks still run on the CPU.
+- **Result:** `multi_gpu_training_torch` (54 s; calls `torch.cuda.synchronize()`) and
+  `finetune_cnn_torch` (88 s; hours on a CPU) pass unchanged and are removed from the ignore list.
+  Neither is in the figure mapping, so the CI (CPU) test does not run them.
 
 ### 4.40 `pre_trained_image_classifier_torch`: `UnidentifiedImageError: cannot identify image file 'img.jpg'`
 - **Cause:** `!wget https://github.com/probml/pyprobml/blob/master/images/cat_dog.jpg?raw=true -q -O img.jpg`:

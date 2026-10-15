@@ -119,6 +119,9 @@ UNIGNORED = {
     "notebooks/book1/15/bert_torch.ipynb",
     # dataiter.next() -> next(dataiter) (REPRODUCE.md 4.38)
     "notebooks/misc/cnn_cifar_pytorch.ipynb",
+    # need CUDA: pass with the CUDA build of torch (REPRODUCE.md 4.39)
+    "notebooks/book1/13/multi_gpu_training_torch.ipynb",
+    "notebooks/book1/19/finetune_cnn_torch.ipynb",
 }
 
 UPSTREAM = "probml/pyprobml"
