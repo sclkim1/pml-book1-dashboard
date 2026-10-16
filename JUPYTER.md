@@ -88,7 +88,15 @@ link printed in the terminal. Keep the terminal open while working.
 
 ## 3. Open a notebook and pick the kernel
 
-1. In the left file panel, open a chapter folder (`01`, `02`, ...) and double-click a `.ipynb`.
+**From the dashboard:** in the left file panel, right-click `dashboard_local.md` →
+*Open With → Markdown Preview*. It is the figure dashboard (same rows as the
+[GitHub dashboard](https://github.com/sclkim1/pml-book1-dashboard/blob/workflow_testing_indicator/dashboard_figures_book1.md));
+clicking a notebook name opens that notebook here in JupyterLab. The ✅/❌ icons and logs are those of
+the last GitHub Actions run (they need internet access). `scripts/sync_from_pyprobml.py` rebuilds it; by
+hand: `& $py scripts/create_figure_dashboard.py --local` in the repository root.
+
+1. In the left file panel, open a chapter folder (`01`, `02`, ...) and double-click a `.ipynb`
+   (or click its name in the dashboard).
 2. **Check the kernel name at the top right: it must be `Python (pml-jupyter)`.** If it shows
    `Python 3` or anything else: *Kernel → Change Kernel… → Python (pml-jupyter)*.
    Only this kernel has the pinned packages and `THEANO_FLAGS`.

@@ -21,6 +21,8 @@
 !/notebooks/**/*.ipynb
 # ...and the empty figures/ folders they save into (see JUPYTER.md section 1)
 !/notebooks/**/figures/.gitkeep
+# the dashboard for JupyterLab (scripts/create_figure_dashboard.py --local, JUPYTER.md section 3)
+!/notebooks/book1/dashboard_local.md
 
 __pycache__/
 .ipynb_checkpoints/

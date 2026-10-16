@@ -63,12 +63,26 @@ parser = argparse.ArgumentParser(description="create figure dashboard")
 parser.add_argument("--user_name", type=str, help="owner/repo", default="sclkim1/pml-book1-dashboard")
 parser.add_argument("--branch", type=str, default="main")
 parser.add_argument("--out_dir", type=str, default="workflow_testing_indicator")
+parser.add_argument(
+    "--local",
+    action="store_true",
+    help="write notebooks/book1/dashboard_local.md, linking the local notebooks (for JupyterLab)",
+)
 args = parser.parse_args()
 user, repo = args.user_name.split("/")  # github.repository gives owner/repo
 
 repo_root = f"https://github.com/{user}/{repo}"
 # notebook links open this repository's notebook on GitHub (upstream links to Colab, which is not used here)
 nb_root = f"{repo_root}/blob/{args.branch}"
+# --local: the file sits in notebooks/book1 (JupyterLab's root, JUPYTER.md section 2) and links
+# relative to it, so JupyterLab's Markdown Preview opens the notebook in this checkout
+LOCAL_DIR = "notebooks/book1"
+
+
+def nb_link(path):
+    if args.local:
+        return os.path.relpath(path, LOCAL_DIR).replace(os.sep, "/")
+    return f"{nb_root}/{path}"
 run_root = f"https://raw.githubusercontent.com/{user}/{repo}/workflow_testing_indicator"
 get_run = (
     lambda path: f'<img width="20" alt="image" src={run_root}/{path.replace(".ipynb", ".png")}>, [log]({run_root}/{path.replace(".ipynb", ".log")})'
@@ -114,7 +128,7 @@ for chap_no, urls_list in chap_urls_mapping.items():
             notebooks.append(
                 {
                     # no link for a notebook that does not exist (it would be a dead link)
-                    "nb_name": f"[{nb_name}]({nb_root}/{path})" if os.path.exists(path) else nb_name,
+                    "nb_name": f"[{nb_name}]({nb_link(path)})" if os.path.exists(path) else nb_name,
                     "fig_no": fig_no,
                     "workflow": missing if not os.path.exists(path) else skipped if nb_name in ignored else get_run(path),
                     "latexify": right_emoji if is_latexify else wrong_emoji,
@@ -126,7 +140,14 @@ for chap_no, urls_list in chap_urls_mapping.items():
         md_content += base_str + pd.DataFrame(notebooks).to_markdown(index=None, disable_numparse=True) + "\n</details>\n\n"
         total_cnt += len(notebooks)
 
-headline = f"## Instructions\n\n* Notebooks are copied from [probml/pyprobml](https://github.com/probml/pyprobml) with `scripts/sync_from_pyprobml.py`. See the [repository]({repo_root}) for details.\n\n## Book{book_no}Dashboard\n"
+headline = f"## Instructions\n\n* Notebooks are copied from [probml/pyprobml](https://github.com/probml/pyprobml) with `scripts/sync_from_pyprobml.py`. See the [repository]({repo_root}) for details.\n"
+if args.local:
+    headline += (
+        "* Local dashboard for JupyterLab (open with *Markdown Preview*): notebook links open the notebooks in this"
+        " checkout; the workflow icons and logs are the last GitHub Actions run. Rebuild with"
+        " `python scripts/create_figure_dashboard.py --local` (in the repository root).\n"
+    )
+headline += f"\n## Book{book_no}Dashboard\n"
 md_content = (
     headline
     + f"""Total Notebooks | Latexified | Jaxified |
@@ -137,7 +158,8 @@ md_content = (
     + md_content
 )
 
-os.makedirs(args.out_dir, exist_ok=True)
-with open(os.path.join(args.out_dir, f"dashboard_figures_book{book_no}.md"), "w", encoding="utf-8") as fp:
+out_path = f"{LOCAL_DIR}/dashboard_local.md" if args.local else os.path.join(args.out_dir, f"dashboard_figures_book{book_no}.md")
+os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
+with open(out_path, "w", encoding="utf-8") as fp:
     fp.write(md_content)
 print(f"{total_cnt} notebooks, {latexify_cnt} latexified, {jaxify_cnt} jaxified")
