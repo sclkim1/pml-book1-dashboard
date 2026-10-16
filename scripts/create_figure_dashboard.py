@@ -67,7 +67,8 @@ args = parser.parse_args()
 user, repo = args.user_name.split("/")  # github.repository gives owner/repo
 
 repo_root = f"https://github.com/{user}/{repo}"
-colab_root = f"https://colab.research.google.com/github/{user}/{repo}/blob/{args.branch}"
+# notebook links open this repository's notebook on GitHub (upstream links to Colab, which is not used here)
+nb_root = f"{repo_root}/blob/{args.branch}"
 run_root = f"https://raw.githubusercontent.com/{user}/{repo}/workflow_testing_indicator"
 get_run = (
     lambda path: f'<img width="20" alt="image" src={run_root}/{path.replace(".ipynb", ".png")}>, [log]({run_root}/{path.replace(".ipynb", ".log")})'
@@ -112,7 +113,8 @@ for chap_no, urls_list in chap_urls_mapping.items():
             jaxify_cnt += is_jaxify
             notebooks.append(
                 {
-                    "nb_name": f"[{nb_name}]({colab_root}/{path})",
+                    # no link for a notebook that does not exist (it would be a dead link)
+                    "nb_name": f"[{nb_name}]({nb_root}/{path})" if os.path.exists(path) else nb_name,
                     "fig_no": fig_no,
                     "workflow": missing if not os.path.exists(path) else skipped if nb_name in ignored else get_run(path),
                     "latexify": right_emoji if is_latexify else wrong_emoji,
