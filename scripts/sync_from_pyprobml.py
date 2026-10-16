@@ -231,5 +231,8 @@ for copy, (source, keys) in LOCAL_COPIES.items():
         shutil.copyfile(source, copy)
         print(f"copied {source} -> {copy} (figures {', '.join(keys)})")
 
+# Dashboard for JupyterLab, linking the local notebooks (JUPYTER.md)
+subprocess.run([sys.executable, "scripts/create_figure_dashboard.py", "--local"], check=True)
+
 for icon in ["right", "wrong"]:
     save(f"tests/icons/{icon}.png", fetch(f"{RAW}/tests/icons/{icon}.png"))
