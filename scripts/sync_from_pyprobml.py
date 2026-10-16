@@ -10,6 +10,7 @@ import csv
 import io
 import json
 import os
+import shutil
 import subprocess
 import sys
 import urllib.request
@@ -132,6 +133,14 @@ UNIGNORED = {
     "notebooks/misc/mlp_cifar_pytorch.ipynb",
 }
 
+# Copies of a notebook in the chapter folder of a figure upstream maps to another chapter's notebook:
+# {copy: (source, [figure keys])}. The copy is remade from the synced source, and those figures point
+# to the copy (REPRODUCE.md 4.42).
+LOCAL_COPIES = {
+    # Figure 10.1 (logistic regression on iris) is made by book1/02/iris_logreg.ipynb
+    "notebooks/book1/10/iris_logreg.ipynb": ("notebooks/book1/02/iris_logreg.ipynb", ["10.1"]),
+}
+
 UPSTREAM = "probml/pyprobml"
 BRANCH = "master"
 RAW = f"https://raw.githubusercontent.com/{UPSTREAM}/{BRANCH}"
@@ -185,7 +194,11 @@ def fix_url(url):
 text = fetch(f"{RAW}/internal/figures_url_mapping_book1_excluded_dummy_nb.csv").decode()
 rows = [row for row in csv.DictReader(io.StringIO(text)) if row["key"].split(".")[0] in chapters]
 for row in rows:
-    row["url"] = str([fix_url(url) for url in ast.literal_eval(row["url"])])
+    urls = [fix_url(url) for url in ast.literal_eval(row["url"])]
+    for copy, (source, keys) in LOCAL_COPIES.items():
+        if row["key"] in keys:
+            urls = [url.replace(source, copy) for url in urls]
+    row["url"] = str(urls)
 out = io.StringIO()
 writer = csv.DictWriter(out, fieldnames=["key", "url"], lineterminator="\n")
 writer.writeheader()
@@ -212,6 +225,11 @@ subprocess.run([sys.executable, "scripts/fix_shell.py", *notebooks], check=True)
 subprocess.run([sys.executable, "scripts/fix_download.py", *notebooks], check=True)
 # torch DataLoader workers: none on Windows (REPRODUCE.md 4.37)
 subprocess.run([sys.executable, "scripts/fix_workers.py", *notebooks], check=True)
+
+for copy, (source, keys) in LOCAL_COPIES.items():
+    if os.path.exists(source):
+        shutil.copyfile(source, copy)
+        print(f"copied {source} -> {copy} (figures {', '.join(keys)})")
 
 for icon in ["right", "wrong"]:
     save(f"tests/icons/{icon}.png", fetch(f"{RAW}/tests/icons/{icon}.png"))

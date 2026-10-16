@@ -90,7 +90,7 @@ key,url
 9.6,['https://colab.research.google.com/github/probml/pyprobml/blob/master/notebooks/book1/09/naive_bayes_mnist_jax.ipynb']
 9.7,['https://colab.research.google.com/github/probml/pyprobml/blob/master/notebooks/book1/09/naive_bayes_mnist_jax.ipynb']
 9.8,['https://colab.research.google.com/github/probml/pyprobml/blob/master/notebooks/book1/09/generativeVsDiscrim.ipynb']
-10.1,['https://colab.research.google.com/github/probml/pyprobml/blob/master/notebooks/book1/02/iris_logreg.ipynb']
+10.1,['https://colab.research.google.com/github/probml/pyprobml/blob/master/notebooks/book1/10/iris_logreg.ipynb']
 10.2,['https://colab.research.google.com/github/probml/pyprobml/blob/master/notebooks/book1/10/sigmoid_2d_plot.ipynb']
 10.4,['https://colab.research.google.com/github/probml/pyprobml/blob/master/notebooks/book1/10/logreg_poly_demo.ipynb']
 10.5,['https://colab.research.google.com/github/probml/pyprobml/blob/master/notebooks/book1/10/iris_logreg_loss_surface.ipynb']

@@ -740,6 +740,14 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
 - **Result:** all five are removed from the ignore list (`UNIGNORED`). None is in the figure mapping,
   so the CPU-only CI test does not run them.
 
+### 4.42 Figure 10.1 has its notebook in chapter 10 (`iris_logreg`)
+- Upstream maps Figures 2.11, 2.13 and 10.1 to `book1/02/iris_logreg.ipynb`; chapter 10's folder
+  had no notebook for Figure 10.1.
+- `scripts/sync_from_pyprobml.py` `LOCAL_COPIES`: after every sync, `book1/02/iris_logreg.ipynb` is
+  copied to `book1/10/iris_logreg.ipynb` and Figure 10.1 in `internal/figures_url_mapping_book1.csv`
+  points to the copy (2.11 and 2.13 keep the chapter 2 notebook). The copy passes in 15 s, and the
+  test runs both.
+
 ## 5. Results
 
 ### 5.1 All of Book 1 (172 executed notebooks)
