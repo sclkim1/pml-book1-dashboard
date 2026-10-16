@@ -2,7 +2,9 @@
 
 A minimal reproduction of the [pyprobml figure dashboard](https://github.com/probml/pyprobml/blob/workflow_testing_indicator/dashboard_figures_book1.md) for *Probabilistic Machine Learning: An Introduction* (Book 1).
 
-**Dashboard:** [dashboard_figures_book1.md](../workflow_testing_indicator/dashboard_figures_book1.md)
+**Dashboard:** [dashboard_figures_book1.md](https://github.com/sclkim1/pml-book1-dashboard/blob/workflow_testing_indicator/dashboard_figures_book1.md)
+(same layout as upstream's; every link points to this repository: notebook links open the notebook
+here on GitHub, not in Colab, and the ✅/❌ icons and logs come from this repository's test run).
 
 ## How it works
 
