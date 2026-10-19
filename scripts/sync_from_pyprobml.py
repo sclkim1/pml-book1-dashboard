@@ -68,6 +68,8 @@ LOCAL_EDITS = {
     "notebooks/book1/19/pre_trained_image_classifier_torch.ipynb",
     # undefined `ndims_input` (REPRODUCE.md 4.41)
     "notebooks/book1/13/mlp_cifar_pytorch.ipynb",
+    # Book 2 copy (OTHER_BOOK): x_test shape for tinygp 0.2.4 (REPRODUCE.md 4.45)
+    "notebooks/book1/17/gpr_demo_noise_free.ipynb",
 }
 
 # Notebooks upstream ignores that run here (flax pinned, REPRODUCE.md 4.29): dropped from the list
@@ -146,6 +148,22 @@ LOCAL_COPIES = {
 RENAMED = {
     # pyprobml d5193aa (2023-01-20, "Latexify bootstrap demo"); Figure 4.23
     "notebooks/book1/04/bootstrapDemoBer.ipynb": "notebooks/book1/04/bootstrap_demo_bernoulli.ipynb",
+    # pyprobml 07371db (2022-07-20); Figures 8.23, 17.2, 17.3
+    "notebooks/book1/08/emLogLikelihoodMax.ipynb": "notebooks/book1/08/em_log_likelihood_max.ipynb",
+    "notebooks/book1/17/gpKernelPlot.ipynb": "notebooks/book1/17/gp_kernel_plot.ipynb",
+    # pyprobml 0f63b7c (2022-06-30); Figure 13.14
+    "notebooks/book1/13/activation_fun_deriv_jax.ipynb": "notebooks/book1/13/activation_fun_deriv.ipynb",
+}
+
+# Book 1 figures whose notebook upstream deleted from Book 1 as a duplicate of a Book 2 notebook
+# (pyprobml 1f5d3f4, 2022-08-06): {copy in the Book 1 chapter folder: (Book 2 notebook, [figure keys])}.
+# The copy is downloaded from upstream and those figures point to it (REPRODUCE.md 4.45).
+OTHER_BOOK = {
+    "notebooks/book1/11/linreg_post_pred_plot.ipynb": ("notebooks/book2/03/linreg_post_pred_plot.ipynb", ["11.21"]),
+    "notebooks/book1/17/gpr_demo_ard.ipynb": ("notebooks/book2/18/gpr_demo_ard.ipynb", ["17.1"]),
+    "notebooks/book1/17/gpr_demo_noise_free.ipynb": ("notebooks/book2/18/gpr_demo_noise_free.ipynb", ["17.7"]),
+    "notebooks/book1/17/gpr_demo_change_hparams.ipynb": ("notebooks/book2/18/gpr_demo_change_hparams.ipynb", ["17.8"]),
+    "notebooks/book1/17/gpr_demo_marglik.ipynb": ("notebooks/book2/18/gpr_demo_marglik.ipynb", ["17.9"]),
 }
 
 UPSTREAM = "probml/pyprobml"
@@ -203,8 +221,12 @@ def fix_url(url):
 # Figure -> notebook mapping, filtered to the selected chapters
 text = fetch(f"{RAW}/internal/figures_url_mapping_book1_excluded_dummy_nb.csv").decode()
 rows = [row for row in csv.DictReader(io.StringIO(text)) if row["key"].split(".")[0] in chapters]
+other_book = {key: copy for copy, (_, keys) in OTHER_BOOK.items() for key in keys}
 for row in rows:
-    urls = [fix_url(url) for url in ast.literal_eval(row["url"])]
+    if row["key"] in other_book:
+        urls = [f"https://colab.research.google.com/github/{UPSTREAM}/blob/{BRANCH}/{other_book[row['key']]}"]
+    else:
+        urls = [fix_url(url) for url in ast.literal_eval(row["url"])]
     for copy, (source, keys) in LOCAL_COPIES.items():
         if row["key"] in keys:
             urls = [url.replace(source, copy) for url in urls]
@@ -225,6 +247,15 @@ for path in notebooks:
         print(f"kept local edit: {path}")
         continue
     save(path, fetch(f"{RAW}/{path}"))
+for copy, (source, keys) in OTHER_BOOK.items():
+    if copy not in mapped:
+        continue
+    if copy in LOCAL_EDITS and os.path.exists(copy):
+        print(f"kept local edit: {copy}")
+    else:
+        save(copy, fetch(f"{RAW}/{source}"))
+        print(f"downloaded {source} -> {copy} (figures {', '.join(keys)})")
+    notebooks.append(copy)
 print(f"{len(notebooks)} notebooks synced")
 
 # Colab links between notebooks -> local links, as in the committed notebooks (JUPYTER.md)

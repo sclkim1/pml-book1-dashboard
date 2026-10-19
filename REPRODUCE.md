@@ -2,13 +2,13 @@
 
 This repository reproduces the [pyprobml Book 1 figure dashboard](https://github.com/probml/pyprobml/blob/workflow_testing_indicator/dashboard_figures_book1.md)
 for **all 22 chapters of Book 1**: 245 dashboard rows, the same header as the original
-(245 notebooks; 44 latexified and 52 jaxified, see 4.18, 4.44). Of these rows:
+(245 notebooks; 52 latexified and 60 jaxified, see 4.18, 4.44, 4.45). Of these rows:
 
 - **172 notebooks are executed**;
 - 8 rows (6 notebooks) are on upstream's `internal/ignored_notebooks.txt`; like upstream, they are
   not executed and the dashboard shows "skipped (upstream ignore list)";
-- 9 rows (8 notebooks) point to notebooks that do not exist upstream; the dashboard shows
-  "notebook missing upstream" (4.18).
+- no row points to a missing notebook any more: the 10 rows (9 notebooks) upstream maps to
+  renamed or deleted notebooks point to their current versions (4.44, 4.45).
 
 The dashboard can be built two ways:
 
@@ -348,7 +348,7 @@ environment; 4.11–4.12 are datasets; 4.13 is CI; 4.14–4.15 appeared only in 
 - **Symptom:** `File not found: notebooks/book1/21/gmm_2d.ipynb` while building the dashboard.
 - **Cause:** `internal/figures_url_mapping_book1_excluded_dummy_nb.csv` upstream lists some
   notebooks in the wrong chapter folder (e.g. `21/gmm_2d` is really `03/gmm_2d`), and some that
-  do not exist anywhere (e.g. five chapter 17 GP notebooks; `bootstrapDemoBer` was renamed, 4.44). On the original
+  no longer exist under that name (renamed, or moved to Book 2: 4.44, 4.45). On the original
   dashboard these rows link to status icons that can never exist.
 - **Fix:** `scripts/sync_from_pyprobml.py` re-points a url when exactly one Book 1 notebook has that
   file name, and prints each change (10 urls). The other 9 notebooks are not executed and the
@@ -783,6 +783,32 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
   Figure 4.23 in `internal/figures_url_mapping_book1.csv` now points to
   `book1/04/bootstrap_demo_bernoulli.ipynb`, which passes in 8 s. It is latexified and jaxified, so the
   dashboard header becomes 44 / 52.
+
+### 4.45 The other "notebook missing upstream" rows: renamed, or moved to Book 2
+- **Symptom:** 9 more rows showed "notebook missing upstream" (Figures 8.23, 11.21, 13.14, 17.1,
+  17.2, 17.3, 17.7, 17.8, 17.9). Upstream's newer mappings (`internal/book1/figures_nb_mapping_book1*.csv`)
+  still use the same old names.
+- **Cause and fix:**
+
+  | Figures | Old name | Upstream change | Now points to |
+  |---|---|---|---|
+  | 8.23 | `08/emLogLikelihoodMax` | renamed, `07371db` (2022-07-20) | `book1/08/em_log_likelihood_max.ipynb` |
+  | 17.2, 17.3 | `17/gpKernelPlot` | renamed, `07371db` | `book1/17/gp_kernel_plot.ipynb` |
+  | 13.14 | `13/activation_fun_deriv_jax` | replaced, `0f63b7c` (2022-06-30) | `book1/13/activation_fun_deriv.ipynb` |
+  | 11.21 | `11/linreg_post_pred_plot` | deleted from Book 1 as a duplicate, `1f5d3f4` (2022-08-06) | copy of `book2/03/linreg_post_pred_plot.ipynb` |
+  | 17.1 | `17/gprDemoArd` | same | copy of `book2/18/gpr_demo_ard.ipynb` |
+  | 17.7 | `17/gprDemoNoiseFree` | same | copy of `book2/18/gpr_demo_noise_free.ipynb` |
+  | 17.8 | `17/gprDemoChangeHparams` | same | copy of `book2/18/gpr_demo_change_hparams.ipynb` |
+  | 17.9 | `17/gpr_demo_marglik` | same | copy of `book2/18/gpr_demo_marglik.ipynb` |
+
+  `scripts/sync_from_pyprobml.py`: the renames are in `RENAMED` (4.44); `OTHER_BOOK` downloads the
+  Book 2 notebooks into the Book 1 chapter folder (`book1/11/`, `book1/17/`) and points the figures
+  there; the usual fix scripts run on them.
+- `gpr_demo_noise_free`: `ValueError: X_test must have the same tree structure as the input X`;
+  tinygp 0.2.4 needs `x_test` with shape (N, 1) like `x_train`: `jnp.arange(-5, 5.2, 0.2)[:, None]`
+  (kept by `LOCAL_EDITS`).
+- All 8 notebooks pass (19 s together). The dashboard has no "notebook missing upstream" rows left;
+  its header becomes 52 latexified / 60 jaxified.
 
 ## 5. Results
 
