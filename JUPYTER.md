@@ -131,7 +131,8 @@ that generate the figure, and some notebooks link to related ones. Upstream link
 Colab; `scripts/local_links.py` replaced them with relative links (e.g. `beta_dist_plot.ipynb`,
 `../03/gmm_2d.ipynb`), which open the local notebook in JupyterLab: 50 links in 35 notebooks.
 
-- Only markdown links are changed; the "Open in Colab" badges at the top of notebooks are kept.
+- This repository does not use Colab: `scripts/no_colab.py` removed the "Open in Colab" badges and
+  pointed the other Colab links to the local notebook or to GitHub (REPRODUCE.md 4.49).
 - Links to old paths (`notebooks/rnn_torch.ipynb`, `probml-notebooks`) or the wrong chapter point
   to the only local notebook with that file name.
 - 13 links stay on Colab: their notebooks (`text_preproc_torch`, `jax_intro`, `datasets`, `opt`,

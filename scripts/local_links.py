@@ -2,8 +2,8 @@
 Replace Colab links to notebooks with relative links to the notebooks in this repository, so they
 open in JupyterLab (JUPYTER.md).
 
-- Only markdown links, [text](https://colab...), are changed; "Open in Colab" badges
-  (HTML <a href=...>) and bare URLs are kept.
+- Only markdown links, [text](https://colab...), are changed; "Open in Colab" badges and bare
+  URLs are left to no_colab.py, which runs next.
 - The target is the same path in this repository, or else the only Book 1 notebook with that file
   name (links to old pyprobml / probml-notebooks paths, or to the wrong chapter). Links whose
   notebook is not in this repository, or whose name is ambiguous, are kept.

@@ -833,6 +833,20 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
 - **Fix:** replaced by `os.makedirs("figures", exist_ok=True)`; the checkpoints are downloaded next to
   the notebook as before (`wget -nc`: not again if present). The notebook runs cleanly in 34 s.
 
+### 4.49 No Colab: badges and links
+- **Symptom:** 87 notebooks start with an "Open in Colab" badge, and 76 links elsewhere in the text
+  open Colab; this repository does not use Colab.
+- **Fix:** `scripts/no_colab.py` (run by `scripts/sync_from_pyprobml.py` after `local_links.py`):
+  - removes the badges (86 cells that held only the badge are deleted);
+  - turns every other `colab.research.google.com/github/...` link (also one with the typo
+    `giathub`) into a relative link when the notebook is in this repository, else into the same
+    notebook on GitHub; links to notebooks that moved upstream go to their new path (`MOVED`).
+  - Kept: one link to a private Colab notebook (`colab.research.google.com/drive/...`, the
+    original of `sgd_comparison`, no other copy), and Colab's own pages inside upstream outputs.
+  - Only cell sources change (no outputs, no metadata); the JSON layout is kept.
+- 98 notebooks changed. Of the links that now go to GitHub, one is dead as it was on Colab:
+  `book1/supplements/opt.ipynb` was deleted upstream and has no current copy.
+
 ## 5. Results
 
 ### 5.1 All of Book 1

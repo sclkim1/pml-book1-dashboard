@@ -265,6 +265,8 @@ print(f"{len(notebooks)} notebooks synced")
 
 # Colab links between notebooks -> local links, as in the committed notebooks (JUPYTER.md)
 subprocess.run([sys.executable, "scripts/local_links.py", *notebooks], check=True)
+# no "Open in Colab" badges; other Colab links -> local notebook or GitHub (REPRODUCE.md 4.49)
+subprocess.run([sys.executable, "scripts/no_colab.py", *notebooks], check=True)
 # `!mkdir figures # ...` -> os.makedirs, `!ls` -> os.listdir, `!wget -nc` (REPRODUCE.md 4.30, 4.32)
 subprocess.run([sys.executable, "scripts/fix_shell.py", *notebooks], check=True)
 # d2l download helpers: extract once, raise_for_status (REPRODUCE.md 4.32, 4.35)
