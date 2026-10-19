@@ -816,6 +816,14 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
 - **Fix:** both pass unchanged (63 s together); `UNIGNORED` takes them off the list. Every dashboard
   row now has a notebook link and a status link.
 
+### 4.47 `vae_celeba_tf`: 20,000 images next to the notebook
+- **Symptom:** `notebooks/book1/20/` held 20,057 files, too many to browse in JupyterLab.
+- **Cause:** the notebook unzips `celeba_small_H64_W64_N20000.zip` (20,000 `.jpg` files) into its
+  working folder.
+- **Fix:** the CSV, the zip and the images go to `data/celeba/` (`wget -nc -P`, `unzip -d`, paths
+  joined with `data_dir`). Files already there are neither downloaded nor extracted again. Locally,
+  the existing files were moved to `notebooks/book1/20/data/celeba/`: the folder now has 56 entries.
+
 ## 5. Results
 
 ### 5.1 All of Book 1
