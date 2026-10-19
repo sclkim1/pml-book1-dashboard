@@ -1,9 +1,0 @@
-A cell timed out while it was being executed, after 1200 seconds.
-The message was: Cell execution timed out.
-Here is a preview of the cell contents:
--------------------
-!wget -nc http://files.grouplens.org/datasets/movielens/ml-100k.zip
-import os; print(sorted(os.listdir()))  # was !ls (no ls on Windows)
-!unzip -n ml-100k
-folder = "ml-100k"
--------------------
