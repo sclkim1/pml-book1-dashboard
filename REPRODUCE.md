@@ -4,9 +4,11 @@ This repository reproduces the [pyprobml Book 1 figure dashboard](https://github
 for **all 22 chapters of Book 1**: 245 dashboard rows, the same header as the original
 (245 notebooks; 52 latexified and 60 jaxified, see 4.18, 4.44, 4.45). Of these rows:
 
-- **172 notebooks are executed**;
-- 8 rows (6 notebooks) are on upstream's `internal/ignored_notebooks.txt`; like upstream, they are
-  not executed and the dashboard shows "skipped (upstream ignore list)";
+- **186 notebooks are executed** (242 rows);
+- 3 rows (2 notebooks: `naive_bayes_mnist_jax`, `kernel_regression_attention`) are still on
+  upstream's `internal/ignored_notebooks.txt`; like upstream, they are not executed and the
+  dashboard shows "skipped (upstream ignore list)". The other notebooks upstream ignores that the
+  dashboard maps pass here and were taken off the list (`UNIGNORED`, 4.29 and later);
 - no row points to a missing notebook any more: the 10 rows (9 notebooks) upstream maps to
   renamed or deleted notebooks point to their current versions (4.44, 4.45).
 
@@ -812,7 +814,14 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
 
 ## 5. Results
 
-### 5.1 All of Book 1 (172 executed notebooks)
+### 5.1 All of Book 1
+
+Latest: CI run 39189361412 (commit `adb36b9`, 2026-10-19), **174 of 177 pass**; it ran before
+4.44/4.45 added 9 notebooks (186 now). The 3 failures are not code errors:
+`image_augmentation_jax` and `matrix_factorization_recommender` hit the 20-minute cell limit on the
+CPU runner, and `pcaImageDemo` got `HTTP Error 500` from the server it downloads its data from.
+
+Earlier runs, with 172 executed notebooks:
 
 | Run | Environment | Passed | Failed |
 |---|---|---|---|
