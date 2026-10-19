@@ -9,7 +9,7 @@ Follow [REPRODUCE.md](REPRODUCE.md) section 2, with the env name `pml-jupyter`. 
 already in `requirements-local.txt` (via `jupyter`), compatible with the pinned kernel stack.
 
 ```powershell
-cd C:\Users\<user>\pml-book1
+cd <path\to\pml-book1-dashboard>   # your clone of this repository
 conda create -n pml-jupyter python=3.10 -y
 $py = "$HOME\anaconda3\envs\pml-jupyter\python.exe"
 & $py -m pip install -U pip
@@ -78,12 +78,16 @@ For chapters 3–22, also do the machine setup (REPRODUCE.md 1.1) and the datase
 
 ## 2. Start JupyterLab
 
+In the repository root:
+
 ```powershell
-& "$HOME\anaconda3\envs\pml-jupyter\Scripts\jupyter-lab.exe" --notebook-dir C:\Users\<user>\pml-book1\notebooks\book1
+& "$HOME\anaconda3\envs\pml-jupyter\Scripts\jupyter-lab.exe" --notebook-dir notebooks\book1
 ```
 
 The browser opens `http://localhost:8888/lab`; if not, open the `http://localhost:8888/lab?token=...`
-link printed in the terminal. Keep the terminal open while working.
+link printed in the terminal. Keep the terminal open while working. The token is a password for
+your JupyterLab (which can run any code as you): don't share it or post screenshots of it, and keep
+the default `localhost`-only access (no `--ip=0.0.0.0`).
 (Alternative: `conda activate pml-jupyter`, then `jupyter lab --notebook-dir ...`.)
 
 ## 3. Open a notebook and pick the kernel

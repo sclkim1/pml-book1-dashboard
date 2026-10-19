@@ -126,17 +126,18 @@ curl.exe -L --fail --retry 5 -o "$HOME\.keras\datasets\cifar-10-batches-py.tar.g
 # Fallback, original server (slow):
 #   curl.exe -L -C - --retry 5 -o "$HOME\.keras\datasets\cifar-10-batches-py.tar.gz" https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz
 
-# Verify CIFAR-10: must be 170,498,071 bytes, MD5 c58f30108f718f92721af3b95e74349a
+# Verify CIFAR-10: must be 170,498,071 bytes, SHA-256 6d958be074577803d12ecdefd02955f39262c83c16fe9348329d7fe0b5c001ce
+# (MD5 c58f30108f718f92721af3b95e74349a, as published; the mirror is a third party, so check it)
 (Get-Item "$HOME\.keras\datasets\cifar-10-batches-py.tar.gz").Length
-(Get-FileHash "$HOME\.keras\datasets\cifar-10-batches-py.tar.gz" -Algorithm MD5).Hash
+(Get-FileHash "$HOME\.keras\datasets\cifar-10-batches-py.tar.gz" -Algorithm SHA256).Hash
 
 # EMNIST for emnist_viz_jax (torchvision cache, root="~/data"). ~536 MB
 New-Item -ItemType Directory -Force "$HOME\data\EMNIST\raw" | Out-Null
 curl.exe -L --fail --retry 5 -o "$HOME\data\EMNIST\raw\gzip.zip" https://biometrics.nist.gov/cs_links/EMNIST/gzip.zip
 
-# Verify EMNIST: must be 561,753,746 bytes, MD5 58c8d27c78d21e728a6bc7b3cc06412e
+# Verify EMNIST: must be 561,753,746 bytes, SHA-256 fb9bb67e33772a9cc0b895e4ecf36d2cf35be8b709693c3564cea2a019fcda8e
 (Get-Item "$HOME\data\EMNIST\raw\gzip.zip").Length
-(Get-FileHash "$HOME\data\EMNIST\raw\gzip.zip" -Algorithm MD5).Hash
+(Get-FileHash "$HOME\data\EMNIST\raw\gzip.zip" -Algorithm SHA256).Hash
 ```
 
 Use `curl.exe` (Windows' own curl), not `curl` from Git Bash: in PowerShell `curl` is an
@@ -747,6 +748,25 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
   copied to `book1/10/iris_logreg.ipynb` and Figure 10.1 in `internal/figures_url_mapping_book1.csv`
   points to the copy (2.11 and 2.13 keep the chapter 2 notebook). The copy passes in 15 s, and the
   test runs both.
+
+### 4.43 Security and privacy review
+- `notebooks/book1/01/tfidf_demo.ipynb` had been committed with the outputs of a local run (a
+  traceback with the local user path) and the local kernel name. Outputs cleared, metadata restored
+  to upstream's; only the code fixes remain. Notebooks saved in JupyterLab are never committed
+  (JUPYTER.md section 6).
+- `JUPYTER.md`: the local user path replaced with paths relative to your clone; a note to keep the
+  JupyterLab token private and the server on `localhost`.
+- `.github/workflows/dashboard.yml`:
+  - Actions pinned to commit SHAs (the version stays in a comment), so a moved tag can't change
+    the code that runs with the repository's write token.
+  - `persist-credentials: false`: the checkout no longer leaves the token in `.git/config`,
+    where the notebooks (third-party code) run. The publish step is given the token itself.
+  - `github.repository` / `github.ref_name` reach the shell through `env`, not `${{ }}`, so a
+    branch name can't inject shell code.
+  - The pre-downloaded datasets are checked with SHA-256 instead of MD5, as the CIFAR-10 file comes
+    from a third-party mirror (also in 2.6 above).
+- Upstream notebook outputs contain the upstream authors' paths (e.g. `C:\Users\<author>\.pyenv`,
+  `/Users/kpmurphy/...`); they are left as published upstream.
 
 ## 5. Results
 
