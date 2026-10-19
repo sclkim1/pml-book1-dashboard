@@ -9,7 +9,8 @@ here on GitHub, not in Colab, and the ✅/❌ icons and logs come from this repo
 | | Upstream | Here |
 |---|---|---|
 | Dashboard rows (figures) | 245 | 245 |
-| Notebooks executed | 172 | 186 |
+| Notebooks executed | 172 | 188 (all) |
+| Rows "skipped (upstream ignore list)" | 8 | 0 ([REPRODUCE.md](REPRODUCE.md) 4.46) |
 | Rows "notebook missing upstream" | 10 | 0 (renamed or moved notebooks remapped, [REPRODUCE.md](REPRODUCE.md) 4.44, 4.45) |
 | Passing | 165 | 174 of 177 in the last full CI run (details in [REPRODUCE.md](REPRODUCE.md) 5.1) |
 

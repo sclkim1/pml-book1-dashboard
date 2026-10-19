@@ -14,7 +14,6 @@ notebooks/misc/autodiff_pytorch.ipynb
 notebooks/book2/28/hmm_flows_pos_tagging.ipynb
 notebooks/book2/28/hmm_poisson_changepoint_tfp.ipynb
 notebooks/book2/28/hmm_with_ngram.ipynb
-notebooks/book1/09/naive_bayes_mnist_jax.ipynb
 notebooks/book1/09/naive_bayes_mnist_torch.ipynb
 notebooks/book1/19/finetune_cnn_jax.ipynb
 notebooks/book1/14/resnet_jax.ipynb
@@ -26,7 +25,6 @@ notebooks/book1/15/entailment_attention_mlp_jax.ipynb
 notebooks/book1/14/conv2d_torch.ipynb
 notebooks/book1/15/attention_torch.ipynb
 notebooks/book1/15/entailment_attention_mlp_jax.ipynb
-notebooks/book1/15/kernel_regression_attention.ipynb
 notebooks/book1/15/multi_head_attention_torch.ipynb
 notebooks/book1/15/rnn_sentiment_jax.ipynb
 notebooks/book1/15/rnn_torch.ipynb

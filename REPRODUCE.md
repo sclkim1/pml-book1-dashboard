@@ -4,11 +4,9 @@ This repository reproduces the [pyprobml Book 1 figure dashboard](https://github
 for **all 22 chapters of Book 1**: 245 dashboard rows, the same header as the original
 (245 notebooks; 52 latexified and 60 jaxified, see 4.18, 4.44, 4.45). Of these rows:
 
-- **186 notebooks are executed** (242 rows);
-- 3 rows (2 notebooks: `naive_bayes_mnist_jax`, `kernel_regression_attention`) are still on
-  upstream's `internal/ignored_notebooks.txt`; like upstream, they are not executed and the
-  dashboard shows "skipped (upstream ignore list)". The other notebooks upstream ignores that the
-  dashboard maps pass here and were taken off the list (`UNIGNORED`, 4.29 and later);
+- **all 188 notebooks are executed** (all 245 rows). The notebooks upstream's
+  `internal/ignored_notebooks.txt` lists that the dashboard maps pass here and were taken off the
+  list (`UNIGNORED`, 4.29 and later, the last two in 4.46), so no row shows "skipped";
 - no row points to a missing notebook any more: the 10 rows (9 notebooks) upstream maps to
   renamed or deleted notebooks point to their current versions (4.44, 4.45).
 
@@ -811,6 +809,12 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
   (kept by `LOCAL_EDITS`).
 - All 8 notebooks pass (19 s together). The dashboard has no "notebook missing upstream" rows left;
   its header becomes 52 latexified / 60 jaxified.
+
+### 4.46 The last "skipped (upstream ignore list)" rows
+- **Symptom:** Figures 9.6, 9.7 (`naive_bayes_mnist_jax`) and 15.17 (`kernel_regression_attention`)
+  had no status icon or log: the notebooks are on upstream's ignore list, so they were not run.
+- **Fix:** both pass unchanged (63 s together); `UNIGNORED` takes them off the list. Every dashboard
+  row now has a notebook link and a status link.
 
 ## 5. Results
 

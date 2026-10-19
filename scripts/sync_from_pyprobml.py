@@ -133,6 +133,9 @@ UNIGNORED = {
     "notebooks/book1/15/rnn_sentiment_torch.ipynb",
     "notebooks/book1/19/image_augmentation_torch.ipynb",
     "notebooks/misc/mlp_cifar_pytorch.ipynb",
+    # the last two dashboard notebooks upstream ignores: pass unchanged (REPRODUCE.md 4.46)
+    "notebooks/book1/09/naive_bayes_mnist_jax.ipynb",
+    "notebooks/book1/15/kernel_regression_attention.ipynb",
 }
 
 # Copies of a notebook in the chapter folder of a figure upstream maps to another chapter's notebook:
