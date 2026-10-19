@@ -821,7 +821,8 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
 - **Cause:** the notebook unzips `celeba_small_H64_W64_N20000.zip` (20,000 `.jpg` files) into its
   working folder.
 - **Fix:** the CSV, the zip and the images go to `data/celeba/` (`wget -nc -P`, `unzip -d`, paths
-  joined with `data_dir`). Files already there are neither downloaded nor extracted again. Locally,
+  joined with `data_dir`, and `IMAGE_FOLDER = data_dir` for the Keras loader of the attribute
+  vectors, which otherwise finds `0 validated image filenames`). Files already there are neither downloaded nor extracted again. Locally,
   the existing files were moved to `notebooks/book1/20/data/celeba/`: the folder now has 56 entries.
 
 ## 5. Results
