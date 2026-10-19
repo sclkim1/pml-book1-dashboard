@@ -61,6 +61,8 @@ LOCAL_EDITS = {
     "notebooks/book1/15/bert_torch.ipynb",
     # CelebA from probml-data, no !rm, no Colab (REPRODUCE.md 4.36)
     "notebooks/book1/20/vae_celeba_tf.ipynb",
+    # no !mkdir / %cd /content/scripts (Colab) (REPRODUCE.md 4.48)
+    "notebooks/book1/20/vae_mnist_conv_lightning.ipynb",
     # DataLoader iterators have no .next() (REPRODUCE.md 4.38)
     "notebooks/book1/14/cnn_cifar_pytorch.ipynb",
     "notebooks/book1/14/cifar10_cnn_lightning.ipynb",

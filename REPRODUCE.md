@@ -825,6 +825,14 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
   vectors, which otherwise finds `0 validated image filenames`). Files already there are neither downloaded nor extracted again. Locally,
   the existing files were moved to `notebooks/book1/20/data/celeba/`: the folder now has 56 entries.
 
+### 4.48 `vae_mnist_conv_lightning`: `[WinError 3] ... '/content/scripts'`
+- **Symptom:** the first cell prints `[WinError 3]` for `%cd /content/scripts` and a garbled cp949
+  "folder already exists" message from each `!mkdir` (the notebook still runs on: these do not raise).
+- **Cause:** Colab setup: `/content` is Colab's working folder, and Windows' `mkdir` fails when the
+  folder exists.
+- **Fix:** replaced by `os.makedirs("figures", exist_ok=True)`; the checkpoints are downloaded next to
+  the notebook as before (`wget -nc`: not again if present). The notebook runs cleanly in 34 s.
+
 ## 5. Results
 
 ### 5.1 All of Book 1
