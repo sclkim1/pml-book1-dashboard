@@ -412,7 +412,7 @@ on PATH, theano falls back to pure Python and those 3 notebooks time out.
   xarray-einstats). `ae_mnist_tf` remained a failure until 4.26 edited its `set_option` line.
 
 ### 4.25 CI: random notebooks fail with `ValueError: Unknown mat file type, version 104, 116`
-- **Symptom:** CI run [38358185226](../../actions/runs/38358185226) gave 162/172: `fisher_discrim_vowel`,
+- **Symptom:** CI run 38358185226 (run deleted) gave 162/172: `fisher_discrim_vowel`,
   `lassoPathProstate`, `hclust_yeast_demo` failed, although they passed in the run before.
 - **Cause:** 18 notebooks (11 of them executed) download data/images with
   `https://github.com/<owner>/<repo>/blob/<ref>/<path>?raw=true`, which github.com redirects to
@@ -765,6 +765,10 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
     branch name can't inject shell code.
   - The pre-downloaded datasets are checked with SHA-256 instead of MD5, as the CIFAR-10 file comes
     from a third-party mirror (also in 2.6 above).
+- The git history was rewritten (git-filter-repo) to replace the local user name in the 3 older
+  commits that contained it, and force-pushed; all commit IDs from then on changed. The Actions runs
+  of the replaced commits were deleted; the older runs linked in section 5 are gone too, so their
+  run numbers are kept as plain text.
 - Upstream notebook outputs contain the upstream authors' paths (e.g. `C:\Users\<author>\.pyenv`,
   `/Users/kpmurphy/...`); they are left as published upstream.
 
@@ -777,7 +781,7 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
 | Upstream pyprobml dashboard (for comparison) | their CI | 165 | 7 |
 | Local, first full run | `pyprobml-exp` (fresh env + 15 libraries, before 4.20–4.24) | 151 | 21 |
 | Local, clean run, rebuilt env | `pyprobml-fresh` from `requirements-local.txt` + 2.3, Windows 11, 16 min | **164** | 8 |
-| CI, run [38352919703](../../actions/runs/38352919703) | `ubuntu-latest`, pinned setup, 31 min | **165** | 7 |
+| CI, run 38352919703 (run deleted) | `ubuntu-latest`, pinned setup, 31 min | **165** | 7 |
 
 The 8 local failures:
 
@@ -798,10 +802,10 @@ CI fails exactly the 6 upstream failures plus `ae_mnist_tf`. So 165 pass both on
 
 | Run | Environment | Passed | Failed |
 |---|---|---|---|
-| CI, run [38333885122](../../actions/runs/38333885122) | `ubuntu-latest`, `requirements.txt` | 15 | 13 |
-| CI, pinned setup, first try, run [38341210973](../../actions/runs/38341210973) | `ubuntu-latest`, `requirements-local.txt` before 4.14/4.15 | 0 | 28 |
-| CI, pinned setup with 4.14/4.15, run [38342131247](../../actions/runs/38342131247) | `ubuntu-latest`, `requirements-local.txt` + TeX Live + datasets | 27 | 1 (4.16) |
-| CI, pinned setup with 4.14–4.16, run [38342585490](../../actions/runs/38342585490) | same + writable `/teamspace` | **28** | **0** |
+| CI, run 38333885122 (run deleted) | `ubuntu-latest`, `requirements.txt` | 15 | 13 |
+| CI, pinned setup, first try, run 38341210973 (run deleted) | `ubuntu-latest`, `requirements-local.txt` before 4.14/4.15 | 0 | 28 |
+| CI, pinned setup with 4.14/4.15, run 38342131247 (run deleted) | `ubuntu-latest`, `requirements-local.txt` + TeX Live + datasets | 27 | 1 (4.16) |
+| CI, pinned setup with 4.14–4.16, run 38342585490 (run deleted) | same + writable `/teamspace` | **28** | **0** |
 | Local, first attempt | clone of base + `requirements.txt` | 6 | 22 |
 | Local, after fixes 4.3–4.12 | `pyprobml` + `requirements-local.txt` + pre-downloaded datasets | **28** | **0** |
 | Local, fresh env (no Anaconda base) | `pyprobml-fresh` (Python 3.10.22) + `requirements-local.txt` with 4.14/4.15 | **28** | **0** |
