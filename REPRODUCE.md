@@ -2,12 +2,12 @@
 
 This repository reproduces the [pyprobml Book 1 figure dashboard](https://github.com/probml/pyprobml/blob/workflow_testing_indicator/dashboard_figures_book1.md)
 for **all 22 chapters of Book 1**: 245 dashboard rows, the same header as the original
-(245 notebooks; 43 latexified and 51 jaxified, see 4.18). Of these rows:
+(245 notebooks; 44 latexified and 52 jaxified, see 4.18, 4.44). Of these rows:
 
 - **172 notebooks are executed**;
 - 8 rows (6 notebooks) are on upstream's `internal/ignored_notebooks.txt`; like upstream, they are
   not executed and the dashboard shows "skipped (upstream ignore list)";
-- 10 rows (9 notebooks) point to notebooks that do not exist upstream; the dashboard shows
+- 9 rows (8 notebooks) point to notebooks that do not exist upstream; the dashboard shows
   "notebook missing upstream" (4.18).
 
 The dashboard can be built two ways:
@@ -348,12 +348,13 @@ environment; 4.11–4.12 are datasets; 4.13 is CI; 4.14–4.15 appeared only in 
 - **Symptom:** `File not found: notebooks/book1/21/gmm_2d.ipynb` while building the dashboard.
 - **Cause:** `internal/figures_url_mapping_book1_excluded_dummy_nb.csv` upstream lists some
   notebooks in the wrong chapter folder (e.g. `21/gmm_2d` is really `03/gmm_2d`), and some that
-  do not exist anywhere (e.g. `bootstrapDemoBer`, five chapter 17 GP notebooks). On the original
+  do not exist anywhere (e.g. five chapter 17 GP notebooks; `bootstrapDemoBer` was renamed, 4.44). On the original
   dashboard these rows link to status icons that can never exist.
 - **Fix:** `scripts/sync_from_pyprobml.py` re-points a url when exactly one Book 1 notebook has that
   file name, and prints each change (10 urls). The other 9 notebooks are not executed and the
   dashboard shows "notebook missing upstream". Because the dashboard can now read the moved
-  notebooks, its header says 43 latexified / 51 jaxified instead of upstream's 36 / 47.
+  notebooks, its header says 43 latexified / 51 jaxified instead of upstream's 36 / 47 (44 / 52
+  with 4.44).
 
 ### 4.19 Chapters 3–22 need 15 more libraries, which notebooks would pip-install mid-run
 - **Cause:** same mechanism as 4.3: pymc3, numpyro, statsmodels, catboost, GPy, pytorch-lightning,
@@ -771,6 +772,17 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
   run numbers are kept as plain text.
 - Upstream notebook outputs contain the upstream authors' paths (e.g. `C:\Users\<author>\.pyenv`,
   `/Users/kpmurphy/...`); they are left as published upstream.
+
+### 4.44 Figure 4.23: `bootstrapDemoBer` was renamed upstream
+- **Symptom:** the dashboard shows "notebook missing upstream" for Figure 4.23
+  (`book1/04/bootstrapDemoBer.ipynb`), as upstream's does.
+- **Cause:** pyprobml commit `d5193aa` (2023-01-20, "Latexify bootstrap demo") replaced
+  `bootstrapDemoBer.ipynb` with `bootstrap_demo_bernoulli.ipynb` in the same folder, but the upstream
+  mapping still uses the old name; the file-name match of 4.18 cannot find it.
+- **Fix:** `scripts/sync_from_pyprobml.py` `RENAMED` maps the old path to the new one;
+  Figure 4.23 in `internal/figures_url_mapping_book1.csv` now points to
+  `book1/04/bootstrap_demo_bernoulli.ipynb`, which passes in 8 s. It is latexified and jaxified, so the
+  dashboard header becomes 44 / 52.
 
 ## 5. Results
 

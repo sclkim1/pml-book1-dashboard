@@ -141,6 +141,13 @@ LOCAL_COPIES = {
     "notebooks/book1/10/iris_logreg.ipynb": ("notebooks/book1/02/iris_logreg.ipynb", ["10.1"]),
 }
 
+# Notebooks renamed upstream whose old name the upstream mapping still uses: {old path: new path}
+# (REPRODUCE.md 4.44)
+RENAMED = {
+    # pyprobml d5193aa (2023-01-20, "Latexify bootstrap demo"); Figure 4.23
+    "notebooks/book1/04/bootstrapDemoBer.ipynb": "notebooks/book1/04/bootstrap_demo_bernoulli.ipynb",
+}
+
 UPSTREAM = "probml/pyprobml"
 BRANCH = "master"
 RAW = f"https://raw.githubusercontent.com/{UPSTREAM}/{BRANCH}"
@@ -182,6 +189,9 @@ def fix_url(url):
     path = "notebooks/" + "/".join(url.split("/")[-3:])
     if path in book1_notebooks:
         return url
+    if RENAMED.get(path) in book1_notebooks:
+        print(f"fixed mapping (renamed): {path} -> {RENAMED[path]}")
+        return url.replace(path, RENAMED[path])
     candidates = [p for p in book1_notebooks if p.split("/")[-1] == path.split("/")[-1]]
     if len(candidates) != 1:
         print(f"WARNING: {path} not found upstream; left as is")
