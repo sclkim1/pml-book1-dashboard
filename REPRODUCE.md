@@ -847,6 +847,19 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
 - 98 notebooks changed. Of the links that now go to GitHub, one is dead as it was on Colab:
   `book1/supplements/opt.ipynb` was deleted upstream and has no current copy.
 
+### 4.50 `pcaEmStepByStep`: EM stops after 2 iterations
+- **Symptom:** the notebook passes, but draws only E/M steps 0 and 1; the objective printed for
+  both iterations is the same (`0.7570470416140463 0.7570470416140467`), so a tighter tolerance
+  does not help.
+- **Cause:** a misplaced bracket in the objective,
+  `-np.mean((np.ravel(Xrecon) - np.ravel(X) ** 2))`, which squares `X` instead of the residual.
+  `X` is centred and `Xrecon` is a linear projection of it, so the value is about `mean(X**2)`
+  whatever `W` is, and `convergence_test` stops at the second iteration.
+- **Fix (notebook edit, `LOCAL_EDITS`):** `-np.mean((np.ravel(Xrecon) - np.ravel(X)) ** 2)`.
+  EM now runs 5 iterations (10 figures) with the original `1e-2` tolerance: −MSE goes
+  −0.557, −0.192, −0.119, −0.1159, −0.11584 (rank-1 PCA optimum −0.11583), and `W` ends 0.03°
+  from the first principal component (22° at the start).
+
 ## 5. Results
 
 ### 5.1 All of Book 1

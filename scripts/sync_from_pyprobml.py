@@ -72,6 +72,8 @@ LOCAL_EDITS = {
     "notebooks/book1/13/mlp_cifar_pytorch.ipynb",
     # Book 2 copy (OTHER_BOOK): x_test shape for tinygp 0.2.4 (REPRODUCE.md 4.45)
     "notebooks/book1/17/gpr_demo_noise_free.ipynb",
+    # MSE bracket: EM stopped after 2 iterations (REPRODUCE.md 4.50)
+    "notebooks/book1/20/pcaEmStepByStep.ipynb",
 }
 
 # Notebooks upstream ignores that run here (flax pinned, REPRODUCE.md 4.29): dropped from the list
