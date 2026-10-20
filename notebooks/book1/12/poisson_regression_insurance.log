@@ -1,0 +1,68 @@
+An error occurred while executing the following cell:
+------------------
+from sklearn.datasets import fetch_openml
+
+
+df = fetch_openml(data_id=41214, as_frame=True).frame
+df
+------------------
+
+---------------------------------------------------------------------------
+OpenMLError                               Traceback (most recent call last)
+Cell In[3], line 4
+      1 from sklearn.datasets import fetch_openml
+----> 4 df = fetch_openml(data_id=41214, as_frame=True).frame
+      5 df
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/sklearn/utils/_param_validation.py:214, in validate_params.<locals>.decorator.<locals>.wrapper(*args, **kwargs)
+    208 try:
+    209     with config_context(
+    210         skip_parameter_validation=(
+    211             prefer_skip_nested_validation or global_skip_validation
+    212         )
+    213     ):
+--> 214         return func(*args, **kwargs)
+    215 except InvalidParameterError as e:
+    216     # When the function is just a wrapper around an estimator, we allow
+    217     # the function to delegate validation to the estimator, but we replace
+    218     # the name of the estimator by the name of the function in the error
+    219     # message to avoid confusion.
+    220     msg = re.sub(
+    221         r"parameter of \w+ must be",
+    222         f"parameter of {func.__qualname__} must be",
+    223         str(e),
+    224     )
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/sklearn/datasets/_openml.py:997, in fetch_openml(name, version, data_id, data_home, target_column, cache, return_X_y, as_frame, n_retries, delay, parser, read_csv_kwargs)
+    992 else:
+    993     raise ValueError(
+    994         "Neither name nor data_id are provided. Please provide name or data_id."
+    995     )
+--> 997 data_description = _get_data_description_by_id(data_id, data_home)
+    998 if data_description["status"] != "active":
+    999     warn(
+   1000         "Version {} of dataset {} is inactive, meaning that issues have "
+   1001         "been found in the dataset. Try using a newer version from "
+   (...)
+   1006         )
+   1007     )
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/sklearn/datasets/_openml.py:356, in _get_data_description_by_id(data_id, data_home, n_retries, delay)
+    354 url = _DATA_INFO.format(data_id)
+    355 error_message = "Dataset with data_id {} not found.".format(data_id)
+--> 356 json_data = _get_json_content_from_openml_api(
+    357     url,
+    358     error_message,
+    359     data_home=data_home,
+    360     n_retries=n_retries,
+    361     delay=delay,
+    362 )
+    363 return json_data["data_set_description"]
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/sklearn/datasets/_openml.py:254, in _get_json_content_from_openml_api(url, error_message, data_home, n_retries, delay)
+    251         raise error
+    253 # 412 error, not in except for nicer traceback
+--> 254 raise OpenMLError(error_message)
+
+OpenMLError: Dataset with data_id 41214 not found.
+OpenMLError: Dataset with data_id 41214 not found.

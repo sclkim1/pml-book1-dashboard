@@ -1,0 +1,201 @@
+An error occurred while executing the following cell:
+------------------
+
+
+# feature importance using random forests  on ,mnist
+# Based on https://github.com/ageron/handson-ml2/blob/master/06_decision_trees.ipynb
+
+import jax.numpy as jnp
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+
+try:
+    from sklearn.datasets import fetch_openml
+except ModuleNotFoundError:
+    %pip install -qq scikit-learn
+    from sklearn.datasets import fetch_openml
+from sklearn.ensemble import RandomForestClassifier
+
+mnist = fetch_openml('mnist_784', version=1)
+mnist.target = mnist.target.astype(jnp.uint8)
+X= mnist["data"]
+y = mnist["target"]
+y = jnp.array(y)
+
+def plot_digit(data):
+    image = data.reshape(28, 28)
+    plt.figure()
+    plt.imshow(image, cmap = mpl.cm.hot,
+               interpolation="nearest")
+    plt.axis("off")
+    
+
+    
+rnd_clf = RandomForestClassifier(n_estimators=100, random_state=42)
+ndxA = jnp.where(y==0)[0]
+ndxB = jnp.where(y==8)[0]
+ndx = jnp.concatenate((ndxA, ndxB))
+Xc = X.loc[ndx,:]
+yc = y[ndx]
+rnd_clf.fit(Xc, yc)
+
+plot_digit(rnd_clf.feature_importances_)
+cbar = plt.colorbar(ticks=[rnd_clf.feature_importances_.min(), rnd_clf.feature_importances_.max()])
+cbar.ax.set_yticklabels(['Not important', 'Very important'])
+plt.savefig("figures/rf_feature_importance_mnist.pdf", dpi=300)
+#plt.savefig("figures/rf_feature_importance_mnist_class{}.pdf".format(c), dpi=300)
+plt.show()
+
+
+------------------
+
+---------------------------------------------------------------------------
+JSONDecodeError                           Traceback (most recent call last)
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/sklearn/datasets/_openml.py:67, in _retry_with_clean_cache.<locals>.decorator.<locals>.wrapper(*args, **kw)
+     66 try:
+---> 67     return f(*args, **kw)
+     68 except URLError:
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/sklearn/datasets/_openml.py:243, in _get_json_content_from_openml_api.<locals>._load_json()
+    240 with closing(
+    241     _open_openml_url(url, data_home, n_retries=n_retries, delay=delay)
+    242 ) as response:
+--> 243     return json.loads(response.read().decode("utf-8"))
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/json/__init__.py:346, in loads(s, cls, object_hook, parse_float, parse_int, parse_constant, object_pairs_hook, **kw)
+    343 if (cls is None and object_hook is None and
+    344         parse_int is None and parse_float is None and
+    345         parse_constant is None and object_pairs_hook is None and not kw):
+--> 346     return _default_decoder.decode(s)
+    347 if cls is None:
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/json/decoder.py:337, in JSONDecoder.decode(self, s, _w)
+    333 """Return the Python representation of ``s`` (a ``str`` instance
+    334 containing a JSON document).
+    335 
+    336 """
+--> 337 obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+    338 end = _w(s, end).end()
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/json/decoder.py:353, in JSONDecoder.raw_decode(self, s, idx)
+    352 try:
+--> 353     obj, end = self.scan_once(s, idx)
+    354 except StopIteration as err:
+
+JSONDecodeError: Invalid control character at: line 7 column 20 (char 137)
+
+During handling of the above exception, another exception occurred:
+
+JSONDecodeError                           Traceback (most recent call last)
+Cell In[1], line 15
+     12     from sklearn.datasets import fetch_openml
+     13 from sklearn.ensemble import RandomForestClassifier
+---> 15 mnist = fetch_openml('mnist_784', version=1)
+     16 mnist.target = mnist.target.astype(jnp.uint8)
+     17 X= mnist["data"]
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/sklearn/utils/_param_validation.py:214, in validate_params.<locals>.decorator.<locals>.wrapper(*args, **kwargs)
+    208 try:
+    209     with config_context(
+    210         skip_parameter_validation=(
+    211             prefer_skip_nested_validation or global_skip_validation
+    212         )
+    213     ):
+--> 214         return func(*args, **kwargs)
+    215 except InvalidParameterError as e:
+    216     # When the function is just a wrapper around an estimator, we allow
+    217     # the function to delegate validation to the estimator, but we replace
+    218     # the name of the estimator by the name of the function in the error
+    219     # message to avoid confusion.
+    220     msg = re.sub(
+    221         r"parameter of \w+ must be",
+    222         f"parameter of {func.__qualname__} must be",
+    223         str(e),
+    224     )
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/sklearn/datasets/_openml.py:980, in fetch_openml(name, version, data_id, data_home, target_column, cache, return_X_y, as_frame, n_retries, delay, parser, read_csv_kwargs)
+    974     if data_id is not None:
+    975         raise ValueError(
+    976             "Dataset data_id={} and name={} passed, but you can only "
+    977             "specify a numeric data_id or a name, not "
+    978             "both.".format(data_id, name)
+    979         )
+--> 980     data_info = _get_data_info_by_name(
+    981         name, version, data_home, n_retries=n_retries, delay=delay
+    982     )
+    983     data_id = data_info["did"]
+    984 elif data_id is not None:
+    985     # from the previous if statement, it is given that name is None
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/sklearn/datasets/_openml.py:322, in _get_data_info_by_name(name, version, data_home, n_retries, delay)
+    320 url = (_SEARCH_NAME + "/data_version/{}").format(name, version)
+    321 try:
+--> 322     json_data = _get_json_content_from_openml_api(
+    323         url,
+    324         error_message=None,
+    325         data_home=data_home,
+    326         n_retries=n_retries,
+    327         delay=delay,
+    328     )
+    329 except OpenMLError:
+    330     # we can do this in 1 function call if OpenML does not require the
+    331     # specification of the dataset status (i.e., return datasets with a
+    332     # given name / version regardless of active, deactivated, etc. )
+    333     # TODO: feature request OpenML.
+    334     url += "/status/deactivated"
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/sklearn/datasets/_openml.py:246, in _get_json_content_from_openml_api(url, error_message, data_home, n_retries, delay)
+    243         return json.loads(response.read().decode("utf-8"))
+    245 try:
+--> 246     return _load_json()
+    247 except HTTPError as error:
+    248     # 412 is an OpenML specific error code, indicating a generic error
+    249     # (e.g., data not found)
+    250     if error.code != 412:
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/sklearn/datasets/_openml.py:79, in _retry_with_clean_cache.<locals>.decorator.<locals>.wrapper(*args, **kw)
+     77 if os.path.exists(local_path):
+     78     os.unlink(local_path)
+---> 79 return f(*args, **kw)
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/site-packages/sklearn/datasets/_openml.py:243, in _get_json_content_from_openml_api.<locals>._load_json()
+    238 @_retry_with_clean_cache(url, data_home=data_home)
+    239 def _load_json():
+    240     with closing(
+    241         _open_openml_url(url, data_home, n_retries=n_retries, delay=delay)
+    242     ) as response:
+--> 243         return json.loads(response.read().decode("utf-8"))
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/json/__init__.py:346, in loads(s, cls, object_hook, parse_float, parse_int, parse_constant, object_pairs_hook, **kw)
+    341     s = s.decode(detect_encoding(s), 'surrogatepass')
+    343 if (cls is None and object_hook is None and
+    344         parse_int is None and parse_float is None and
+    345         parse_constant is None and object_pairs_hook is None and not kw):
+--> 346     return _default_decoder.decode(s)
+    347 if cls is None:
+    348     cls = JSONDecoder
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/json/decoder.py:337, in JSONDecoder.decode(self, s, _w)
+    332 def decode(self, s, _w=WHITESPACE.match):
+    333     """Return the Python representation of ``s`` (a ``str`` instance
+    334     containing a JSON document).
+    335 
+    336     """
+--> 337     obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+    338     end = _w(s, end).end()
+    339     if end != len(s):
+
+File /opt/hostedtoolcache/Python/3.10.12/x64/lib/python3.10/json/decoder.py:353, in JSONDecoder.raw_decode(self, s, idx)
+    344 """Decode a JSON document from ``s`` (a ``str`` beginning with
+    345 a JSON document) and return a 2-tuple of the Python
+    346 representation and the index in ``s`` where the document ended.
+   (...)
+    350 
+    351 """
+    352 try:
+--> 353     obj, end = self.scan_once(s, idx)
+    354 except StopIteration as err:
+    355     raise JSONDecodeError("Expecting value", s, err.value) from None
+
+JSONDecodeError: Invalid control character at: line 7 column 20 (char 137)
+JSONDecodeError: Invalid control character at: line 7 column 20 (char 137)
