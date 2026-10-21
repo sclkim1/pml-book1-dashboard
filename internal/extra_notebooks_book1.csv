@@ -2,3 +2,4 @@ chap,notebook,description
 20,fa_em_demo.ipynb,"Factor analysis and PPCA fitted with EM, checked against sklearn and the PPCA closed form"
 20,pcaImageEmDemo.ipynb,"EM for PCA on the Olivetti faces of pcaImageDemo (figure 20.3), checked against sklearn PCA"
 20,bayesianPcaDemo.ipynb,"Bayesian PCA with an ARD prior: switches off unneeded components to choose the latent dimension"
+21,biclustering_irm.ipynb,"Recreates figure 21.20 (biclustering of animals and features, Kemp et al. 2006) with an infinite relational model fitted by Gibbs sampling"
