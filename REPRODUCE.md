@@ -860,6 +860,20 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
   −0.557, −0.192, −0.119, −0.1159, −0.11584 (rank-1 PCA optimum −0.11583), and `W` ends 0.03°
   from the first principal component (22° at the start).
 
+### 4.51 Additional notebooks (not upstream, no book figure)
+- **What:** three chapter 20 notebooks written for this repository: `fa_em_demo` (factor analysis and
+  PPCA fitted with EM), `pcaImageEmDemo` (EM for PCA on the faces of `pcaImageDemo`) and
+  `bayesianPcaDemo` (Bayesian PCA with an ARD prior).
+- **Listed in `internal/extra_notebooks_book1.csv`** (`chap,notebook,description`), not in the figure
+  mapping: `scripts/sync_from_pyprobml.py` rewrites `figures_url_mapping_book1.csv` from upstream, and
+  the 245 figure rows stay as upstream's. The sync does not touch the new list or these notebooks.
+- `tests/test_notebooks.py` executes them after the mapped notebooks, and
+  `scripts/create_figure_dashboard.py` shows them in an "Additional notebooks" section at the end of
+  the dashboard (with `--local` too), with the same ✅/❌ icon, log, latexify and jaxify columns. They
+  are not in the dashboard's notebook counts, which stay comparable with upstream's.
+- To add a notebook: put it in `notebooks/book1/<chap>/` and add a row to the csv.
+- All three pass in `pyprobml-fresh` through `tests/test_notebooks.py` (about 30 s together).
+
 ## 5. Results
 
 ### 5.1 All of Book 1

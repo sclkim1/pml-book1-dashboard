@@ -1,0 +1,4 @@
+chap,notebook,description
+20,fa_em_demo.ipynb,"Factor analysis and PPCA fitted with EM, checked against sklearn and the PPCA closed form"
+20,pcaImageEmDemo.ipynb,"EM for PCA on the Olivetti faces of pcaImageDemo (figure 20.3), checked against sklearn PCA"
+20,bayesianPcaDemo.ipynb,"Bayesian PCA with an ARD prior: switches off unneeded components to choose the latent dimension"

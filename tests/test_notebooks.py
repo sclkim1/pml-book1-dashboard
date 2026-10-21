@@ -40,6 +40,17 @@ def notebooks_from_mapping(csv_name):
     return paths
 
 
+def notebooks_from_extra(csv_name="internal/extra_notebooks_book1.csv"):
+    """
+    notebooks/book1/<chap>/<nb_name>.ipynb for the notebooks this repository adds (no book figure,
+    not in the upstream mapping; REPRODUCE.md 4.51)
+    """
+    if not os.path.exists(csv_name):
+        return []
+    with open(csv_name, encoding="utf-8") as fp:
+        return [f"notebooks/book1/{int(row['chap']):02d}/{row['notebook']}" for row in csv.DictReader(fp)]
+
+
 def ignored_names(txt_name="internal/ignored_notebooks.txt"):
     """
     file names of notebooks upstream does not execute (matched by name only, like upstream)
@@ -55,6 +66,7 @@ IGNORED = ignored_names()
 notebooks = [
     nb for nb in notebooks_from_mapping(MAPPING_CSV) if nb.split("/")[-1] not in IGNORED and os.path.exists(nb)
 ]
+notebooks += [nb for nb in notebooks_from_extra() if nb not in notebooks]
 
 
 # To make error messages human readable

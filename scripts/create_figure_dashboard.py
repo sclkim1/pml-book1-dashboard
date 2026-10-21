@@ -140,6 +140,32 @@ for chap_no, urls_list in chap_urls_mapping.items():
         md_content += base_str + pd.DataFrame(notebooks).to_markdown(index=None, disable_numparse=True) + "\n</details>\n\n"
         total_cnt += len(notebooks)
 
+# Notebooks this repository adds (no book figure, so not in the upstream mapping or the counts above;
+# executed by tests/test_notebooks.py like the others, REPRODUCE.md 4.51)
+extra_csv = f"internal/extra_notebooks_book{book_no}.csv"
+if os.path.exists(extra_csv):
+    extra = []
+    for row in pd.read_csv(extra_csv, dtype=str).itertuples():
+        path = f"notebooks/book{book_no}/{int(row.chap):02d}/{row.notebook}"
+        extra.append(
+            {
+                "nb_name": f"[{row.notebook}]({nb_link(path)})" if os.path.exists(path) else row.notebook,
+                "chapter": row.chap,
+                "description": row.description,
+                "workflow": get_run(path) if os.path.exists(path) else "notebook missing",
+                "latexify": right_emoji if check_fun_to_notebook(path, check_latexify) else wrong_emoji,
+                "jaxify": right_emoji if check_fun_to_notebook(path, check_jaxify) else wrong_emoji,
+            }
+        )
+    if extra:
+        md_content += (
+            f"## Additional notebooks\n\n{len(extra)} notebooks added in this repository (not upstream, no book figure),"
+            " listed in `internal/extra_notebooks_book1.csv` and executed like the others.\n\n"
+            + pd.DataFrame(extra).to_markdown(index=None, disable_numparse=True)
+            + "\n\n"
+        )
+        print(f"{len(extra)} additional notebooks")
+
 headline = f"## Instructions\n\n* Notebooks are copied from [probml/pyprobml](https://github.com/probml/pyprobml) with `scripts/sync_from_pyprobml.py`. See the [repository]({repo_root}) for details.\n"
 if args.local:
     headline += (

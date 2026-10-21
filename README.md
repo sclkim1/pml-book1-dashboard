@@ -13,12 +13,13 @@ here on GitHub, not in Colab, and the ✅/❌ icons and logs come from this repo
 | Rows "skipped (upstream ignore list)" | 8 | 0 ([REPRODUCE.md](REPRODUCE.md) 4.46) |
 | Rows "notebook missing upstream" | 10 | 0 (renamed or moved notebooks remapped, [REPRODUCE.md](REPRODUCE.md) 4.44, 4.45) |
 | Passing | 165 | 174 of 177 in the last full CI run (details in [REPRODUCE.md](REPRODUCE.md) 5.1) |
+| Additional notebooks (no book figure) | — | 3, in their own dashboard section ([REPRODUCE.md](REPRODUCE.md) 4.51) |
 
 ## How it works
 
 On every push to `main` (or a manual run from the Actions tab), `.github/workflows/dashboard.yml`:
 
-1. runs every notebook listed in `internal/figures_url_mapping_book1.csv` (`tests/test_notebooks.py`), saving a ✅/❌ icon and an error log for each one in `test_results/`;
+1. runs every notebook listed in `internal/figures_url_mapping_book1.csv` and `internal/extra_notebooks_book1.csv` (`tests/test_notebooks.py`), saving a ✅/❌ icon and an error log for each one in `test_results/`;
 2. builds `dashboard_figures_book1.md` (`scripts/create_figure_dashboard.py`);
 3. publishes both to the `workflow_testing_indicator` branch.
 
