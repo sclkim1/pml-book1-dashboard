@@ -13,7 +13,7 @@ here on GitHub, not in Colab, and the ✅/❌ icons and logs come from this repo
 | Rows "skipped (upstream ignore list)" | 8 | 0 ([REPRODUCE.md](REPRODUCE.md) 4.46) |
 | Rows "notebook missing upstream" | 10 | 0 (renamed or moved notebooks remapped, [REPRODUCE.md](REPRODUCE.md) 4.44, 4.45) |
 | Passing | 165 | 174 of 177 in the last full CI run (details in [REPRODUCE.md](REPRODUCE.md) 5.1) |
-| Additional notebooks (no book figure) | — | 3, in their own dashboard section ([REPRODUCE.md](REPRODUCE.md) 4.51) |
+| Additional notebooks (no book figure) | — | 3, in a second table in the Chapter 20 section ([REPRODUCE.md](REPRODUCE.md) 4.51) |
 
 ## How it works
 

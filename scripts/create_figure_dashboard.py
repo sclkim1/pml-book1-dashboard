@@ -112,6 +112,25 @@ jaxify_cnt = 0
 chap_urls_mapping = chap_to_urls_mapping(f"internal/figures_url_mapping_book{book_no}.csv")
 chap_no_chap_name_mapping = get_chap_mapping(f"internal/chapter_no_to_name_mapping_book{book_no}.csv")
 
+# Notebooks this repository adds (no book figure, so not in the upstream mapping or the counts;
+# executed by tests/test_notebooks.py like the others, REPRODUCE.md 4.51): {chap_no: [rows]}
+extra_csv = f"internal/extra_notebooks_book{book_no}.csv"
+extra_by_chap = {}
+if os.path.exists(extra_csv):
+    for row in pd.read_csv(extra_csv, dtype=str).itertuples():
+        path = f"notebooks/book{book_no}/{int(row.chap):02d}/{row.notebook}"
+        extra_by_chap.setdefault(str(int(row.chap)), []).append(
+            {
+                "nb_name": f"[{row.notebook}]({nb_link(path)})" if os.path.exists(path) else row.notebook,
+                "description": row.description,
+                "workflow": get_run(path) if os.path.exists(path) else "notebook missing",
+                "latexify": right_emoji if check_fun_to_notebook(path, check_latexify) else wrong_emoji,
+                "jaxify": right_emoji if check_fun_to_notebook(path, check_jaxify) else wrong_emoji,
+            }
+        )
+for chap_no in set(extra_by_chap) - set(chap_urls_mapping):
+    print(f"warning: {extra_csv} lists chapter {chap_no}, which has no dashboard section; not shown")
+
 md_content = ""
 for chap_no, urls_list in chap_urls_mapping.items():
     notebooks = []
@@ -137,34 +156,18 @@ for chap_no, urls_list in chap_urls_mapping.items():
             )
 
     if notebooks:
-        md_content += base_str + pd.DataFrame(notebooks).to_markdown(index=None, disable_numparse=True) + "\n</details>\n\n"
+        md_content += base_str + pd.DataFrame(notebooks).to_markdown(index=None, disable_numparse=True) + "\n"
         total_cnt += len(notebooks)
-
-# Notebooks this repository adds (no book figure, so not in the upstream mapping or the counts above;
-# executed by tests/test_notebooks.py like the others, REPRODUCE.md 4.51)
-extra_csv = f"internal/extra_notebooks_book{book_no}.csv"
-if os.path.exists(extra_csv):
-    extra = []
-    for row in pd.read_csv(extra_csv, dtype=str).itertuples():
-        path = f"notebooks/book{book_no}/{int(row.chap):02d}/{row.notebook}"
-        extra.append(
-            {
-                "nb_name": f"[{row.notebook}]({nb_link(path)})" if os.path.exists(path) else row.notebook,
-                "chapter": row.chap,
-                "description": row.description,
-                "workflow": get_run(path) if os.path.exists(path) else "notebook missing",
-                "latexify": right_emoji if check_fun_to_notebook(path, check_latexify) else wrong_emoji,
-                "jaxify": right_emoji if check_fun_to_notebook(path, check_jaxify) else wrong_emoji,
-            }
-        )
-    if extra:
-        md_content += (
-            f"## Additional notebooks\n\n{len(extra)} notebooks added in this repository (not upstream, no book figure),"
-            " listed in `internal/extra_notebooks_book1.csv` and executed like the others.\n\n"
-            + pd.DataFrame(extra).to_markdown(index=None, disable_numparse=True)
-            + "\n\n"
-        )
-        print(f"{len(extra)} additional notebooks")
+        # this chapter's additional notebooks: a second table, so the figure table stays as upstream's
+        if chap_no in extra_by_chap:
+            md_content += (
+                "\nAdditional notebooks (added in this repository, no book figure; listed in"
+                f" `{extra_csv}`):\n\n"
+                + pd.DataFrame(extra_by_chap[chap_no]).to_markdown(index=None, disable_numparse=True)
+                + "\n"
+            )
+            print(f"    + {len(extra_by_chap[chap_no])} additional notebooks")
+        md_content += "</details>\n\n"
 
 headline = f"## Instructions\n\n* Notebooks are copied from [probml/pyprobml](https://github.com/probml/pyprobml) with `scripts/sync_from_pyprobml.py`. See the [repository]({repo_root}) for details.\n"
 if args.local:

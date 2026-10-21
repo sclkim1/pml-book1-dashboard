@@ -868,9 +868,10 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
   mapping: `scripts/sync_from_pyprobml.py` rewrites `figures_url_mapping_book1.csv` from upstream, and
   the 245 figure rows stay as upstream's. The sync does not touch the new list or these notebooks.
 - `tests/test_notebooks.py` executes them after the mapped notebooks, and
-  `scripts/create_figure_dashboard.py` shows them in an "Additional notebooks" section at the end of
-  the dashboard (with `--local` too), with the same ✅/❌ icon, log, latexify and jaxify columns. They
-  are not in the dashboard's notebook counts, which stay comparable with upstream's.
+  `scripts/create_figure_dashboard.py` shows them in their chapter's section (with `--local` too), as
+  an "Additional notebooks" table under the figure table, with a description instead of a figure
+  number and the same ✅/❌ icon, log, latexify and jaxify columns. The figure tables and the
+  dashboard's notebook counts stay as upstream's.
 - To add a notebook: put it in `notebooks/book1/<chap>/` and add a row to the csv.
 - All three pass in `pyprobml-fresh` through `tests/test_notebooks.py` (about 30 s together).
 
