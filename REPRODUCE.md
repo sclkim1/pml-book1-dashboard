@@ -14,7 +14,7 @@ The dashboard can be built two ways:
 
 | | Where | Environment | Result |
 |---|---|---|---|
-| **A. GitHub Actions** | `ubuntu-latest` runner, on every push to `main` | `requirements-local.txt` (pinned) + TeX Live + pre-downloaded datasets | published to the [`workflow_testing_indicator`](../../tree/workflow_testing_indicator) branch |
+| **A. GitHub Actions** | `ubuntu-24.04` runner (4.52), on every push to `main` | `requirements-local.txt` (pinned) + TeX Live + pre-downloaded datasets | published to the [`workflow_testing_indicator`](../../tree/workflow_testing_indicator) branch |
 | **B. Local conda env** | Windows 11, conda env `pyprobml-fresh` | `requirements-local.txt` (pinned) + MiKTeX + tools from `scripts/windows_admin_setup.ps1` + pre-downloaded datasets | `test_results/` + `workflow_testing_indicator/dashboard_figures_book1.md` |
 
 Both use the same pinned package list (`requirements-local.txt`, despite the name) and the same
@@ -884,6 +884,15 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
   its numbers differ from the notebook's (FA 72 iterations, log-likelihood −3536.352 = sklearn; PPCA
   σ² 0.4360 = closed form; FA 532 higher). `.gitignore` keeps it as an exception to the
   notebooks-only rule; `tests/test_notebooks.py` does not run it.
+
+### 4.52 CI: `The version '3.10.12' with architecture 'x64' was not found for Ubuntu 26.04`
+- **Symptom:** from 2026-10-28 every run fails in about 12 s at "Set up Python 3.10.12", before
+  any notebook runs (runs 40616840482, 40641147746). The last good run was on 2026-10-21.
+- **Cause:** not a change in this repository. The workflow ran on `runs-on: ubuntu-latest` (from the
+  first commit, as upstream), and GitHub moved that label to Ubuntu 26.04. `actions/setup-python` has
+  no 3.10.12 build for 26.04 (only 3.10.20 and later), so the pinned Python cannot be installed.
+- **Fix (`.github/workflows/dashboard.yml`):** `runs-on: ubuntu-24.04`, the image the earlier runs
+  used. Python 3.10.12 and `requirements-local.txt` stay as they are.
 
 ## 5. Results
 

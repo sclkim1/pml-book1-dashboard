@@ -16,7 +16,8 @@ concurrency:
 
 jobs:
   execute_notebooks_and_publish_dashboard:
-    runs-on: ubuntu-latest
+    # pinned: ubuntu-latest moved to 26.04, which has no Python 3.10.12 build (REPRODUCE.md 4.52)
+    runs-on: ubuntu-24.04
     steps:
     - name: Clone the repository
       uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0
