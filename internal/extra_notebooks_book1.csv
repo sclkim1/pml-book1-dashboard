@@ -1,8 +1,8 @@
-chap,notebook,description
-20,fa_em_demo.ipynb,"Factor analysis and PPCA fitted with EM, checked against sklearn and the PPCA closed form"
-20,pcaImageEmDemo.ipynb,"EM for PCA on the Olivetti faces of pcaImageDemo (figure 20.3), checked against sklearn PCA"
-20,bayesianPcaDemo.ipynb,"Bayesian PCA with an ARD prior: switches off unneeded components to choose the latent dimension"
-20,image_manifold.ipynb,"Recreates figure 20.29 (the image manifold): a digit, a random image, and the 360 rotations of the digit on a circle in PCA space"
-21,biclustering_irm.ipynb,"Recreates figure 21.20 (biclustering of animals and features, Kemp et al. 2006) with an infinite relational model fitted by Gibbs sampling"
-21,multiclustering_schematic.ipynb,"Redraws figure 21.21 (biclustering vs multi-clustering schematic) and lists the row partition of each column group"
-21,crosscat_animals.ipynb,"Figure 21.22 method (CrossCat, Shafto et al. 2006) on the animal data of figure 21.20: features split into views, each with its own clustering of the animals"
+chap,notebook,description,script
+20,fa_em_demo.ipynb,"Factor analysis and PPCA fitted with EM, checked against sklearn and the PPCA closed form",fa_em.py
+20,pcaImageEmDemo.ipynb,"EM for PCA on the Olivetti faces of pcaImageDemo (figure 20.3), checked against sklearn PCA",
+20,bayesianPcaDemo.ipynb,"Bayesian PCA with an ARD prior: switches off unneeded components to choose the latent dimension",
+20,image_manifold.ipynb,"Recreates figure 20.29 (the image manifold): a digit, a random image, and the 360 rotations of the digit on a circle in PCA space",
+21,biclustering_irm.ipynb,"Recreates figure 21.20 (biclustering of animals and features, Kemp et al. 2006) with an infinite relational model fitted by Gibbs sampling",
+21,multiclustering_schematic.ipynb,"Redraws figure 21.21 (biclustering vs multi-clustering schematic) and lists the row partition of each column group",
+21,crosscat_animals.ipynb,"Figure 21.22 method (CrossCat, Shafto et al. 2006) on the animal data of figure 21.20: features split into views, each with its own clustering of the animals",

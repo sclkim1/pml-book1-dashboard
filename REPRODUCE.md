@@ -872,7 +872,9 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
   an "Additional notebooks" table under the figure table, with a description instead of a figure
   number and the same ✅/❌ icon, log, latexify and jaxify columns. The figure tables and the
   dashboard's notebook counts stay as upstream's.
-- To add a notebook: put it in `notebooks/book1/<chap>/` and add a row to the csv.
+- To add a notebook: put it in `notebooks/book1/<chap>/` and add a row to the csv. The optional
+  `script` column names a standalone `.py` version in the same folder; the dashboard links it after the
+  notebook name (`fa_em_demo.ipynb (fa_em.py)`).
 - All three pass in `pyprobml-fresh` through `tests/test_notebooks.py` (about 30 s together).
 - `notebooks/book1/20/fa_em.py` is a standalone reference implementation of `fa_em_demo` (NumPy only;
   scikit-learn for one check if installed): `make_data`, `e_step`, `m_step`, `loglik`, `fa_em` (FA, or

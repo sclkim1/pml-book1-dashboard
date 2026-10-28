@@ -117,11 +117,17 @@ chap_no_chap_name_mapping = get_chap_mapping(f"internal/chapter_no_to_name_mappi
 extra_csv = f"internal/extra_notebooks_book{book_no}.csv"
 extra_by_chap = {}
 if os.path.exists(extra_csv):
-    for row in pd.read_csv(extra_csv, dtype=str).itertuples():
+    for row in pd.read_csv(extra_csv, dtype=str, keep_default_na=False).itertuples():
         path = f"notebooks/book{book_no}/{int(row.chap):02d}/{row.notebook}"
+        nb_name = f"[{row.notebook}]({nb_link(path)})" if os.path.exists(path) else row.notebook
+        # optional `script` column: a standalone .py version next to the notebook, linked after it
+        script = getattr(row, "script", "")
+        script_path = f"{os.path.dirname(path)}/{script}"
+        if script and os.path.exists(script_path):
+            nb_name += f" ([{script}]({nb_link(script_path)}))"
         extra_by_chap.setdefault(str(int(row.chap)), []).append(
             {
-                "nb_name": f"[{row.notebook}]({nb_link(path)})" if os.path.exists(path) else row.notebook,
+                "nb_name": nb_name,
                 "description": row.description,
                 "workflow": get_run(path) if os.path.exists(path) else "notebook missing",
                 "latexify": right_emoji if check_fun_to_notebook(path, check_latexify) else wrong_emoji,
