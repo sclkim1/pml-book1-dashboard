@@ -19,6 +19,8 @@
 /notebooks/**
 !/notebooks/**/
 !/notebooks/**/*.ipynb
+# ...and the standalone reference implementation of fa_em_demo (REPRODUCE.md 4.51)
+!/notebooks/book1/20/fa_em.py
 # ...and the empty figures/ folders they save into (see JUPYTER.md section 1)
 !/notebooks/**/figures/.gitkeep
 # the dashboard for JupyterLab (scripts/create_figure_dashboard.py --local, JUPYTER.md section 3)

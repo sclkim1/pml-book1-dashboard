@@ -874,6 +874,14 @@ Neither notebook is run by the dashboard (not in the figure mapping); found in J
   dashboard's notebook counts stay as upstream's.
 - To add a notebook: put it in `notebooks/book1/<chap>/` and add a row to the csv.
 - All three pass in `pyprobml-fresh` through `tests/test_notebooks.py` (about 30 s together).
+- `notebooks/book1/20/fa_em.py` is a standalone reference implementation of `fa_em_demo` (NumPy only;
+  scikit-learn for one check if installed): `make_data`, `e_step`, `m_step`, `loglik`, `fa_em` (FA, or
+  PPCA with `isotropic=True`) and `ppca_closed_form`, importable from the folder. `python fa_em.py
+  [--N --L --seed --plot]` fits both models, checks FA against sklearn and PPCA against the closed form,
+  and prints the per-dimension noise variances side by side. It draws its data with `default_rng`, so
+  its numbers differ from the notebook's (FA 72 iterations, log-likelihood −3536.352 = sklearn; PPCA
+  σ² 0.4360 = closed form; FA 532 higher). `.gitignore` keeps it as an exception to the
+  notebooks-only rule; `tests/test_notebooks.py` does not run it.
 
 ## 5. Results
 
